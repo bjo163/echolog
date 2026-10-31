@@ -1,0 +1,17 @@
+node_modules/
+dist/
+dist-test/
+*.tsbuildinfo
+data/
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.*
+!.env.example
+*.log
+.tmp/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
