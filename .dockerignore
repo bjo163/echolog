@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-test
+data
+.git
+.gitignore
+.github
+.env
+.env.*
+!.env.example
+*.log
+*.tsbuildinfo
+.tmp
+README.md
+Dockerfile
+.dockerignore

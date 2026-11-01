@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install (lockfile is the whole truth)
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+      - name: Test
+        run: pnpm test
+
+  image:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the service image
+        run: docker build -t echolog-ci .
+      - name: Boot it and check the readiness probe
+        run: |
+          # The image runs with NODE_ENV=production, which requires a grant
+          # secret and one bucket with its credential pair.
+          docker run -d --name echolog-ci -p 3006:3006 \
+            -e ECHOLOG_GRANT_SECRET=ci-grant-secret-000000000000000000000000001 \
+            -e ECHOLOG_S3_BUCKET=ci-bucket \
+            -e ECHOLOG_S3_ACCESS_KEY_ID=ciaccesskeyid \
+            -e ECHOLOG_S3_SECRET_ACCESS_KEY=cisecretaccesskey000000000000 \
+            -e ECHOLOG_ADMIN_LOGIN=ci-admin \
+            -e ECHOLOG_ADMIN_PASSWORD=ci-only-password-1234 \
+            echolog-ci
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:3006/health/ready; then exit 0; fi
+            sleep 3
+          done
+          docker logs echolog-ci
+          exit 1

@@ -10,7 +10,7 @@ import type { HttpRequest } from '@smithy/types'
 import { test, type TestContext } from 'node:test'
 import { sha256Hex } from '../src/core/index.js'
 import { FsStorageDriver } from '../src/core/index.js'
-import { createUser, issueApiKey, openDatabase, type EchologDatabase } from '../src/db.js'
+import { closeDatabase, createUser, issueApiKey, openDatabase, type EchologDatabase } from '../src/db.js'
 import { parseConfig } from '../src/config.js'
 import { createEchologServer } from '../src/server.js'
 import { FsS3KeyStore } from '../src/modules/s3/store.js'
@@ -65,9 +65,10 @@ async function setup(t: TestContext) {
   t.after(async () => {
     client.destroy()
     await app.close()
+    closeDatabase(identity.database)
     await rm(root, { recursive: true, force: true })
   })
-  return { app, client, endpoint, root }
+  return { app, client, endpoint, root, identity }
 }
 
 void test('ECHOLOG serves path-style single-bucket S3 operations through the AWS SDK', async (t) => {
@@ -105,7 +106,7 @@ void test('ECHOLOG serves path-style single-bucket S3 operations through the AWS
 })
 
 void test('private witness markers hide every S3 alias and keep the object through GC', async (t) => {
-  const { app, client, root } = await setup(t)
+  const { app, client, root, identity } = await setup(t)
   const key = `private/${globalThis.crypto.randomUUID()}.bin`
   const payload = Buffer.from('synthetic private witness bytes')
   await client.send(new PutObjectCommand({

@@ -7,7 +7,7 @@ import { DeleteObjectCommand, GetObjectCommand, HeadBucketCommand, HeadObjectCom
 import { md5Hex, sha256Hex, type ObjectSidecar } from '../src/core/index.js'
 import { parseConfig } from '../src/config.js'
 import { createEchologServer } from '../src/server.js'
-import { createUser, issueApiKey, openDatabase } from '../src/db.js'
+import { closeDatabase, createUser, issueApiKey, openDatabase } from '../src/db.js'
 
 const GRANT_SECRET = 'echolog-e2e-grant-secret-0000000000000000001'
 const BUCKET = 'echolog-e2e-bucket'
@@ -33,7 +33,17 @@ interface GcBody {
  */
 void test('M39-12 round trip: REST and S3 share one storage, hold refuses delete on both surfaces, restart leaves every object intact', async (t) => {
   const root = await mkdtemp(join(tmpdir(), 'echolog-e2e-roundtrip-'))
-  t.after(() => rm(root, { recursive: true, force: true }))
+  t.after(async () => {
+    // Teardown hooks run in registration order, so this first hook must release
+    // the SQLite file handle before removing the volume: an open WAL file makes
+    // rm fail on Windows, and a failing hook skips every hook after it.
+    try {
+      closeDatabase(database)
+    } catch {
+      // The database was never opened, so there is no handle to release.
+    }
+    await rm(root, { recursive: true, force: true })
+  })
   const config = parseConfig({
     NODE_ENV: 'test',
     ECHOLOG_STORAGE_ROOT: root,
