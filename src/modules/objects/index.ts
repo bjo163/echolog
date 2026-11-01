@@ -1,9 +1,10 @@
 import { FsStorageDriver, ObjectHeldError, QuotaExceededError } from '../../core/index.js'
 import type { ObjectMetadataInput } from '../../core/index.js'
-import type { FastifyInstance, FastifyServerOptions } from 'fastify'
+import type { FastifyInstance, FastifyRequest, FastifyServerOptions } from 'fastify'
 import type { EchologConfig } from '../../config.js'
 import type { EchologDatabase } from '../../db.js'
-import { createEchologAuthenticator, isAdmin } from '../../auth.js'
+import type { EchologPrincipal } from '../../auth.js'
+import { createEchologAuthenticator, isAdmin, isPrivileged } from '../../auth.js'
 import { createDownloadGrant, verifyDownloadGrant } from '../../grants.js'
 import {
   contentDisposition,
@@ -34,6 +35,8 @@ export interface EchologServerOptions {
   logger?: FastifyServerOptions['logger']
   database: EchologDatabase
   now?: () => number
+  /** Injectable fetch so the Hub round trips are testable without a network. */
+  fetcher?: typeof fetch
 }
 
 export interface RegisteredObjectRoutes {
@@ -57,8 +60,29 @@ export function registerObjectRoutes(
   const objects = createObjectService(driver, (at) => s3Keys.collect(at))
   const authenticate = createEchologAuthenticator({
     database: options.database,
+    serviceKey: config.serviceKey,
+    arsyUrl: config.arsyUrl,
+    ...(options.fetcher ? { fetcher: options.fetcher } : {}),
     ...(options.now ? { now: options.now } : {}),
   })
+
+  /**
+   * Who may see a digest carrying the private-witness marker. A Hub subject (a
+   * bearer the Hub itself resolved) is always decided by the Hub — D06 owns the
+   * consent and ACL decision, and its answer is asked with that same bearer.
+   * Credentials of this instance keep this instance's own rule, so a local key
+   * is never sent to the Hub as if it were one of the Hub's sessions.
+   */
+  const privateWitnessReadable = async (
+    request: FastifyRequest,
+    digest: string,
+    principal: EchologPrincipal,
+  ): Promise<boolean> => {
+    if (config.arsyUrl && principal.kind === 'arsy') {
+      return authorizePrivateWitness(request, config, digest, options.fetcher)
+    }
+    return isAdmin(principal)
+  }
   const grantSecret = config.grantSigningSecret || generateEphemeralGrantSecret()
 
   app.post('/api/v1/objects', {
@@ -92,8 +116,8 @@ export function registerObjectRoutes(
     const retentionUntil = parseRetention(singleHeader(request.headers['x-echolog-retention-until']))
     const legalHold = headerFlag(singleHeader(request.headers['x-echolog-legal-hold']), 'x-echolog-legal-hold')
     const privateWitness = headerFlag(singleHeader(request.headers['x-echolog-private-witness']), 'x-echolog-private-witness')
-    if (legalHold && !isAdmin(auth.principal)) {
-      throw new HttpProblem(403, 'forbidden', 'Only an administrator may set legal hold.')
+    if (legalHold && !isPrivileged(auth.principal)) {
+      throw new HttpProblem(403, 'forbidden', 'Only a service or administrator may set legal hold.')
     }
     const metadata: ObjectMetadataInput = {
       filename,
@@ -134,7 +158,7 @@ export function registerObjectRoutes(
     const { digest } = request.params as { digest: string }
     const object = await objects.get(`sha256/${digest}`)
     if (!object) return reply.code(404).send({ error: { code: 'not_found', message: 'Object not found.' } })
-    if (await s3Keys.isPrivateWitness(digest) && !isAdmin(auth.principal)) {
+    if (await s3Keys.isPrivateWitness(digest) && !await privateWitnessReadable(request, digest, auth.principal)) {
       return reply.code(404).send({ error: { code: 'not_found', message: 'Object not found.' } })
     }
     return reply.header('cache-control', 'no-store').send(object.sidecar)
@@ -169,7 +193,7 @@ export function registerObjectRoutes(
         keyMatches = false
       }
     }
-    if (!object || !keyMatches || (!isAdmin(auth.principal)
+    if (!object || !keyMatches || (!isPrivileged(auth.principal)
       && object.sidecar.uploader !== auth.principal.uploader)) {
       return reply.code(404).send({ error: { code: 'not_found', message: 'Object not found.' } })
     }
@@ -212,7 +236,7 @@ export function registerObjectRoutes(
 
     const auth = await authenticate(request)
     if (!auth.ok) return reply.code(auth.status).send(authFailureBody(auth.code))
-    if (await s3Keys.isPrivateWitness(digest) && !isAdmin(auth.principal)) {
+    if (await s3Keys.isPrivateWitness(digest) && !await privateWitnessReadable(request, digest, auth.principal)) {
       return reply.code(404).send({ error: { code: 'not_found', message: 'Object not found.' } })
     }
     const object = await objects.get(objectKey)
@@ -281,7 +305,7 @@ export function registerObjectRoutes(
   }, async (request, reply) => {
     const auth = await authenticate(request)
     if (!auth.ok) return reply.code(auth.status).send(authFailureBody(auth.code))
-    if (!isAdmin(auth.principal)) {
+    if (!isPrivileged(auth.principal)) {
       return reply.code(403).send({ error: { code: 'forbidden', message: 'Administrator access is required.' } })
     }
     return reply.header('cache-control', 'no-store').send(await objects.collect())
@@ -326,6 +350,36 @@ function singleHeader(value: string | string[] | undefined): string | undefined 
 function generateEphemeralGrantSecret(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(32))
   return Buffer.from(bytes).toString('base64url')
+}
+
+/**
+ * Ask the Hub whether this bearer may read a private-witness digest. Only a
+ * clean 204 authorizes; a network failure is 503 rather than an implicit yes.
+ */
+async function authorizePrivateWitness(
+  request: FastifyRequest,
+  config: EchologConfig,
+  digest: string,
+  fetcher: typeof fetch = fetch,
+): Promise<boolean> {
+  const authorization = request.headers.authorization
+  if (typeof authorization !== 'string' || !authorization.startsWith('Bearer ')) return false
+  let response: Response
+  try {
+    response = await fetcher(new URL('/api/v1/witness/private-media-authorize', config.arsyUrl), {
+      method: 'POST',
+      headers: { authorization, accept: 'application/json', 'content-type': 'application/json' },
+      body: JSON.stringify({ digest }),
+      redirect: 'error',
+      signal: AbortSignal.timeout(3_000),
+    })
+  } catch {
+    throw new HttpProblem(503, 'auth_unavailable', 'ARSY authorization is temporarily unavailable.')
+  }
+  if (response.status === 204) return true
+  if (response.status === 401 || response.status === 403 || response.status === 404) return false
+  if (!response.ok) throw new HttpProblem(503, 'auth_unavailable', 'ARSY authorization is temporarily unavailable.')
+  return false
 }
 
 function grantIssuedAt(token: string): number | null {

@@ -60,6 +60,8 @@ Every value is an environment variable; `--port` may also be passed on the comma
 | `ECHOLOG_COOKIE_SECURE` | `auto` | `auto` means `Secure` only in production. |
 | `ECHOLOG_ADMIN_LOGIN` / `ECHOLOG_ADMIN_PASSWORD` | empty | First-boot bootstrap admin; both or neither. |
 | `ECHOLOG_GRANT_SECRET` | empty | ≥ 32 characters. **Required in production.** |
+| `ECHOLOG_SERVICE_KEY` | empty | Optional `x-echolog-key` daemon credential, 32-256 characters. |
+| `ECHOLOG_ARSY_URL` | empty | Optional Hub base URL; see *Hub federation*. |
 | `ECHOLOG_S3_BUCKET` | empty | One bucket. **Required in production.** |
 | `ECHOLOG_S3_REGION` | `us-east-1` | |
 | `ECHOLOG_S3_ACCESS_KEY_ID` / `ECHOLOG_S3_SECRET_ACCESS_KEY` | empty | Both or neither; max 128 / 256 characters. |
@@ -79,6 +81,29 @@ call on the request path, so an unreachable identity provider cannot take storag
 Roles are `admin` and `member`. Admin is required to sweep GC, to set `x-echolog-legal-hold`
 while uploading, to read the metadata or a grant of a private-witness digest, and to confirm
 a marker for an object that the caller did not upload.
+
+## Hub federation (optional)
+
+By default this service answers for itself. Two environment variables switch on an
+integration with a MoonWitness Hub, and both are off when empty:
+
+| Kind | Header | Resolved by |
+| --- | --- | --- |
+| `key` | `Authorization: Bearer ecl_…` | this instance (hashed, revocable) |
+| `session` | `Cookie: echolog_session=…` | this instance (hashed, expiring) |
+| `service` | `x-echolog-key: …` (`ECHOLOG_SERVICE_KEY`) | shared secret, constant-time compare |
+| `arsy` | `Authorization: Bearer <hub session>` (`ECHOLOG_ARSY_URL`) | the Hub's own `GET /api/v1/auth/me`, cached 2 s |
+
+When `ECHOLOG_ARSY_URL` is set, a bearer that is not an `ecl_` key is handed to the Hub and
+the returned `login`/`role` becomes the principal — this is the shape ARSY's witness client
+(`packages/moonql-witness` upstream) speaks. For **Hub subjects**, reading a private-witness
+digest requires the Hub's `POST /api/v1/witness/private-media-authorize` to answer 204; a
+refusal is `404` and an unreachable Hub is `503`, never an implicit yes. Credentials of this
+instance keep this instance's rule and are **never forwarded to the Hub as a subject**, so
+enabling federation cannot leak a local key into a Hub call.
+
+A `service` principal may upload, set legal hold and sweep GC, and may not read
+private-witness bytes, manage operator accounts or issue API keys.
 
 ## REST surface
 
@@ -177,6 +202,11 @@ it owns three SQLite tables (`users`, `sessions`, `api_keys`) and its own login,
 service published on its own cannot depend on somebody else's identity provider. Everything
 else — the storage model, write-once keys, hold semantics, the S3 subset, the private-witness
 rules and the four-field consumer reference — is unchanged from that contract.
+
+The same extraction also means this repository can serve the Hub it came out of: set
+`ECHOLOG_ARSY_URL` and `ECHOLOG_SERVICE_KEY` and it speaks ARSY's bearer-federation and
+service-key contract (see *Hub federation*), which is what makes withdrawing `apps/echolog`
+from the monorepo possible without taking D06 private-media protection down with it.
 
 Known gap: object-level key rotation is available through the console and the REST routes, but
 the CLI only creates accounts (`pnpm user:add`).

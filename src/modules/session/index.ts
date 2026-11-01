@@ -17,6 +17,7 @@ const LOGIN_MAX_ATTEMPTS = 10
 export interface SessionRouteOptions {
   database: EchologDatabase
   now?: () => number
+  fetcher?: typeof fetch
 }
 
 const errorSchema = {
@@ -45,6 +46,9 @@ export function registerSessionRoutes(
   const now = options.now ?? Date.now
   const authenticate = createEchologAuthenticator({
     database: options.database,
+    serviceKey: config.serviceKey,
+    arsyUrl: config.arsyUrl,
+    ...(options.fetcher ? { fetcher: options.fetcher } : {}),
     ...(options.now ? { now: options.now } : {}),
   })
 

@@ -68,6 +68,9 @@ const loginPattern = '^[^/\\\\]{1,60}$'
 export interface AdminRouteOptions {
   database: EchologDatabase
   now?: () => number
+  fetcher?: typeof fetch
+  serviceKey?: string
+  arsyUrl?: string
 }
 
 type Authority =
@@ -77,6 +80,9 @@ type Authority =
 export function registerAdminRoutes(app: FastifyInstance, options: AdminRouteOptions): void {
   const authenticate = createEchologAuthenticator({
     database: options.database,
+    ...(options.serviceKey ? { serviceKey: options.serviceKey } : {}),
+    ...(options.arsyUrl ? { arsyUrl: options.arsyUrl } : {}),
+    ...(options.fetcher ? { fetcher: options.fetcher } : {}),
     ...(options.now ? { now: options.now } : {}),
   })
 

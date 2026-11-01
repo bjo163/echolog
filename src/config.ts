@@ -27,6 +27,8 @@ const ConfigSchema = z.object({
   bootstrapAdminLogin: z.string().trim().default(''),
   bootstrapAdminPassword: z.string().default(''),
   grantSigningSecret: z.string().default(''),
+  serviceKey: z.string().default(''),
+  arsyUrl: z.string().default(''),
   s3Bucket: z.string().trim().default(''),
   s3Region: z.string().trim().min(1).default('us-east-1'),
   s3AccessKeyId: z.string().default(''),
@@ -47,6 +49,10 @@ export interface EchologConfig {
   bootstrapAdminLogin: string
   bootstrapAdminPassword: string
   grantSigningSecret: string
+  /** Shared daemon credential for `x-echolog-key`; empty disables that mode. */
+  serviceKey: string
+  /** Hub base URL for bearer federation; empty keeps authentication local. */
+  arsyUrl: string
   s3Bucket: string
   s3Region: string
   s3AccessKeyId: string
@@ -93,6 +99,8 @@ export function parseConfig(
     bootstrapAdminLogin: environment.ECHOLOG_ADMIN_LOGIN,
     bootstrapAdminPassword: environment.ECHOLOG_ADMIN_PASSWORD,
     grantSigningSecret: environment.ECHOLOG_GRANT_SECRET,
+    serviceKey: environment.ECHOLOG_SERVICE_KEY,
+    arsyUrl: environment.ECHOLOG_ARSY_URL,
     s3Bucket: environment.ECHOLOG_S3_BUCKET,
     s3Region: environment.ECHOLOG_S3_REGION,
     s3AccessKeyId: environment.ECHOLOG_S3_ACCESS_KEY_ID,
@@ -119,6 +127,23 @@ export function parseConfig(
   }
   if (parsed.data.grantSigningSecret.length > 0 && parsed.data.grantSigningSecret.length < 32) {
     throw new Error('Invalid ECHOLOG configuration: grant secret must be at least 32 characters when configured.')
+  }
+  if (parsed.data.serviceKey.length > 0 && parsed.data.serviceKey.length < 32) {
+    throw new Error('Invalid ECHOLOG configuration: ECHOLOG_SERVICE_KEY must be at least 32 characters when configured.')
+  }
+  if (parsed.data.serviceKey.length > 256) {
+    throw new Error('Invalid ECHOLOG configuration: ECHOLOG_SERVICE_KEY exceeds the supported length.')
+  }
+  if (parsed.data.arsyUrl.length > 0) {
+    let hubUrl: URL | null = null
+    try {
+      hubUrl = new URL(parsed.data.arsyUrl)
+    } catch {
+      hubUrl = null
+    }
+    if (!hubUrl || (hubUrl.protocol !== 'http:' && hubUrl.protocol !== 'https:')) {
+      throw new Error('Invalid ECHOLOG configuration: ECHOLOG_ARSY_URL must be an absolute http(s) URL.')
+    }
   }
   if (Boolean(parsed.data.s3AccessKeyId) !== Boolean(parsed.data.s3SecretAccessKey)) {
     throw new Error('Invalid ECHOLOG configuration: S3 access key id and secret access key must be configured together.')
