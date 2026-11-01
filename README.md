@@ -34,11 +34,13 @@ least 12 characters), or `pnpm user:add` is run against an empty store.
 | Script | What it does |
 | --- | --- |
 | `pnpm dev` | Run from source with reload, reading `.env` if present. |
-| `pnpm build` | `tsc -b` into `dist/`. |
+| `pnpm build` | `tsc -b` the service into `dist/`. |
 | `pnpm start` | Run the built service, reading `.env` if present. |
 | `pnpm test` | The whole suite on a throwaway temp volume — no external service needed. |
-| `pnpm typecheck` | Source, tests and client types. |
+| `pnpm typecheck` | Service, tests and console types. |
 | `pnpm user:add` | Add an operator account (and optionally one API key) to the store. |
+| `pnpm client:dev` | Console dev server on `127.0.0.1:3106`, proxying `/api` and `/health` to `:3006`. |
+| `pnpm build:client` | Static console bundle into `dist/client/`. |
 
 ## Configuration
 
@@ -88,9 +90,14 @@ a marker for an object that the caller did not upload.
 | `DELETE /api/v1/objects/sha256/:digest` | `409 legal_hold` / `409 retention_active` while protected. |
 | `POST /api/v1/objects/sha256/:digest/private-witness` | Confirm the irreversible private marker for a digest. |
 | `POST /api/v1/gc` | Admin sweep of expired, unreferenced objects; reports `deleted`, `held`, `bytes_freed`. |
-| `POST` / `GET` / `DELETE /api/v1/session` | Sign in, inspect, sign out. |
+| `POST /api/v1/session` · `GET /api/v1/session` · `DELETE /api/v1/session` | Sign in, inspect, sign out. |
 | `GET /api/v1/me` | Current principal (`login`, `role`, `kind`). |
+| `GET /api/v1/keys` · `POST /api/v1/keys` · `DELETE /api/v1/keys/:prefix` | Admin credential list, issue (secret shown once), revoke. |
+| `GET /api/v1/users` · `PATCH /api/v1/users/:login` | Admin account list; `disabled` toggles lock-out and deletes that account's live sessions. |
 | `GET /health` · `GET /health/ready` | Liveness and a real storage write/read probe. |
+
+Two self-lockout guards exist on purpose: the API key authenticating a request cannot revoke
+itself, and an account cannot disable itself — each answers `409 self_lockout`.
 
 Error bodies are always `{ "error": { "code", "message" } }`, with `400`
 (`invalid_body`, `invalid_retention`, `invalid_header`), `401` (`unauthorized`,
@@ -130,16 +137,35 @@ credential store survives next to the objects and that holds still refuse delete
 restart. Back up the SQLite file with `sqlite3 <path> ".backup '<target>'"` or while the
 service is stopped (WAL mode leaves `-wal`/`-shm` companions that must travel together).
 
-## UI policy
+## Operator console
 
-No web UI ships here. When a console is added, build it on **shadcn/ui** (with Tailwind) in
-`client/` — the design-system package `@moonwitness/moonui` belongs to the MoonWitness XV
-monorepo and must not be pulled into this repository. The framework-free layer is already
-in place for that: `client/types.ts` (API shapes), `client/lib/api.ts` (typed REST calls
-that keep the server's refusal message verbatim), `client/lib/format.ts` (human-word status
-labels — `scan: skipped` is never rendered as scanned) and `client/lib/watchlist.ts`
-(persists only the four reference fields). Credentials stay out of the browser bundle: the
-console authenticates with the operator's own session or API key, never with the S3 pair.
+`client/` is a static React app built on **shadcn/ui** (neutral base, dark by default, Geist
+shipped through `@fontsource-variable`) with Vite and Tailwind v4. Start the service on
+`:3006` and run `pnpm client:dev` for the console on `127.0.0.1:3106`; the dev server proxies
+`/api` and `/health` so the session cookie stays first-party and no CORS surface is needed.
+`pnpm build:client` produces `dist/client/`, which any static host can serve in front of the
+service.
+
+Four tabs: **Objects** (digest lookup, sidecar, five-minute grant, delete, watchlist, admin
+garbage collection), **Upload** (content address preview, allow-list type, retention, legal
+hold, private-witness marker), **Credentials** and **Accounts** (admin only).
+
+The rules the console keeps:
+
+- It authenticates with the operator's own session cookie or `ecl_` API key. The
+  grant-signing secret and the S3 SigV4 pair never reach the browser bundle.
+- `@moonwitness/moonui` is a monorepo package and must not be imported here; shadcn/ui is the
+  only UI system in this repository.
+- Views never choose a color. `client/lib/format.ts` decides what a state *means* (`scan:
+  skipped` is never rendered as scanned) and `client/lib/tone.ts` is the only place a tone
+  becomes a theme token.
+- The watchlist persists only `{ object_key, digest, size, content_type }` — names, uploaders
+  and tokens are projected away before anything reaches `localStorage`.
+- A server refusal is shown verbatim. `409 legal_hold` and `409 self_lockout` arrive in the
+  service's own words, and the console never retries a refusal.
+
+Layers that need no browser are tested in the normal suite (`test/console-lib.test.ts`):
+cookie-only credential calls, the verbatim failure pass-through, and the tone table.
 
 ## Provenance and the one contract deviation
 
@@ -152,13 +178,12 @@ service published on its own cannot depend on somebody else's identity provider.
 else — the storage model, write-once keys, hold semantics, the S3 subset, the private-witness
 rules and the four-field consumer reference — is unchanged from that contract.
 
-Known gap: `src/db.ts` already implements key revocation, key listing and account
-disabling (`revokeApiKey`, `listApiKeys`, `setUserDisabled`), but no route or CLI command
-exposes them yet.
+Known gap: object-level key rotation is available through the console and the REST routes, but
+the CLI only creates accounts (`pnpm user:add`).
 
 ## Checks
 
-`pnpm typecheck && pnpm build && pnpm test` must pass. The suite covers the filesystem
-driver, size/MIME/quota limits, key authentication and grants, the S3 SigV4 verifier, the
-upload limiter, the operator client layer, the REST routes, and the end-to-end round trip
-that restarts the service on a live volume.
+`pnpm typecheck && pnpm build && pnpm build:client && pnpm test` must pass. The suite covers
+the filesystem driver, size/MIME/quota limits, key authentication and grants, the S3 SigV4
+verifier, the upload limiter, admin credential and account routes, the operator client layer,
+the REST routes, and the end-to-end round trip that restarts the service on a live volume.

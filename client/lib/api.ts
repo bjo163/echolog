@@ -1,10 +1,14 @@
 import type { DownloadGrant, GcResult, ObjectSidecar } from '../types.js'
 
 /**
- * Thin client for the documented ECHOLOG REST surface. Only the caller's own
- * credential passes through here: an `ecl_…` API key as a bearer token, or the
- * session cookie the login route sets. The grant-signing secret and the S3
- * SigV4 pair are server-side only and never reach this layer by design.
+ * Thin client for the documented ECHOLOG REST surface.
+ *
+ * Two credentials are possible and neither is a secret of the service: an
+ * `ecl_…` API key passed here as a bearer token (daemon style), or nothing at
+ * all — the console signs in with POST /api/v1/session and the httpOnly cookie
+ * rides along because every call sets `credentials: 'include'`. The
+ * grant-signing secret and the S3 SigV4 pair are server-side only and never
+ * reach this layer by design.
  */
 
 export class ApiError extends Error {
@@ -25,10 +29,14 @@ interface UploadInput {
   filename: string
   retentionUntil: string | null
   legalHold: boolean
+  privateWitness?: boolean
 }
 
-function authHeaders(token: string): Record<string, string> {
-  return { authorization: `Bearer ${token}`, accept: 'application/json' }
+/** Without a token the session cookie authenticates, so no header is sent. */
+function authHeaders(token?: string): Record<string, string> {
+  return token
+    ? { authorization: `Bearer ${token}`, accept: 'application/json' }
+    : { accept: 'application/json' }
 }
 
 /**
@@ -50,34 +58,35 @@ export async function toApiError(response: Response): Promise<ApiError> {
 }
 
 async function requestJson<T>(path: string, init: RequestInit): Promise<T> {
-  const response = await fetch(path, init)
+  const response = await fetch(path, { credentials: 'include', ...init })
   if (!response.ok) throw await toApiError(response)
   return (await response.json()) as T
 }
 
-export function fetchObjectMeta(digest: string, token: string): Promise<ObjectSidecar> {
+export function fetchObjectMeta(digest: string, token?: string): Promise<ObjectSidecar> {
   return requestJson<ObjectSidecar>(`/api/v1/objects/sha256/${encodeURIComponent(digest)}/meta`, {
     method: 'GET',
     headers: authHeaders(token),
   })
 }
 
-export function requestDownloadGrant(digest: string, token: string): Promise<DownloadGrant> {
+export function requestDownloadGrant(digest: string, token?: string): Promise<DownloadGrant> {
   return requestJson<DownloadGrant>(`/api/v1/objects/sha256/${encodeURIComponent(digest)}`, {
     method: 'GET',
     headers: authHeaders(token),
   })
 }
 
-export async function deleteObject(digest: string, token: string): Promise<void> {
+export async function deleteObject(digest: string, token?: string): Promise<void> {
   const response = await fetch(`/api/v1/objects/sha256/${encodeURIComponent(digest)}`, {
     method: 'DELETE',
+    credentials: 'include',
     headers: authHeaders(token),
   })
   if (!response.ok) throw await toApiError(response)
 }
 
-export function uploadObject(input: UploadInput, token: string): Promise<ObjectSidecar> {
+export function uploadObject(input: UploadInput, token?: string): Promise<ObjectSidecar> {
   const headers: Record<string, string> = {
     ...authHeaders(token),
     'content-type': input.contentType,
@@ -85,10 +94,11 @@ export function uploadObject(input: UploadInput, token: string): Promise<ObjectS
   }
   if (input.retentionUntil) headers['x-echolog-retention-until'] = input.retentionUntil
   if (input.legalHold) headers['x-echolog-legal-hold'] = 'true'
+  if (input.privateWitness) headers['x-echolog-private-witness'] = 'true'
   return requestJson<ObjectSidecar>('/api/v1/objects', { method: 'POST', headers, body: input.bytes })
 }
 
-export function runGarbageCollection(token: string): Promise<GcResult> {
+export function runGarbageCollection(token?: string): Promise<GcResult> {
   return requestJson<GcResult>('/api/v1/gc', { method: 'POST', headers: authHeaders(token) })
 }
 

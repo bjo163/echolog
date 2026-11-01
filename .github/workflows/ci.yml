@@ -32,6 +32,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Build the operator console
+        run: pnpm build:client
+
       - name: Test
         run: pnpm test
 

@@ -28,6 +28,14 @@ export interface UserRecord {
   disabled: number
 }
 
+export interface UserSummary {
+  id: string
+  login: string
+  role: Role
+  created_at: string
+  disabled: number
+}
+
 export interface SessionRecord {
   id: string
   user_id: string
@@ -134,6 +142,13 @@ export function countUsers(db: EchologDatabase): number {
   return row.n
 }
 
+export function listUsers(db: EchologDatabase): UserSummary[] {
+  // The column list is fixed by this query, so the dynamic row shape is exact.
+  return db.handle
+    .prepare('SELECT id, login, role, created_at, disabled FROM users ORDER BY created_at ASC')
+    .all() as unknown as UserSummary[]
+}
+
 export interface NewUser {
   login: string
   password: string
@@ -156,8 +171,16 @@ export function createUser(db: EchologDatabase, input: NewUser, now = Date.now()
 }
 
 export function setUserDisabled(db: EchologDatabase, login: string, disabled: boolean): boolean {
-  const result = db.handle.prepare('UPDATE users SET disabled = ? WHERE login = ?').run(disabled ? 1 : 0, login)
-  return result.changes > 0
+  const user = findUserByLogin(db, login)
+  if (!user) return false
+  if (disabled) {
+    // A lock-out is only fail-closed if the sessions minted before it are gone:
+    // re-enabling an account must not resurrect a cookie issued while it was
+    // trusted. Deleting is idempotent, so disabling twice stays a no-op.
+    db.handle.prepare('DELETE FROM sessions WHERE user_id = ?').run(user.id)
+  }
+  db.handle.prepare('UPDATE users SET disabled = ? WHERE login = ?').run(disabled ? 1 : 0, login)
+  return true
 }
 
 export function createSession(
@@ -245,4 +268,8 @@ export function listApiKeys(db: EchologDatabase): Omit<ApiKeyRecord, 'key_hash'>
   return db.handle
     .prepare('SELECT id, name, prefix, role, created_at, last_used_at, revoked_at FROM api_keys ORDER BY created_at DESC')
     .all() as Omit<ApiKeyRecord, 'key_hash'>[]
+}
+
+export function findApiKeyByPrefix(db: EchologDatabase, prefix: string): ApiKeyRecord | undefined {
+  return db.handle.prepare('SELECT * FROM api_keys WHERE prefix = ?').get(prefix) as ApiKeyRecord | undefined
 }

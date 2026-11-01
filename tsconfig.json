@@ -15,7 +15,11 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "declaration": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./client/*"]
+    }
   },
   "include": ["src"]
 }

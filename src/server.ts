@@ -4,6 +4,7 @@ import type { EchologDatabase } from './db.js'
 import type { EchologServerOptions } from './modules/objects/index.js'
 import { registerObjectRoutes } from './modules/objects/index.js'
 import { registerSessionRoutes } from './modules/session/index.js'
+import { registerAdminRoutes } from './modules/admin/index.js'
 import { registerS3Routes } from './modules/s3/routes.js'
 
 export interface EchologServerConfig extends EchologServerOptions {
@@ -41,6 +42,7 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
 
   const { ensureStorageReady, s3Keys } = registerObjectRoutes(app, config, options)
   registerSessionRoutes(app, config, { database: options.database, ...(options.now ? { now: options.now } : {}) })
+  registerAdminRoutes(app, { database: options.database, ...(options.now ? { now: options.now } : {}) })
   registerS3Routes(app, config, s3Keys, options.now)
 
   app.get('/health', {
