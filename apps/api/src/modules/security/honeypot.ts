@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import type { EchologDatabase } from '../../db.js'
 import { createEchologAuthenticator, isPrivileged } from '../../auth.js'
 import { recordAuditLogSafe, setUserDisabled } from '../../db.js'
+import { eventBus } from '../realtime/event-bus.js'
 
 export interface HoneypotCanary {
   id: string
@@ -82,6 +83,15 @@ export class HoneypotManager {
         // User disable attempt
       }
     }
+
+    // 3. Publish alert to Realtime SSE event bus
+    eventBus.publish('security.honeypot_triggered', {
+      digest,
+      targetPath: canary.fake_filename,
+      attackerIp: ip,
+      quarantinedUser: canary.quarantine_action === 'disable_user' ? actor : undefined,
+      timestamp: canary.last_triggered_at,
+    })
 
     return canary
   }

@@ -19,6 +19,7 @@ import {
 } from '../../limits.js'
 import { createObjectService } from './service.js'
 import { FsS3KeyStore } from '../s3/store.js'
+import { eventBus } from '../realtime/event-bus.js'
 
 const DOWNLOAD_GRANT_TTL_MS = 5 * 60 * 1000
 const digestPattern = '^[a-f0-9]{64}$'
@@ -140,6 +141,15 @@ export function registerObjectRoutes(
         action: 'object_uploaded',
         target: sidecar.object_key,
         details: { size: sidecar.size, content_type: sidecar.content_type, private_witness: privateWitness },
+      })
+      eventBus.publish('object.created', {
+        digest: sidecar.digest,
+        key: sidecar.object_key,
+        filename: sidecar.filename,
+        contentType: sidecar.content_type,
+        size: sidecar.size,
+        uploader: auth.principal.uploader,
+        timestamp: new Date().toISOString(),
       })
       if (options.onObjectCommitted) {
         options.onObjectCommitted(sidecar.digest)

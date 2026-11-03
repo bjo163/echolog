@@ -12,6 +12,9 @@ import {
   BoxIcon,
   HardDriveIcon,
   KeyIcon,
+  RadioIcon,
+  BotIcon,
+  ShieldCheckIcon,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@echolog/ui'
 import { Input } from '@echolog/ui'
@@ -103,6 +106,12 @@ export default function EchologWebConsole() {
           <TabsList>
             <TabsTrigger value="search" className="flex items-center gap-1.5">
               <SparklesIcon className="h-4 w-4 text-amber-400" /> AI Semantic Search
+            </TabsTrigger>
+            <TabsTrigger value="realtime" className="flex items-center gap-1.5">
+              <RadioIcon className="h-4 w-4 text-emerald-400" /> Live Realtime CDC
+            </TabsTrigger>
+            <TabsTrigger value="openai" className="flex items-center gap-1.5">
+              <BotIcon className="h-4 w-4 text-cyan-400" /> OpenAI Gateway
             </TabsTrigger>
             <TabsTrigger value="overview" className="flex items-center gap-1.5">
               <HardDriveIcon className="h-4 w-4" /> Storage Overview
@@ -268,6 +277,70 @@ export default function EchologWebConsole() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Realtime CDC Tab */}
+          <TabsContent value="realtime">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <RadioIcon className="h-5 w-5 text-emerald-400" />
+                  <CardTitle>Real-Time Change Data Capture (Server-Sent Events)</CardTitle>
+                </div>
+                <CardDescription>
+                  In-process zero-dependency streaming bus broadcasting instant object mutations, vector events, and honeypot alerts without Elixir overhead.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 font-mono text-sm">
+                <div className="bg-muted p-3 rounded">
+                  <span className="text-muted-foreground"># Connect to live SSE stream via curl / browser</span>
+                  <br />
+                  curl -N http://localhost:3006/api/v1/realtime/stream
+                </div>
+                <div className="border border-emerald-500/20 bg-emerald-500/5 p-4 rounded-lg">
+                  <div className="flex items-center justify-between text-xs text-emerald-400 font-bold mb-2">
+                    <span>STATUS: LISTENING FOR BROKER EVENTS</span>
+                    <span>PROTO: HTTP/1.1 SSE (keepalive: 15s)</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <div>• event: object.created — Triggers instantly on REST / S3 PutObject commits</div>
+                    <div>• event: ai.indexed — Triggers when background 384d vector projection completes</div>
+                    <div>• event: security.honeypot_triggered — Instant alert with auto-quarantine actor details</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* OpenAI Compatible Gateway Tab */}
+          <TabsContent value="openai">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <BotIcon className="h-5 w-5 text-cyan-400" />
+                  <CardTitle>OpenAI-Compatible Local AI Gateway</CardTitle>
+                </div>
+                <CardDescription>
+                  Drop-in replacement for OpenAI endpoints. Connect Cursor, Continue.dev, LangChain, or OpenAI SDK directly to your local ECHOLOG node.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 font-mono text-sm">
+                <div className="bg-muted p-3 rounded">
+                  <span className="text-muted-foreground"># Query local 384d embedding via standard OpenAI client</span>
+                  <br />
+                  curl http://localhost:3006/v1/embeddings \<br />
+                  &nbsp;&nbsp;-H &quot;Content-Type: application/json&quot; \<br />
+                  &nbsp;&nbsp;-d &apos;{JSON.stringify({ input: "Sample semantic text", model: "text-embedding-384" })}&apos;
+                </div>
+                <div className="bg-muted p-3 rounded">
+                  <span className="text-muted-foreground"># Local RAG storage assistant completion</span>
+                  <br />
+                  curl http://localhost:3006/v1/chat/completions \<br />
+                  &nbsp;&nbsp;-H &quot;Content-Type: application/json&quot; \<br />
+                  &nbsp;&nbsp;-d &apos;{JSON.stringify({ messages: [{ role: "user", content: "Search recent logs" }] })}&apos;
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* OCI Registry Tab */}

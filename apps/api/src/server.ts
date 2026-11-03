@@ -14,6 +14,10 @@ import { PostgresWireServer } from './modules/wire/pg-server.js'
 import { ShapeSyncManager, registerShapeSyncRoutes } from './modules/sync/shape-stream.js'
 import { BranchManager, registerBranchRoutes } from './modules/branch/index.js'
 import { HoneypotManager, registerHoneypotRoutes } from './modules/security/honeypot.js'
+import { registerRealtimeRoutes } from './modules/realtime/routes.js'
+import { registerOpenAiRoutes } from './modules/openai/routes.js'
+import { AutonomousBitScrubber } from './modules/scrubber/worker.js'
+import { registerAnalyticsRoutes } from './modules/analytics/routes.js'
 import { PGliteDatabaseAdapter } from './db/pglite-adapter.js'
 import { metricsPlugin } from './middleware/metrics.middleware.js'
 import { requestIdPlugin } from './middleware/request-id.middleware.js'
@@ -138,6 +142,18 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
 
   // Autonomous Honeypot Canary Engine
   registerHoneypotRoutes(app, honeypotManager, options.database)
+
+  // Real-Time CDC Server-Sent Events (SSE)
+  registerRealtimeRoutes(app)
+
+  // OpenAI-Compatible Local AI Gateway (/v1/models, /v1/embeddings, /v1/chat/completions)
+  registerOpenAiRoutes(app, { pgliteAdapter: options.pgliteAdapter })
+
+  // Autonomous Bit-Scrubber & Self-Healing Engine
+  const scrubber = new AutonomousBitScrubber(driver, config.storageRoot)
+
+  // Columnar Analytical OLAP Layer & Telemetry
+  registerAnalyticsRoutes(app, { database: options.database, scrubber })
 
   // Postgres Wire Gateway (:5432)
   let pgWireServer: PostgresWireServer | null = null

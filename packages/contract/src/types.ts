@@ -112,3 +112,31 @@ export interface VectorStatsResponse {
 }
 
 export type UploadPhase = 'idle' | 'queued' | 'verifying' | 'committed' | 'failed'
+
+export interface RealtimeBroadcastEvent {
+  id: string
+  type: string
+  data: Record<string, any>
+  timestamp: string
+}
+
+export interface AnalyticsOverview {
+  status: string
+  telemetry: {
+    totalAuditEvents: number
+    lastAuditEvent: any
+    activeShortLinks: number
+    autonomousScrubber: {
+      objectsScanned: number
+      corruptionsFound: number
+      autoHealed: number
+      lastScrubTime: string | null
+    } | null
+  }
+  system: {
+    memory: Record<string, number>
+    uptime: number
+    nodeVersion: string
+  }
+}
+

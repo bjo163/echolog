@@ -237,4 +237,51 @@ export class Echolog {
       })
     },
   }
+
+  // --- Realtime CDC & Analytics Subsystem ---
+  readonly realtime = {
+    broadcast: async (type: string, data: Record<string, any>): Promise<{ success: boolean; event: any }> => {
+      return this.request('/api/v1/realtime/broadcast', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ type, data }),
+      })
+    },
+    getStreamUrl: (): string => {
+      return `${this.endpoint}/api/v1/realtime/stream`
+    },
+  }
+
+  readonly analytics = {
+    overview: async (): Promise<any> => {
+      return this.request('/api/v1/analytics/overview')
+    },
+    triggerScrub: async (): Promise<{ success: boolean; results: any }> => {
+      return this.request('/api/v1/analytics/scrub', { method: 'POST' })
+    },
+  }
+
+  // --- OpenAI Compatible AI Assistant ---
+  readonly openai = {
+    models: async (): Promise<{ object: string; data: any[] }> => {
+      return this.request('/v1/models')
+    },
+    embed: async (input: string | string[], model?: string): Promise<{ object: string; data: any[]; usage: any }> => {
+      return this.request('/v1/embeddings', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ input, model }),
+      })
+    },
+    chat: async (params: {
+      messages: Array<{ role: string; content: string }>
+      model?: string
+    }): Promise<{ id: string; choices: Array<{ message: { content: string } }> }> => {
+      return this.request('/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(params),
+      })
+    },
+  }
 }

@@ -1,6 +1,7 @@
 import type { FsStorageDriver } from '../../core/index.js'
 import type { PGliteDatabaseAdapter } from '../../db/pglite-adapter.js'
 import { extractTextSnippet, generateLocalEmbedding } from './embedder.js'
+import { eventBus } from '../realtime/event-bus.js'
 
 export class BackgroundVectorIngestor {
   private driver: FsStorageDriver
@@ -40,6 +41,12 @@ export class BackgroundVectorIngestor {
               content_type: obj.sidecar.content_type,
               extracted_text: snippet,
               embedding,
+            })
+            eventBus.publish('ai.indexed', {
+              digest,
+              filename: obj.sidecar.filename,
+              dimensions: 384,
+              timestamp: new Date().toISOString(),
             })
           }
         }
