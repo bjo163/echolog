@@ -63,6 +63,11 @@ Every value is an environment variable; `--port` may also be passed on the comma
 | `ECHOLOG_S3_BUCKET` | empty | One bucket. **Required in production.** |
 | `ECHOLOG_S3_REGION` | `us-east-1` | |
 | `ECHOLOG_S3_ACCESS_KEY_ID` / `ECHOLOG_S3_SECRET_ACCESS_KEY` | empty | Both or neither; max 128 / 256 characters. |
+| `ECHOLOG_RATE_LIMIT_WINDOW_MS` | `60000` | Fixed window in ms; minimum 1000, maximum 24 h. |
+| `ECHOLOG_RATE_LIMIT_MAX` | `600` | Requests per window per credential+peer bucket. |
+| `ECHOLOG_METRICS_ENABLED` | `false` | Serve Prometheus text metrics at `ECHOLOG_METRICS_ENDPOINT`. |
+| `ECHOLOG_METRICS_ENDPOINT` | `/metrics` | Must start with `/` and not shadow a health route. |
+| `ECHOLOG_METRICS_TOKEN` | empty | Bearer token for remote scrapers; empty keeps the endpoint loopback-only. |
 
 ## Authentication
 
@@ -102,6 +107,27 @@ enabling federation cannot leak a local key into a Hub call.
 
 A `service` principal may upload, set legal hold and sweep GC, and may not read
 private-witness bytes, manage operator accounts or issue API keys.
+
+## Rate limiting
+
+Every non-exempt surface (REST, S3, OCI, tools) is behind a fixed-window limiter
+configured by `ECHOLOG_RATE_LIMIT_WINDOW_MS` and `ECHOLOG_RATE_LIMIT_MAX`. Buckets are keyed
+by the credential when one is present, plus the peer address; raw keys and cookies are
+hashed before anything enters the in-memory store. `GET /health`, `GET /health/ready` and the
+metrics endpoint (when enabled) are always exempt. Over the limit answers `429 rate_limited`
+with `Retry-After` and standard `ratelimit-*` headers. The store is hard-capped at 10,000
+distinct buckets and pruned on each window, so a flood of unique credentials cannot leak memory.
+
+## Observability
+
+Set `ECHOLOG_METRICS_ENABLED=true` to expose a Prometheus text endpoint (default
+`/metrics`). The metric set covers request count, duration histograms with cumulative
+buckets, response payload bytes, and in-flight requests, labelled by method,
+matched route and status. Telemetry reads only sidecar metadata — it never opens object
+bytes. The endpoint is loopback-only unless `ECHOLOG_METRICS_TOKEN` (≥ 16 chars) is set, in
+which case a `Authorization: Bearer <token>` header is required. Every request also
+carries a `x-request-id` header (or echoes the caller's) so a single request can be
+followed across the proxy and the service.
 
 ## REST surface
 
