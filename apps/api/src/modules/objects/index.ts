@@ -40,6 +40,7 @@ export interface EchologServerOptions {
   /** Injectable fetch so the Hub round trips are testable without a network. */
   fetcher?: typeof fetch
   onObjectCommitted?: (digest: string) => void
+  onObjectAccessed?: (digest: string, actor: string, ip?: string) => void
 }
 
 export interface RegisteredObjectRoutes {
@@ -164,6 +165,9 @@ export function registerObjectRoutes(
     if (!await access.canRead(request, digest, auth.principal)) {
       return reply.code(404).send({ error: { code: 'not_found', message: 'Object not found.' } })
     }
+    if (options.onObjectAccessed) {
+      options.onObjectAccessed(digest, auth.principal.uploader, request.ip)
+    }
     return reply.header('cache-control', 'no-store').send(object.sidecar)
   })
 
@@ -246,6 +250,9 @@ export function registerObjectRoutes(
     if (!auth.ok) return reply.code(auth.status).send(authFailureBody(auth.code))
     if (!await access.canRead(request, digest, auth.principal)) {
       return reply.code(404).send({ error: { code: 'not_found', message: 'Object not found.' } })
+    }
+    if (options.onObjectAccessed) {
+      options.onObjectAccessed(digest, auth.principal.uploader, request.ip)
     }
     const object = await objects.get(objectKey)
     if (!object) return reply.code(404).send({ error: { code: 'not_found', message: 'Object not found.' } })

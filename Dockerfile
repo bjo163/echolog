@@ -9,14 +9,17 @@ WORKDIR /app
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
 RUN corepack enable
 
-# Dependency layer first: the lockfile is the whole truth, no workspace protocol.
+# Copy only the necessary files for the monorepo
 COPY package.json pnpm-lock.yaml ./
+COPY turbo.json ./
+COPY packages ./packages
+COPY apps/api ./apps/api
+COPY apps/web ./apps/web
+
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
-COPY tsconfig.json ./
-COPY src ./src
-RUN pnpm build && pnpm prune --prod
+RUN pnpm build --filter @echolog/api && pnpm prune --prod
 
 # --- runtime -----------------------------------------------------------------
 FROM node:24-slim AS runtime
@@ -30,8 +33,10 @@ ENV NODE_ENV=production \
 RUN mkdir -p /data/echolog && chown -R node:node /data /app
 
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
-COPY --from=build --chown=node:node /app/dist ./dist
-COPY --chown=node:node package.json ./
+COPY --from=build --chown=node:node /app/apps/api/dist ./apps/api/dist
+
+# Keep only the api package.json in runtime (it's the only one needed)
+COPY --from=build --chown=node:node /app/apps/api/package.json ./apps/api/package.json
 
 USER node
 EXPOSE 3006
@@ -41,4 +46,4 @@ VOLUME ["/data"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD ["node", "-e", "fetch('http://127.0.0.1:'+(process.env.ECHOLOG_PORT||'3006')+'/health/ready').then((r)=>process.exit(r.ok?0:1),()=>process.exit(1))"]
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "apps/api/dist/index.js"]

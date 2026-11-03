@@ -26,8 +26,6 @@ pnpm user:add --login operator-1 --role admin --key   # first account, or set th
 pnpm dev                        # http://127.0.0.1:3006
 curl -s http://127.0.0.1:3006/health/ready
 ```
-
-On the very first boot the service refuses to start unless accounts exist: either
 `ECHOLOG_ADMIN_LOGIN` + `ECHOLOG_ADMIN_PASSWORD` are set together (the password needs at
 least 12 characters), or `pnpm user:add` is run against an empty store.
 
@@ -164,30 +162,12 @@ service is stopped (WAL mode leaves `-wal`/`-shm` companions that must travel to
 
 ## Operator console
 
-`client/` is a static React app built on **shadcn/ui** (neutral base, dark by default, Geist
-shipped through `@fontsource-variable`) with Vite and Tailwind v4. Start the service on
-`:3006` and run `pnpm client:dev` for the console on `127.0.0.1:3106`; the dev server proxies
-`/api` and `/health` so the session cookie stays first-party and no CORS surface is needed.
-`pnpm build:client` produces `dist/client/`, which any static host can serve in front of the
-service.
+The operator console UI primitives have been moved to `packages/ui/src` and the React app
+has been migrated to the Next.js App Router in `apps/web`. The console is now served
+as part of the web application.
 
-Four tabs: **Objects** (digest lookup, sidecar, five-minute grant, delete, watchlist, admin
-garbage collection), **Upload** (content address preview, allow-list type, retention, legal
-hold, private-witness marker), **Credentials** and **Accounts** (admin only).
-
-The rules the console keeps:
-
-- It authenticates with the operator's own session cookie or `ecl_` API key. The
-  grant-signing secret and the S3 SigV4 pair never reach the browser bundle.
-- `@moonwitness/moonui` is a monorepo package and must not be imported here; shadcn/ui is the
-  only UI system in this repository.
-- Views never choose a color. `client/lib/format.ts` decides what a state *means* (`scan:
-  skipped` is never rendered as scanned) and `client/lib/tone.ts` is the only place a tone
-  becomes a theme token.
-- The watchlist persists only `{ object_key, digest, size, content_type }` — names, uploaders
-  and tokens are projected away before anything reaches `localStorage`.
-- A server refusal is shown verbatim. `409 legal_hold` and `409 self_lockout` arrive in the
-  service's own words, and the console never retries a refusal.
+The watchlist persists only `{ object_key, digest, size, content_type }` — names, uploaders
+and tokens are projected away before anything reaches `localStorage`.
 
 Layers that need no browser are tested in the normal suite (`test/console-lib.test.ts`):
 cookie-only credential calls, the verbatim failure pass-through, and the tone table.
@@ -213,7 +193,7 @@ the CLI only creates accounts (`pnpm user:add`).
 
 ## Checks
 
-`pnpm typecheck && pnpm build && pnpm build:client && pnpm test` must pass. The suite covers
+`pnpm typecheck && pnpm build && pnpm test` must pass. The suite covers
 the filesystem driver, size/MIME/quota limits, key authentication and grants, the S3 SigV4
 verifier, the upload limiter, admin credential and account routes, the operator client layer,
 the REST routes, and the end-to-end round trip that restarts the service on a live volume.

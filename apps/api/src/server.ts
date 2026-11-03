@@ -12,6 +12,8 @@ import { registerSemanticSearchRoutes } from './modules/ai/routes.js'
 import { BackgroundVectorIngestor } from './modules/ai/worker.js'
 import { PostgresWireServer } from './modules/wire/pg-server.js'
 import { ShapeSyncManager, registerShapeSyncRoutes } from './modules/sync/shape-stream.js'
+import { BranchManager, registerBranchRoutes } from './modules/branch/index.js'
+import { HoneypotManager, registerHoneypotRoutes } from './modules/security/honeypot.js'
 import { PGliteDatabaseAdapter } from './db/pglite-adapter.js'
 import { metricsPlugin } from './middleware/metrics.middleware.js'
 import { requestIdPlugin } from './middleware/request-id.middleware.js'
@@ -72,11 +74,18 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
     options.pgliteAdapter
   )
 
+  const branchManager = new BranchManager()
+  const honeypotManager = new HoneypotManager()
+
   const { ensureStorageReady, s3Keys, driver, access } = registerObjectRoutes(app, config, {
     ...options,
     onObjectCommitted: (digest) => {
       ingestWorker.enqueue(digest)
       if (options.onObjectCommitted) options.onObjectCommitted(digest)
+    },
+    onObjectAccessed: (digest, actor, ip) => {
+      void honeypotManager.triggerCanary(digest, options.database, actor, ip)
+      if (options.onObjectAccessed) options.onObjectAccessed(digest, actor, ip)
     },
   })
   ;(ingestWorker as any).driver = driver
@@ -116,6 +125,12 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
     const shapeSync = new ShapeSyncManager(options.pgliteAdapter)
     registerShapeSyncRoutes(app, shapeSync, options.database)
   }
+
+  // Zero-Copy Bucket Branching & Time-Travel
+  registerBranchRoutes(app, branchManager, options.database, options.pgliteAdapter)
+
+  // Autonomous Honeypot Canary Engine
+  registerHoneypotRoutes(app, honeypotManager, options.database)
 
   // Postgres Wire Gateway (:5432)
   let pgWireServer: PostgresWireServer | null = null
