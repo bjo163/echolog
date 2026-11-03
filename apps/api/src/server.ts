@@ -9,6 +9,9 @@ import { registerS3Routes } from './modules/s3/routes.js'
 import { registerOciRoutes } from './modules/oci/routes.js'
 import { registerToolsRoutes } from './modules/tools/index.js'
 import { registerSemanticSearchRoutes } from './modules/ai/routes.js'
+import { BackgroundVectorIngestor } from './modules/ai/worker.js'
+import { PostgresWireServer } from './modules/wire/pg-server.js'
+import { ShapeSyncManager, registerShapeSyncRoutes } from './modules/sync/shape-stream.js'
 import { PGliteDatabaseAdapter } from './db/pglite-adapter.js'
 import { metricsPlugin } from './middleware/metrics.middleware.js'
 import { requestIdPlugin } from './middleware/request-id.middleware.js'
@@ -17,6 +20,7 @@ import { registerRateLimiter } from './middleware/rate-limit.middleware.js'
 export interface EchologServerConfig extends EchologServerOptions {
   database: EchologDatabase
   pgliteAdapter?: PGliteDatabaseAdapter
+  pgWirePort?: number
 }
 
 export function createEchologServer(config: EchologConfig, options: EchologServerConfig) {
@@ -62,7 +66,20 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
     return reply.code(statusCode).send({ error: { code, message } })
   })
 
-  const { ensureStorageReady, s3Keys, driver, access } = registerObjectRoutes(app, config, options)
+  const ingestWorker = new BackgroundVectorIngestor(
+    // Will be attached after registerObjectRoutes
+    null as any,
+    options.pgliteAdapter
+  )
+
+  const { ensureStorageReady, s3Keys, driver, access } = registerObjectRoutes(app, config, {
+    ...options,
+    onObjectCommitted: (digest) => {
+      ingestWorker.enqueue(digest)
+      if (options.onObjectCommitted) options.onObjectCommitted(digest)
+    },
+  })
+  ;(ingestWorker as any).driver = driver
   registerSessionRoutes(app, config, {
     database: options.database,
     ...(options.fetcher ? { fetcher: options.fetcher } : {}),
@@ -93,6 +110,22 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
     database: options.database,
     pgliteAdapter: options.pgliteAdapter,
   })
+
+  // Local-First Shape Sync
+  if (options.pgliteAdapter) {
+    const shapeSync = new ShapeSyncManager(options.pgliteAdapter)
+    registerShapeSyncRoutes(app, shapeSync, options.database)
+  }
+
+  // Postgres Wire Gateway (:5432)
+  let pgWireServer: PostgresWireServer | null = null
+  if (options.pgliteAdapter && options.pgWirePort) {
+    pgWireServer = new PostgresWireServer(options.pgliteAdapter, options.pgWirePort)
+    void pgWireServer.start().catch(() => {})
+    app.addHook('onClose', async () => {
+      if (pgWireServer) await pgWireServer.stop()
+    })
+  }
 
   app.get('/health', {
     schema: {

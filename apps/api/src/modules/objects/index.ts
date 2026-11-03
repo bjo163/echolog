@@ -39,6 +39,7 @@ export interface EchologServerOptions {
   now?: () => number
   /** Injectable fetch so the Hub round trips are testable without a network. */
   fetcher?: typeof fetch
+  onObjectCommitted?: (digest: string) => void
 }
 
 export interface RegisteredObjectRoutes {
@@ -139,6 +140,9 @@ export function registerObjectRoutes(
         target: sidecar.object_key,
         details: { size: sidecar.size, content_type: sidecar.content_type, private_witness: privateWitness },
       })
+      if (options.onObjectCommitted) {
+        options.onObjectCommitted(sidecar.digest)
+      }
       return reply.code(201).header('cache-control', 'no-store').send(sidecar)
     } catch (error) {
       if (error instanceof QuotaExceededError) throw new HttpProblem(507, 'quota_exceeded', 'ECHOLOG storage quota is full.')
