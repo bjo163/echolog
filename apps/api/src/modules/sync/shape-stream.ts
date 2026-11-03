@@ -106,3 +106,4 @@ export function registerShapeSyncRoutes(
     return reply.code(200).send({ status: 'applied', lsn: body.lsn })
   })
 }
+

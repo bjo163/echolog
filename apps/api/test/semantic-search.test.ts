@@ -119,3 +119,4 @@ void test('PGlite + pgvector semantic vector search & auto-indexing lifecycle', 
   assert.equal(linuxResults.results[0].digest, docB.digest)
   assert.equal(linuxResults.results[0].filename, 'linux-kernel-drivers.txt')
 })
+

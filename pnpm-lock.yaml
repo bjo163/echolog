@@ -145,6 +145,9 @@ importers:
       '@echolog/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      lucide-react:
+        specifier: ^1.66.0
+        version: 1.66.0(@types/react@19.3.0)(react@19.3.1)
       next:
         specifier: 16.0.0
         version: 16.0.0(@babel/core@7.29.7)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
