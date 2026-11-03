@@ -85,4 +85,31 @@ export interface OciRepositoryItem {
   tags: string[]
 }
 
+export interface SemanticSearchResult {
+  digest: string
+  filename: string
+  content_type: string
+  snippet: string | null
+  similarity: number | null
+  indexed_at: string
+  url: string
+}
+
+export interface SemanticSearchResponse {
+  query: string
+  engine: string
+  dimensions: number
+  total_matches: number
+  results: SemanticSearchResult[]
+}
+
+export interface VectorStatsResponse {
+  engine: string
+  vector_extension: string
+  dimensions: number
+  metric: string
+  indexed_objects: number
+}
+
+
 export type UploadPhase = 'idle' | 'queued' | 'verifying' | 'committed' | 'failed'

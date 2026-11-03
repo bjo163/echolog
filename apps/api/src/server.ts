@@ -8,12 +8,15 @@ import { registerAdminRoutes } from './modules/admin/index.js'
 import { registerS3Routes } from './modules/s3/routes.js'
 import { registerOciRoutes } from './modules/oci/routes.js'
 import { registerToolsRoutes } from './modules/tools/index.js'
+import { registerSemanticSearchRoutes } from './modules/ai/routes.js'
+import { PGliteDatabaseAdapter } from './db/pglite-adapter.js'
 import { metricsPlugin } from './middleware/metrics.middleware.js'
 import { requestIdPlugin } from './middleware/request-id.middleware.js'
 import { registerRateLimiter } from './middleware/rate-limit.middleware.js'
 
 export interface EchologServerConfig extends EchologServerOptions {
   database: EchologDatabase
+  pgliteAdapter?: PGliteDatabaseAdapter
 }
 
 export function createEchologServer(config: EchologConfig, options: EchologServerConfig) {
@@ -84,6 +87,11 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
     database: options.database,
     access,
     ...(options.now ? { now: options.now } : {}),
+  })
+  registerSemanticSearchRoutes(app, config, {
+    driver,
+    database: options.database,
+    pgliteAdapter: options.pgliteAdapter,
   })
 
   app.get('/health', {

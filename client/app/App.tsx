@@ -20,6 +20,7 @@ import { StorageTelemetryView } from '@/views/StorageTelemetryView'
 import { AuditLogView } from '@/views/AuditLogView'
 import { OciExplorerView } from '@/views/OciExplorerView'
 import { ToolsView } from '@/views/ToolsView'
+import { SemanticSearchView } from '@/views/SemanticSearchView'
 
 /**
  * The console shell. It holds exactly two pieces of state that matter — who is
@@ -106,6 +107,7 @@ export function App() {
           <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-6">
             <TabsList>
               <TabsTrigger value="objects">Objects</TabsTrigger>
+              <TabsTrigger value="search">AI Search</TabsTrigger>
               <TabsTrigger value="s3">S3 Explorer</TabsTrigger>
               <TabsTrigger value="oci">OCI Registry</TabsTrigger>
               <TabsTrigger value="tools">Tools</TabsTrigger>
@@ -121,6 +123,9 @@ export function App() {
             </TabsList>
             <TabsContent value="objects">
               <ObjectsView principal={principal} initialDigest={inspectedDigest} />
+            </TabsContent>
+            <TabsContent value="search">
+              <SemanticSearchView />
             </TabsContent>
             <TabsContent value="s3">
               <S3ExplorerView

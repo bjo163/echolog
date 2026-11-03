@@ -1,4 +1,4 @@
-import type { AuditLogRecord, DownloadGrant, GcResult, ObjectSidecar, OciRepositoryItem, S3KeyRecord, ShortLinkRecord, StorageStats } from '../types.js'
+import type { AuditLogRecord, DownloadGrant, GcResult, ObjectSidecar, OciRepositoryItem, S3KeyRecord, SemanticSearchResponse, ShortLinkRecord, StorageStats, VectorStatsResponse } from '../types.js'
 
 /**
  * Thin client for the documented ECHOLOG REST surface.
@@ -146,6 +146,29 @@ export function deleteShortLinkApi(slug: string, token?: string): Promise<void> 
     headers: authHeaders(token),
   })
 }
+
+export function searchSemanticApi(query: string, limit = 10, token?: string): Promise<SemanticSearchResponse> {
+  return requestJson<SemanticSearchResponse>('/api/v1/search/semantic', {
+    method: 'POST',
+    headers: { ...authHeaders(token), 'content-type': 'application/json' },
+    body: JSON.stringify({ query, limit }),
+  })
+}
+
+export function fetchVectorStats(token?: string): Promise<VectorStatsResponse> {
+  return requestJson<VectorStatsResponse>('/api/v1/search/stats', {
+    method: 'GET',
+    headers: authHeaders(token),
+  })
+}
+
+export function triggerVectorIngest(digest: string, token?: string): Promise<{ status: string; digest: string; filename: string }> {
+  return requestJson<{ status: string; digest: string; filename: string }>(`/api/v1/search/ingest/${encodeURIComponent(digest)}`, {
+    method: 'POST',
+    headers: authHeaders(token),
+  })
+}
+
 
 export function markPrivateWitness(digest: string, token?: string): Promise<void> {
   return requestJson<void>(`/api/v1/objects/sha256/${encodeURIComponent(digest)}/private-witness`, {

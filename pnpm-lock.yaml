@@ -11,6 +11,12 @@ importers:
       '@base-ui/react':
         specifier: ^1.9.0
         version: 1.9.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@electric-sql/pglite':
+        specifier: ^0.5.14
+        version: 0.5.14
+      '@electric-sql/pglite-pgvector':
+        specifier: ^0.0.15
+        version: 0.0.15(@electric-sql/pglite@0.5.14)
       '@fontsource-variable/geist':
         specifier: ^5.3.0
         version: 5.3.0
@@ -96,6 +102,12 @@ importers:
       '@echolog/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@electric-sql/pglite':
+        specifier: ^0.5.14
+        version: 0.5.14
+      '@electric-sql/pglite-pgvector':
+        specifier: ^0.0.15
+        version: 0.0.15(@electric-sql/pglite@0.5.14)
       '@smithy/signature-v4':
         specifier: 5.7.4
         version: 5.7.4
@@ -429,6 +441,14 @@ packages:
 
   '@dotenvx/primitives@0.8.0':
     resolution: {integrity: sha512-VYJy0uhFm9zTJ1TxBaW/pA8bjbOM/OttaNMwZ1RHG4JKyRG7DhSdiqD1ipQoAyoD22olUtxbP78W9xY3Wd11bg==}
+
+  '@electric-sql/pglite-pgvector@0.0.15':
+    resolution: {integrity: sha512-t022ZzaH95MD+FFY+1f1gw8NqSEot3ZW7XM8jNQnEJDcWN+dUaosS/CKqJHFCopGUSE4cwsc18ucbx5trd3jtQ==}
+    peerDependencies:
+      '@electric-sql/pglite': 0.5.14
+
+  '@electric-sql/pglite@0.5.14':
+    resolution: {integrity: sha512-aAQe7iArcFB2w1xtx91l3l9trxhMzD6aZf+WnosSHNhwgp70EJz80Igw/bHnW14fUEFYWPBoQ1sGom8Xc0Jttg==}
 
   '@emnapi/runtime@1.11.3':
     resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
@@ -2757,6 +2777,12 @@ snapshots:
       yocto-spinner: 1.2.2
 
   '@dotenvx/primitives@0.8.0': {}
+
+  '@electric-sql/pglite-pgvector@0.0.15(@electric-sql/pglite@0.5.14)':
+    dependencies:
+      '@electric-sql/pglite': 0.5.14
+
+  '@electric-sql/pglite@0.5.14': {}
 
   '@emnapi/runtime@1.11.3':
     dependencies:
