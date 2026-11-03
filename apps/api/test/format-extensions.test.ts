@@ -33,7 +33,7 @@ test('formatDateTime formats relative time', async () => {
 test('sanitizeDisplay sanitizes and truncates strings', async () => {
   assert.strictEqual(sanitizeDisplay('normal text'), 'normal text')
   assert.strictEqual(sanitizeDisplay('text/with/slashes'), 'slashes')
-  assert.strictEqual(sanitizeDisplay('text\\with\\backslashes'), 'withbackslashes')
+  assert.strictEqual(sanitizeDisplay('text\\with\\backslashes'), 'backslashes')
   assert.strictEqual(sanitizeDisplay(undefined), '-')
   assert.strictEqual(sanitizeDisplay(null), '-')
   assert.strictEqual(sanitizeDisplay('A'.repeat(100), 50).length, 50)

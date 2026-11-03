@@ -144,3 +144,4 @@ export function registerBranchRoutes(
     return reply.code(204).send()
   })
 }
+

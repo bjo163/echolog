@@ -131,3 +131,4 @@ export function registerHoneypotRoutes(
     return reply.code(201).send(canary)
   })
 }
+

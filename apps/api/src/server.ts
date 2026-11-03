@@ -36,6 +36,13 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
     trustProxy: config.trustProxy,
   })
 
+  // The media host is only reachable over HTTPS through the proxy, and the proxy
+  // answers plain HTTP with a 302 rather than a browser-pinned redirect (M44-08).
+  app.addHook('onSend', (_request, reply, _payload, done) => {
+    reply.header('strict-transport-security', 'max-age=15552000')
+    done()
+  })
+
   // Hook order matters: Fastify copies the hook chain into each route when the
   // route is registered, so request id, rate limiting and metrics must all be
   // installed before any module registers a handler.

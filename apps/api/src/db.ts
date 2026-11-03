@@ -140,6 +140,12 @@ export function openDatabase(path: string): EchologDatabase {
   const handle = new DatabaseSync(path)
   handle.exec('PRAGMA journal_mode = WAL')
   handle.exec('PRAGMA foreign_keys = ON')
+
+  // Check if tables already exist (e.g. legacy database before migrations)
+  const tables = handle.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='short_links'").all() as Array<{ name: string }>
+  if (tables.length > 0) {
+    migrate(handle)
+  }
   handle.exec(SCHEMA)
   migrate(handle)
   return { handle, path }

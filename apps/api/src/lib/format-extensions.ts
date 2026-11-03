@@ -17,6 +17,7 @@ import type { EchologPrincipal } from '../auth.js'
  */
 export function formatBytes(bytes: number, decimals = 2): string {
   if (bytes === 0) return '0 B'
+  if (bytes < 1024) return `${bytes} B`
 
   const k = 1024
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
@@ -40,7 +41,7 @@ export function formatDateTime(isoString: string): string {
   const diffHours = Math.floor(diffMinutes / 60)
   const diffDays = Math.floor(diffHours / 24)
 
-  if (diffDays > 1) {
+  if (diffDays > 30) {
     return date.toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'short',
@@ -48,8 +49,12 @@ export function formatDateTime(isoString: string): string {
     })
   }
 
+  if (diffDays >= 2) {
+    return `${diffDays} days ago`
+  }
+
   if (diffDays === 1) {
-    return 'Yesterday'
+    return 'yesterday'
   }
 
   if (diffHours > 0) {
@@ -73,7 +78,7 @@ export function formatDateTime(isoString: string): string {
 export function sanitizeDisplay(value: string | null | undefined, maxLength = 100): string {
   if (value === undefined || value === null) return '-'
 
-  const raw = value.replace(/[\\/]/g, '/').split('/').at(-1) ?? ''
+  const raw = value.replace(/\\/g, '/').split('/').at(-1) ?? ''
   const cleaned = Array.from(raw, (character) => {
     const code = character.charCodeAt(0)
     return code < 32 || code === 127 ? '_' : character
@@ -143,6 +148,10 @@ export function formatObjectMetadata(
 
   if (metadata.size !== undefined) {
     parts.push(`${formatBytes(metadata.size)}`)
+  }
+
+  if (metadata.uploader) {
+    parts.push(metadata.uploader)
   }
 
   if (metadata.retention) {
