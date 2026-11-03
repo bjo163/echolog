@@ -19,7 +19,7 @@ COPY apps/web ./apps/web
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
-RUN pnpm build && pnpm prune --prod
+RUN pnpm --filter @echolog/api... build && pnpm prune --prod
 
 # --- runtime -----------------------------------------------------------------
 FROM node:24-slim AS runtime
