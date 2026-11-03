@@ -1,1 +1,10 @@
-{"extends":"../config/tsconfig.base.json","compilerOptions":{"noEmit":true,"jsx":"preserve"},"include":["src/**/*.ts","src/**/*.tsx"]}
+{
+  "extends": "../config/tsconfig.base.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "jsx": "preserve"
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

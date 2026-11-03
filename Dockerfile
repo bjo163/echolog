@@ -19,7 +19,7 @@ COPY apps/web ./apps/web
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
-RUN pnpm build --filter @echolog/api && pnpm prune --prod
+RUN pnpm build && pnpm prune --prod
 
 # --- runtime -----------------------------------------------------------------
 FROM node:24-slim AS runtime
@@ -33,9 +33,8 @@ ENV NODE_ENV=production \
 RUN mkdir -p /data/echolog && chown -R node:node /data /app
 
 COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/packages ./packages
 COPY --from=build --chown=node:node /app/apps/api/dist ./apps/api/dist
-
-# Keep only the api package.json in runtime (it's the only one needed)
 COPY --from=build --chown=node:node /app/apps/api/package.json ./apps/api/package.json
 
 USER node
@@ -46,4 +45,4 @@ VOLUME ["/data"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD ["node", "-e", "fetch('http://127.0.0.1:'+(process.env.ECHOLOG_PORT||'3006')+'/health/ready').then((r)=>process.exit(r.ok?0:1),()=>process.exit(1))"]
 
-CMD ["node", "apps/api/dist/index.js"]
+CMD ["node", "apps/api/dist/src/index.js"]
