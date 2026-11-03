@@ -1,4 +1,4 @@
-import type { DownloadGrant, GcResult, ObjectSidecar } from '../types.js'
+import type { AuditLogRecord, DownloadGrant, GcResult, ObjectSidecar, OciRepositoryItem, S3KeyRecord, ShortLinkRecord, StorageStats } from '../types.js'
 
 /**
  * Thin client for the documented ECHOLOG REST surface.
@@ -100,6 +100,58 @@ export function uploadObject(input: UploadInput, token?: string): Promise<Object
 
 export function runGarbageCollection(token?: string): Promise<GcResult> {
   return requestJson<GcResult>('/api/v1/gc', { method: 'POST', headers: authHeaders(token) })
+}
+
+export function fetchStorageStats(token?: string): Promise<StorageStats> {
+  return requestJson<StorageStats>('/api/v1/storage/stats', { method: 'GET', headers: authHeaders(token) })
+}
+
+export function listS3Keys(token?: string): Promise<S3KeyRecord[]> {
+  return requestJson<S3KeyRecord[]>('/api/v1/s3-keys', { method: 'GET', headers: authHeaders(token) })
+}
+
+export function fetchAuditLogs(limit = 100, token?: string): Promise<AuditLogRecord[]> {
+  return requestJson<AuditLogRecord[]>(`/api/v1/audit-logs?limit=${encodeURIComponent(limit)}`, {
+    method: 'GET',
+    headers: authHeaders(token),
+  })
+}
+
+export function listOciRepositories(token?: string): Promise<OciRepositoryItem[]> {
+  return requestJson<OciRepositoryItem[]>('/api/v1/registry/repositories', { method: 'GET', headers: authHeaders(token) })
+}
+
+export function createPaste(payload: { content: string; title?: string | undefined; retention_hours?: number | undefined; burn_after_reading?: boolean | undefined; custom_slug?: string | undefined }, token?: string) {
+  return requestJson<{ slug: string; digest: string; url: string; raw_url: string; burn_after_reading: boolean; expires_at: string | null }>(
+    '/api/v1/tools/paste',
+    { method: 'POST', headers: { ...authHeaders(token), 'content-type': 'application/json' }, body: JSON.stringify(payload) }
+  )
+}
+
+export function listShortLinks(token?: string): Promise<ShortLinkRecord[]> {
+  return requestJson<ShortLinkRecord[]>('/api/v1/tools/short-links', { method: 'GET', headers: authHeaders(token) })
+}
+
+export function createShortLinkApi(payload: { digest: string; custom_slug?: string | undefined; burn_after_reading?: boolean | undefined; expires_hours?: number | undefined }, token?: string) {
+  return requestJson<ShortLinkRecord>('/api/v1/tools/short-links', {
+    method: 'POST',
+    headers: { ...authHeaders(token), 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+}
+
+export function deleteShortLinkApi(slug: string, token?: string): Promise<void> {
+  return requestJson<void>(`/api/v1/tools/short-links/${encodeURIComponent(slug)}`, {
+    method: 'DELETE',
+    headers: authHeaders(token),
+  })
+}
+
+export function markPrivateWitness(digest: string, token?: string): Promise<void> {
+  return requestJson<void>(`/api/v1/objects/sha256/${encodeURIComponent(digest)}/private-witness`, {
+    method: 'POST',
+    headers: authHeaders(token),
+  })
 }
 
 export interface HealthSnapshot {

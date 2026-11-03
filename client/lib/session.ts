@@ -124,6 +124,22 @@ export async function deleteSidecar(digest: string): Promise<void> {
   await request<void>(`/api/v1/objects/sha256/${encodeURIComponent(digest)}`, { method: 'DELETE' })
 }
 
+export async function markPrivateWitness(digest: string): Promise<void> {
+  await request<void>(`/api/v1/objects/sha256/${encodeURIComponent(digest)}/private-witness`, { method: 'POST' })
+}
+
+export async function getStorageStats() {
+  return request<import('../types.js').StorageStats>('/api/v1/storage/stats')
+}
+
+export async function getS3Keys() {
+  return request<import('../types.js').S3KeyRecord[]>('/api/v1/s3-keys')
+}
+
+export async function getAuditLogs(limit = 100) {
+  return request<import('../types.js').AuditLogRecord[]>(`/api/v1/audit-logs?limit=${encodeURIComponent(limit)}`)
+}
+
 /**
  * One place decides how an API failure reads, so no view invents its own
  * wording for a refusal the service already explained.

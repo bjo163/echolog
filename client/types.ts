@@ -35,4 +35,54 @@ export interface GcResult {
   bytes_freed: number
 }
 
+export interface StorageStats {
+  quota_bytes: number
+  committed_bytes: number
+  objects_count: number
+  held_bytes: number
+  held_count: number
+  active_retention_bytes: number
+  active_retention_count: number
+  eligible_gc_bytes: number
+  eligible_gc_count: number
+  s3_aliases_count: number
+}
+
+export interface S3KeyRecord {
+  key: string
+  object_key: string
+  digest: string
+  size: number
+  content_type: string
+  etag: string
+  last_modified: string
+  retention_until: string | null
+  legal_hold: boolean
+}
+
+export interface AuditLogRecord {
+  id: string
+  timestamp: string
+  actor: string
+  action: string
+  target: string
+  details: string | null
+}
+
+export interface ShortLinkRecord {
+  slug: string
+  digest: string
+  filename: string
+  content_type: string
+  created_at: string
+  expires_at: string | null
+  burn_after_reading: number
+  download_count: number
+}
+
+export interface OciRepositoryItem {
+  repository: string
+  tags: string[]
+}
+
 export type UploadPhase = 'idle' | 'queued' | 'verifying' | 'committed' | 'failed'

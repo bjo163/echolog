@@ -15,3 +15,8 @@ data/
 .idea/
 Thumbs.db
 .DS_Store
+.turbo/
+.next/
+apps/web/.next/
+scratch-debug.mts
+

@@ -15,6 +15,11 @@ import { AccountsView } from '@/views/AccountsView'
 import { CredentialsView } from '@/views/CredentialsView'
 import { ObjectsView } from '@/views/ObjectsView'
 import { UploadView } from '@/views/UploadView'
+import { S3ExplorerView } from '@/views/S3ExplorerView'
+import { StorageTelemetryView } from '@/views/StorageTelemetryView'
+import { AuditLogView } from '@/views/AuditLogView'
+import { OciExplorerView } from '@/views/OciExplorerView'
+import { ToolsView } from '@/views/ToolsView'
 
 /**
  * The console shell. It holds exactly two pieces of state that matter — who is
@@ -26,6 +31,8 @@ export function App() {
   const [booting, setBooting] = useState(true)
   const [health, setHealth] = useState<HealthSnapshot | null>(null)
   const [failure, setFailure] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState('objects')
+  const [inspectedDigest, setInspectedDigest] = useState<string | undefined>(undefined)
 
   const refreshHealth = useCallback(() => {
     void fetchHealth().then(setHealth)
@@ -96,22 +103,48 @@ export function App() {
         ) : null}
 
         {principal ? (
-          <Tabs defaultValue="objects" className="gap-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-6">
             <TabsList>
               <TabsTrigger value="objects">Objects</TabsTrigger>
+              <TabsTrigger value="s3">S3 Explorer</TabsTrigger>
+              <TabsTrigger value="oci">OCI Registry</TabsTrigger>
+              <TabsTrigger value="tools">Tools</TabsTrigger>
               <TabsTrigger value="upload">Upload</TabsTrigger>
+              <TabsTrigger value="telemetry">Telemetry</TabsTrigger>
               {principal.role === 'admin' ? (
                 <>
                   <TabsTrigger value="credentials">Credentials</TabsTrigger>
                   <TabsTrigger value="accounts">Accounts</TabsTrigger>
+                  <TabsTrigger value="audit">Audit Log</TabsTrigger>
                 </>
               ) : null}
             </TabsList>
             <TabsContent value="objects">
-              <ObjectsView principal={principal} />
+              <ObjectsView principal={principal} initialDigest={inspectedDigest} />
+            </TabsContent>
+            <TabsContent value="s3">
+              <S3ExplorerView
+                onSelectDigest={(digest) => {
+                  setInspectedDigest(digest)
+                  setActiveTab('objects')
+                }}
+              />
+            </TabsContent>
+            <TabsContent value="oci">
+              <OciExplorerView />
+            </TabsContent>
+            <TabsContent value="tools">
+              <ToolsView />
             </TabsContent>
             <TabsContent value="upload">
               <UploadView principal={principal} />
+            </TabsContent>
+            <TabsContent value="telemetry">
+              <StorageTelemetryView
+                onTriggerGc={() => {
+                  setActiveTab('objects')
+                }}
+              />
             </TabsContent>
             {principal.role === 'admin' ? (
               <>
@@ -120,6 +153,9 @@ export function App() {
                 </TabsContent>
                 <TabsContent value="accounts">
                   <AccountsView currentLogin={principal.login} />
+                </TabsContent>
+                <TabsContent value="audit">
+                  <AuditLogView />
                 </TabsContent>
               </>
             ) : null}
