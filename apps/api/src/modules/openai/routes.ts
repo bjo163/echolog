@@ -1,17 +1,33 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { generateLocalEmbedding } from '../ai/embedder.js'
 import type { PGliteDatabaseAdapter } from '../../db/pglite-adapter.js'
+import { createEchologAuthenticator } from '../../auth.js'
+import type { EchologDatabase } from '../../db.js'
 
 export interface OpenAiRoutesOptions {
   pgliteAdapter?: PGliteDatabaseAdapter
+  database: EchologDatabase
+  serviceKey?: string
+  arsyUrl?: string
+  fetcher?: typeof fetch
+  now?: () => number
 }
 
 export function registerOpenAiRoutes(app: FastifyInstance, options: OpenAiRoutesOptions): void {
+  const authenticate = createEchologAuthenticator({
+    database: options.database,
+    serviceKey: options.serviceKey,
+    arsyUrl: options.arsyUrl,
+    ...(options.fetcher ? { fetcher: options.fetcher } : {}),
+    ...(options.now ? { now: options.now } : {}),
+  })
   /**
    * GET /v1/models (and /api/v1/models)
    * Lists available models in standard OpenAI response format.
    */
-  const handleModels = async (_req: FastifyRequest, reply: FastifyReply) => {
+  const handleModels = async (req: FastifyRequest, reply: FastifyReply) => {
+    const auth = await authenticate(req)
+    if (!auth.ok) return reply.code(auth.status).send({ error: { message: 'Authentication required', type: 'authentication_error' } })
     return reply.send({
       object: 'list',
       data: [
@@ -53,6 +69,8 @@ export function registerOpenAiRoutes(app: FastifyInstance, options: OpenAiRoutes
     }>,
     reply: FastifyReply,
   ) => {
+    const auth = await authenticate(request)
+    if (!auth.ok) return reply.code(auth.status).send({ error: { message: 'Authentication required', type: 'authentication_error' } })
     const { input, model } = request.body || {}
     if (!input) {
       return reply.status(400).send({
@@ -66,6 +84,9 @@ export function registerOpenAiRoutes(app: FastifyInstance, options: OpenAiRoutes
     }
 
     const inputs = Array.isArray(input) ? input : [input]
+    if (inputs.length > 32 || inputs.some((value) => typeof value !== 'string' || value.length > 8192)) {
+      return reply.status(413).send({ error: { message: 'At most 32 text inputs of 8192 characters each are accepted.', type: 'invalid_request_error' } })
+    }
     const data = inputs.map((text, index) => {
       const vector = generateLocalEmbedding(String(text), 384)
       return {
@@ -105,6 +126,8 @@ export function registerOpenAiRoutes(app: FastifyInstance, options: OpenAiRoutes
     }>,
     reply: FastifyReply,
   ) => {
+    const auth = await authenticate(request)
+    if (!auth.ok) return reply.code(auth.status).send({ error: { message: 'Authentication required', type: 'authentication_error' } })
     const { messages, model, stream } = request.body || {}
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return reply.status(400).send({
@@ -113,6 +136,10 @@ export function registerOpenAiRoutes(app: FastifyInstance, options: OpenAiRoutes
           type: 'invalid_request_error',
         },
       })
+    }
+
+    if (messages.length > 64 || messages.some((message) => typeof message?.content !== 'string') || messages.reduce((sum, message) => sum + (typeof message?.content === 'string' ? message.content.length : 0), 0) > 32_768) {
+      return reply.status(413).send({ error: { message: 'At most 64 messages and 32768 total content characters are accepted.', type: 'invalid_request_error' } })
     }
 
     const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')?.content || ''

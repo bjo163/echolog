@@ -1,18 +1,33 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import type { EchologDatabase } from '../../db.js'
 import type { AutonomousBitScrubber } from '../scrubber/worker.js'
+import { createEchologAuthenticator, isPrivileged } from '../../auth.js'
 
 export interface AnalyticsRoutesOptions {
   database: EchologDatabase
   scrubber?: AutonomousBitScrubber
+  serviceKey?: string
+  arsyUrl?: string
+  fetcher?: typeof fetch
+  now?: () => number
 }
 
 export function registerAnalyticsRoutes(app: FastifyInstance, options: AnalyticsRoutesOptions): void {
+  const authenticate = createEchologAuthenticator({
+    database: options.database,
+    serviceKey: options.serviceKey,
+    arsyUrl: options.arsyUrl,
+    ...(options.fetcher ? { fetcher: options.fetcher } : {}),
+    ...(options.now ? { now: options.now } : {}),
+  })
   /**
    * GET /api/v1/analytics/overview
    * Aggregates storage telemetry, audit events, and autonomous scrubber status.
    */
-  app.get('/api/v1/analytics/overview', async (_request: FastifyRequest, reply: FastifyReply) => {
+  app.get('/api/v1/analytics/overview', async (request: FastifyRequest, reply: FastifyReply) => {
+    const auth = await authenticate(request)
+    if (!auth.ok) return reply.code(auth.status).send({ error: { code: auth.code, message: 'Authentication required' } })
+    if (!isPrivileged(auth.principal)) return reply.code(403).send({ error: { code: 'forbidden', message: 'Administrator access is required.' } })
     // 1. Audit log stats
     let totalAuditEvents = 0
     let lastAuditEvent: any = null
@@ -61,7 +76,10 @@ export function registerAnalyticsRoutes(app: FastifyInstance, options: Analytics
    * POST /api/v1/analytics/scrub
    * Manually trigger an on-demand scrubbing cycle.
    */
-  app.post('/api/v1/analytics/scrub', async (_request: FastifyRequest, reply: FastifyReply) => {
+  app.post('/api/v1/analytics/scrub', async (request: FastifyRequest, reply: FastifyReply) => {
+    const auth = await authenticate(request)
+    if (!auth.ok) return reply.code(auth.status).send({ error: { code: auth.code, message: 'Authentication required' } })
+    if (!isPrivileged(auth.principal)) return reply.code(403).send({ error: { code: 'forbidden', message: 'Administrator access is required.' } })
     if (!options.scrubber) {
       return reply.status(503).send({ error: 'Scrubber is not initialized' })
     }

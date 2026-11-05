@@ -144,16 +144,16 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
   registerHoneypotRoutes(app, honeypotManager, options.database)
 
   // Real-Time CDC Server-Sent Events (SSE)
-  registerRealtimeRoutes(app)
+  registerRealtimeRoutes(app, { database: options.database, serviceKey: config.serviceKey, arsyUrl: config.arsyUrl, ...(options.fetcher ? { fetcher: options.fetcher } : {}), ...(options.now ? { now: options.now } : {}) })
 
   // OpenAI-Compatible Local AI Gateway (/v1/models, /v1/embeddings, /v1/chat/completions)
-  registerOpenAiRoutes(app, { pgliteAdapter: options.pgliteAdapter })
+  registerOpenAiRoutes(app, { database: options.database, serviceKey: config.serviceKey, arsyUrl: config.arsyUrl, pgliteAdapter: options.pgliteAdapter, ...(options.fetcher ? { fetcher: options.fetcher } : {}), ...(options.now ? { now: options.now } : {}) })
 
   // Autonomous Bit-Scrubber & Self-Healing Engine
   const scrubber = new AutonomousBitScrubber(driver, config.storageRoot)
 
   // Columnar Analytical OLAP Layer & Telemetry
-  registerAnalyticsRoutes(app, { database: options.database, scrubber })
+  registerAnalyticsRoutes(app, { database: options.database, serviceKey: config.serviceKey, arsyUrl: config.arsyUrl, scrubber, ...(options.fetcher ? { fetcher: options.fetcher } : {}), ...(options.now ? { now: options.now } : {}) })
 
   // Postgres Wire Gateway (:5432)
   let pgWireServer: PostgresWireServer | null = null

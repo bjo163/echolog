@@ -1,7 +1,24 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { eventBus, type EchologBroadcastEvent } from './event-bus.js'
+import { createEchologAuthenticator, isPrivileged } from '../../auth.js'
+import type { EchologDatabase } from '../../db.js'
 
-export function registerRealtimeRoutes(app: FastifyInstance): void {
+export interface RealtimeRoutesOptions {
+  database: EchologDatabase
+  serviceKey?: string
+  arsyUrl?: string
+  fetcher?: typeof fetch
+  now?: () => number
+}
+
+export function registerRealtimeRoutes(app: FastifyInstance, options: RealtimeRoutesOptions): void {
+  const authenticate = createEchologAuthenticator({
+    database: options.database,
+    serviceKey: options.serviceKey,
+    arsyUrl: options.arsyUrl,
+    ...(options.fetcher ? { fetcher: options.fetcher } : {}),
+    ...(options.now ? { now: options.now } : {}),
+  })
   /**
    * Server-Sent Events (SSE) CDC stream.
    * Clients connect to this endpoint to receive live real-time updates of
@@ -10,6 +27,9 @@ export function registerRealtimeRoutes(app: FastifyInstance): void {
   app.get(
     '/api/v1/realtime/stream',
     async (request: FastifyRequest, reply: FastifyReply) => {
+      const auth = await authenticate(request)
+      if (!auth.ok) return reply.code(auth.status).send({ error: { code: auth.code, message: 'Authentication required' } })
+      if (!isPrivileged(auth.principal)) return reply.code(403).send({ error: { code: 'forbidden', message: 'Administrator access is required.' } })
       reply.raw.setHeader('Content-Type', 'text/event-stream')
       reply.raw.setHeader('Cache-Control', 'no-cache, no-transform')
       reply.raw.setHeader('Connection', 'keep-alive')
@@ -71,6 +91,9 @@ export function registerRealtimeRoutes(app: FastifyInstance): void {
       }>,
       reply: FastifyReply,
     ) => {
+      const auth = await authenticate(request)
+      if (!auth.ok) return reply.code(auth.status).send({ error: { code: auth.code, message: 'Authentication required' } })
+      if (!isPrivileged(auth.principal)) return reply.code(403).send({ error: { code: 'forbidden', message: 'Administrator access is required.' } })
       const { type, data } = request.body || {}
       if (!type || !data) {
         return reply.status(400).send({ error: 'type and data are required' })
