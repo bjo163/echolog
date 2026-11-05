@@ -134,7 +134,7 @@ The product should feel like a high-trust archival instrument: precise, quiet, t
 - [x] B1.3 Define semantic colors: success/verified, warning/stale, danger/mismatch, neutral/unknown, disabled/unavailable.
 - [x] B1.4 Use amber for caution and red only for destructive or failed states.
 - [x] B1.5 Define typography scale for page title, section title, body, labels, metadata, and monospace identifiers.
-- [ ] B1.6 Use tabular numerals for sizes, timestamps, counters, and digest fragments.
+- [x] B1.6 Use tabular numerals for sizes, timestamps, counters, and digest fragments.
 - [x] B1.7 Define spacing, layout widths, border weights, radii, shadows, and density.
 - [ ] B1.8 Define data-table density modes where useful.
 - [x] B1.9 Define icon style and a consistent icon library; avoid emoji as core interface icons.
@@ -147,7 +147,7 @@ The product should feel like a high-trust archival instrument: precise, quiet, t
 - [x] B2.1 Implement complete dark theme.
 - [x] B2.2 Implement complete light theme; do not simply invert colors.
 - [x] B2.3 Add a theme switcher with persisted preference using the project's existing preference mechanism.
-- [ ] B2.4 Respect system preference when no explicit preference exists.
+- [x] B2.4 Respect system color preference when no saved preference exists.
 - [ ] B2.5 Verify text and control contrast.
 - [x] B2.6 Add visible keyboard focus to all interactive controls.
 - [x] B2.7 Ensure all controls have accessible names and labels.
@@ -173,7 +173,7 @@ Build or adapt reusable components only after checking the current component lib
 - [x] B3.10 Byte-size formatter.
 - [ ] B3.11 Verification result panel.
 - [ ] B3.12 Event timeline.
-- [ ] B3.13 Retention and legal-hold indicator.
+- [x] B3.13 Retention and legal-hold indicators.
 - [ ] B3.14 Privacy classification indicator that does not reveal unauthorized object existence.
 - [x] B3.15 Empty, loading/skeleton, error, stale, unavailable, and unauthorized state components.
 - [x] B3.16 Confirmation dialog for destructive or irreversible operations.
@@ -197,7 +197,7 @@ Build or adapt reusable components only after checking the current component lib
 - [x] C1.2 Show ECHOLOG identity and the D19 designation without overwhelming the interface.
 - [ ] C1.3 Show environment (local/development/staging/production) only when reliably known.
 - [x] C1.4 Show current identity mode: standalone or ARSY-federated.
-- [ ] C1.5 Show service connectivity based on a real health check; distinguish unknown from offline.
+- [x] C1.5 Show service connectivity from the real `/health/ready` endpoint; distinguish checking from unavailable.
 - [x] C1.6 Add responsive primary navigation.
 - [ ] C1.7 Add global search only if a real searchable resource exists; otherwise omit or scope it clearly.
 - [ ] C1.8 Add command palette only for real navigation/actions already supported.
@@ -238,7 +238,7 @@ Implement these in order. A flow is complete only when it works with actual API 
 
 **Purpose:** provide a truthful operational snapshot, not a decorative analytics dashboard.
 
-- [ ] D1.1 Show service health from a verified health endpoint.
+- [x] D1.1 Show service readiness from the actual `/health/ready` endpoint.
 - [x] D1.2 Show object count only if the backend returns an authorized, correctly scoped count.
 - [x] D1.3 Show stored bytes/capacity only if the source and units are defined.
 - [ ] D1.4 Show verification backlog only if a real queue/status API exists.
@@ -715,6 +715,10 @@ The finished console should feel like a precision archive instrument. It should 
 **ECHOLOG does not ask users to trust a green badge. It gives them the information and tools to inspect what actually happened.**
 
 
+## Implementation progress — pass 4 (6 November 2026)
+
+Overview service status now comes from the real `/health/ready` endpoint instead of inferring health from storage statistics. The console respects the operating system's color-scheme preference when no saved theme preference exists, and operational values use tabular numerals for easier scanning. The checklist marks these source-implemented items; runtime and accessibility QA are still pending.
+
 ## Implementation progress — pass 3 (6 November 2026)
 
 The console now uses dedicated Next.js App Router pathname routes for all workspace sections and `/objects/<sha256>` detail pages. Direct object-route loading waits for session restoration before requesting protected metadata. The shared API helper applies a 15-second timeout and safe network error handling. Core refresh now isolates partial endpoint failures, clears failed panels instead of showing stale values as current, records the last successful full refresh time, and exposes a refresh action. Administrator API-key and user mutations now guard against duplicate submissions. These changes are implementation/source-reviewed; CI, typecheck, production build, and browser verification are still pending.
@@ -730,4 +734,4 @@ The first working console pass is committed in `main`. The checklist above is up
 **Validation is still pending:** no local pnpm execution or browser test has been run for this pass. Do not mark Phase H, visual QA, or the overall definition of done complete until CI/build and browser verification pass.
 
 
-**Checklist snapshot after pass 3:** 122 items checked and 278 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. CI, local pnpm checks, and browser checks remain pending.
+**Checklist snapshot after pass 4:** 127 items checked and 273 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. CI, local pnpm checks, and browser checks remain pending.
