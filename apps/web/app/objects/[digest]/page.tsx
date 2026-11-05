@@ -1,8 +1,5 @@
-import { notFound } from 'next/navigation'
-import EchologConsole from '../../page'
+﻿import { ConsoleApp } from '../../../components/console/app'
 
-export default async function ObjectDetailRoute({ params }: { params: Promise<{ digest: string }> }) {
-  const { digest } = await params
-  if (!/^[a-f0-9]{64}$/.test(digest)) notFound()
-  return <EchologConsole />
+export default function ObjectPage() {
+  return <ConsoleApp />
 }

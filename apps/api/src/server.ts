@@ -17,6 +17,8 @@ import { registerRealtimeRoutes } from './modules/realtime/routes.js'
 import { registerOpenAiRoutes } from './modules/openai/routes.js'
 import { AutonomousBitScrubber } from './modules/scrubber/worker.js'
 import { registerAnalyticsRoutes } from './modules/analytics/routes.js'
+import { registerConsoleRoutes } from './modules/console/index.js'
+import type { CapabilityMaturity } from './modules/console/index.js'
 import { PGliteDatabaseAdapter } from './db/pglite-adapter.js'
 import { metricsPlugin } from './middleware/metrics.middleware.js'
 import { requestIdPlugin } from './middleware/request-id.middleware.js'
@@ -163,6 +165,67 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
   // Columnar Analytical OLAP Layer & Telemetry
   registerAnalyticsRoutes(app, { database: options.database, serviceKey: config.serviceKey, arsyUrl: config.arsyUrl, scrubber, ...(options.fetcher ? { fetcher: options.fetcher } : {}), ...(options.now ? { now: options.now } : {}) })
 
+<<<<<<< HEAD
+=======
+  // Operator console runtime facts.
+  //
+  // The console must not infer the identity mode, the environment or the
+  // capability set from a display name, so the server states them. The map
+  // below mirrors what this instance actually registered: the vector, shape
+  // sync and wire modules exist only when a PGlite adapter was supplied, and
+  // the remaining experimental modules are labelled as such rather than
+  // promoted to D19 core.
+  const features: Record<string, CapabilityMaturity> = {
+    object_storage: 'available',
+    object_metadata: 'available',
+    retention: 'available',
+    legal_hold: 'available',
+    private_witness: 'available',
+    download_grants: 'available',
+    garbage_collection: 'available',
+    s3_aliases: 'available',
+    service_health: 'available',
+    audit_log: 'available',
+    api_keys: 'available',
+    user_administration: 'available',
+    fixity_scan: 'experimental',
+    fixity_history: 'unavailable',
+    verification_quarantine: 'unavailable',
+    preservation_packages: 'unavailable',
+    object_export: 'unavailable',
+    backup: 'unavailable',
+    restore: 'unavailable',
+    evidence_receipt: 'unavailable',
+    independent_witness: 'unavailable',
+    semantic_search: options.pgliteAdapter ? 'experimental' : 'unavailable',
+    shape_sync: options.pgliteAdapter ? 'experimental' : 'unavailable',
+    postgres_wire: options.pgliteAdapter && options.pgWirePort ? 'experimental' : 'unavailable',
+    realtime_events: 'experimental',
+    olap_analytics: 'experimental',
+    oci_registry: 'experimental',
+    object_branching: 'experimental',
+    honeypot_canaries: 'experimental',
+    short_links: 'experimental',
+    openai_gateway: 'experimental',
+  }
+  registerConsoleRoutes(app, config, {
+    database: options.database,
+    features,
+    ...(options.fetcher ? { fetcher: options.fetcher } : {}),
+    ...(options.now ? { now: options.now } : {}),
+  })
+
+  // Postgres Wire Gateway (:5432)
+  let pgWireServer: PostgresWireServer | null = null
+  if (options.pgliteAdapter && options.pgWirePort) {
+    pgWireServer = new PostgresWireServer(options.pgliteAdapter, options.pgWirePort)
+    void pgWireServer.start().catch(() => {})
+    app.addHook('onClose', async () => {
+      if (pgWireServer) await pgWireServer.stop()
+    })
+  }
+
+>>>>>>> 719aff3 (oke)
   app.get('/health', {
     schema: {
       response: {

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 'use client'
 import {useCallback,useEffect,useMemo,useRef,useState} from 'react'
 import {usePathname,useRouter} from 'next/navigation'
@@ -67,3 +68,10 @@ return <div className={'app theme-'+theme}><a className="skip-link" href="#main-
 {section==='settings'&&<div className="stack"><section className="panel"><div className="panel-head"><div><span className="eyebrow">PREFERENCES</span><h3>Appearance</h3></div></div><div className="setting"><div><b>Color theme</b><small>Preference is saved in this browser.</small></div><button className="btn secondary" onClick={themeToggle}>{theme==='dark'?<Sun size={15}/>:<Moon size={15}/>} Switch to {theme==='dark'?'light':'dark'}</button></div></section><section className="panel"><div className="panel-head"><div><span className="eyebrow">INSTANCE</span><h3>Service information</h3></div></div><div className="detail-grid">{[['Product','ECHOLOG'],['Domain','D19 · Object Memory & Evidence Integrity'],['Identity mode','Standalone'],['Operator',principal.login+' ('+principal.role+')'],['Health endpoint','/health/ready'],['API base','/api/v1']].map(x=><div key={x[0]}><label>{x[0]}</label><b>{x[1]}</b></div>)}</div></section><section className="panel"><div className="panel-head"><div><span className="eyebrow">PRODUCT BOUNDARY</span><h3>What ECHOLOG does not claim</h3></div></div><div className="boundaries"><p>SHA-256 does not prove truth or authorship.</p><p>Standalone identity is not ARSY/D00 federation.</p><p>Configured quota is not physical disk capacity.</p><p>A persistent volume is not a verified backup.</p><p>Service audit is not the full ecosystem history.</p><p>Fixity verification is not currently exposed by the API.</p></div></section></div>}
 <footer className="footer"><span>ECHOLOG · PRESERVE THE ORIGINAL. VERIFY THE BYTES.</span><span>MOONWITNESS XV / D19</span></footer></div></main></div>
 }
+=======
+﻿import { ConsoleApp } from '../components/console/app'
+
+export default function OverviewPage() {
+  return <ConsoleApp />
+}
+>>>>>>> 719aff3 (oke)

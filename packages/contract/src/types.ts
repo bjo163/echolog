@@ -111,6 +111,49 @@ export interface VectorStatsResponse {
   indexed_objects: number
 }
 
+/**
+ * Capability maturity as reported by the running instance.
+ *
+ * `available` is D19 core. `experimental` means the route exists but the domain
+ * boundary does not treat it as production-ready. `unavailable` means the
+ * capability has no server-side support at all, so a console must say so
+ * instead of drawing a screen that cannot work.
+ */
+export type CapabilityMaturity = 'available' | 'experimental' | 'unavailable'
+
+/** Non-secret runtime facts describing the instance the console is talking to. */
+export interface ConsoleRuntimeFacts {
+  product: 'ECHOLOG'
+  domain: 'D19'
+  version: string
+  environment: 'development' | 'test' | 'production'
+  identity_mode: 'standalone' | 'arsy_federated'
+  identity_authority: 'local-echolog' | 'arsy-d00'
+  storage: {
+    backend: 'filesystem'
+    quota_bytes: number
+    max_upload_bytes: number
+    allowed_mime_types: string[]
+  }
+  session_ttl_hours: number
+  metrics_enabled: boolean
+  features: Record<string, CapabilityMaturity>
+}
+
+/**
+ * Result of a full-read fixity scan.
+ *
+ * The scan re-hashes the stored bytes and compares them with the content
+ * address. It reports aggregates only: per-object results are published to an
+ * in-process event bus and are not durable history.
+ */
+export interface FixityScanReport {
+  objectsScanned: number
+  corruptionsFound: number
+  autoHealed: number
+  lastScrubTime: string | null
+}
+
 export type UploadPhase = 'idle' | 'queued' | 'verifying' | 'committed' | 'failed'
 
 export interface RealtimeBroadcastEvent {

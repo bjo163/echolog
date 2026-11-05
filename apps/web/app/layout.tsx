@@ -1,4 +1,28 @@
-import type { Metadata } from 'next'
+﻿import { Metadata, Viewport } from 'next'
 import './globals.css'
-export const metadata: Metadata = { title: 'ECHOLOG — Evidence Preservation', description: 'ECHOLOG D19 operator console. Preserve the original. Verify the bytes.', applicationName: 'ECHOLOG' }
-export default function RootLayout({ children }: { children: React.ReactNode }) { return <html lang="en" suppressHydrationWarning><body>{children}</body></html> }
+
+export const metadata: Metadata = {
+  title: {
+    default: 'ECHLOG · Operator Console',
+    template: '%s · ECHOLOG',
+  },
+  description:
+    'Operator console for ECHOLOG, the D19 object memory and evidence integrity service of MoonWitness XV.',
+  applicationName: 'ECHOLOG',
+  robots: { index: false, follow: false },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#0c0e10',
+  colorScheme: 'dark light',
+  width: 'device-width',
+  initialScale: 1,
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang='en'>
+      <body>{children}</body>
+    </html>
+  )
+}

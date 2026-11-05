@@ -1,4 +1,15 @@
-import type { AuditLogRecord, DownloadGrant, GcResult, ObjectSidecar, OciRepositoryItem, S3KeyRecord, ShortLinkRecord, StorageStats } from '@echolog/contract'
+import type {
+  AuditLogRecord,
+  ConsoleRuntimeFacts,
+  DownloadGrant,
+  FixityScanReport,
+  GcResult,
+  ObjectSidecar,
+  OciRepositoryItem,
+  S3KeyRecord,
+  ShortLinkRecord,
+  StorageStats,
+} from '@echolog/contract'
 
 /**
  * Thin client for the documented ECHOLOG REST surface.
@@ -23,7 +34,7 @@ export class ApiError extends Error {
   }
 }
 
-interface UploadInput {
+export interface UploadInput {
   bytes: ArrayBuffer
   contentType: string
   filename: string
@@ -100,6 +111,110 @@ export function uploadObject(input: UploadInput, token?: string): Promise<Object
 
 export function runGarbageCollection(token?: string): Promise<GcResult> {
   return requestJson<GcResult>('/api/v1/gc', { method: 'POST', headers: authHeaders(token) })
+}
+
+/**
+ * Runtime facts straight from the server.
+ *
+ * The console never infers the identity mode, the environment, the version or
+ * the capability set from a label; it asks the instance that is actually
+ * answering the request.
+ */
+export function fetchRuntimeFacts(token?: string): Promise<ConsoleRuntimeFacts> {
+  return requestJson<ConsoleRuntimeFacts>('/api/v1/console/runtime', { method: 'GET', headers: authHeaders(token) })
+}
+
+/**
+ * Aggregated result of the last full-read fixity scan.
+ *
+ * The scan is a real byte-level re-hash of stored objects, but it reports
+ * aggregates only: per-object outcomes are published to an in-process event bus
+ * and are not durable history.
+ */
+export async function fetchFixityReport(token?: string): Promise<FixityScanReport | null> {
+  const overview = await requestJson<{
+    telemetry?: { autonomousScrubber?: FixityScanReport | null }
+  }>('/api/v1/analytics/overview', { method: 'GET', headers: authHeaders(token) })
+  return overview.telemetry?.autonomousScrubber ?? null
+}
+
+/** Trigger an on-demand full-read fixity scan. Administrator only. */
+export function runFixityScan(token?: string): Promise<{ success: boolean; results: FixityScanReport }> {
+  return requestJson<{ success: boolean; results: FixityScanReport }>('/api/v1/analytics/scrub', {
+    method: 'POST',
+    headers: authHeaders(token),
+  })
+}
+
+export interface UploadProgress {
+  loaded: number
+  total: number | null
+  /** `null` when the total size is not known yet, so no fake percentage is shown. */
+  percent: number | null
+}
+
+/**
+ * Upload with real byte progress.
+ *
+ * `fetch` cannot report how much of a request body has been sent, so the
+ * browser transport uses `XMLHttpRequest`, which does. Servers and test
+ * environments fall back to the plain fetch path without progress rather than
+ * inventing a percentage.
+ */
+export function uploadObjectWithProgress(
+  input: UploadInput,
+  onProgress: (progress: UploadProgress) => void,
+  options: { token?: string; signal?: AbortSignal } = {},
+): Promise<ObjectSidecar> {
+  if (typeof XMLHttpRequest === 'undefined') {
+    return uploadObject(input, options.token)
+  }
+  return new Promise<ObjectSidecar>((resolve, reject) => {
+    const request = new XMLHttpRequest()
+    request.open('POST', '/api/v1/objects', true)
+    request.withCredentials = true
+    request.setRequestHeader('content-type', input.contentType)
+    request.setRequestHeader('x-filename', input.filename)
+    if (input.retentionUntil) request.setRequestHeader('x-echolog-retention-until', input.retentionUntil)
+    if (input.legalHold) request.setRequestHeader('x-echolog-legal-hold', 'true')
+    if (input.privateWitness) request.setRequestHeader('x-echolog-private-witness', 'true')
+    if (options.token) request.setRequestHeader('authorization', `Bearer ${options.token}`)
+
+    request.upload.addEventListener('progress', (event) => {
+      const total = event.lengthComputable ? event.total : null
+      onProgress({
+        loaded: event.loaded,
+        total,
+        percent: total && total > 0 ? Math.round((event.loaded / total) * 100) : null,
+      })
+    })
+
+    request.addEventListener('load', () => {
+      let body: unknown = null
+      try {
+        body = JSON.parse(request.responseText) as unknown
+      } catch {
+        body = null
+      }
+      if (request.status >= 200 && request.status < 300) {
+        resolve(body as ObjectSidecar)
+        return
+      }
+      const failure = body as { error?: { code?: string; message?: string } } | null
+      const code = failure?.error?.code ?? 'request_failed'
+      const message = failure?.error?.message ?? `Upload failed with status ${String(request.status)}.`
+      reject(new ApiError(request.status, code, message))
+    })
+    request.addEventListener('error', () => {
+      reject(new ApiError(0, 'network_error', 'The upload could not reach ECHOLOG. Check service availability and retry.'))
+    })
+    request.addEventListener('abort', () => {
+      reject(new ApiError(0, 'upload_cancelled', 'The upload was cancelled before it completed.'))
+    })
+
+    options.signal?.addEventListener('abort', () => request.abort(), { once: true })
+    request.send(input.bytes)
+  })
 }
 
 export function fetchStorageStats(token?: string): Promise<StorageStats> {
