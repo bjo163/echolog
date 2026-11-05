@@ -59,3 +59,8 @@ The experimental route surface was reviewed and hardened in the follow-up API pa
 - Integration tests cover anonymous denial, member privilege denial, authorized admin calls, and payload limits.
 
 These code changes are committed, but the CI run is still the authority for typecheck/build/test confirmation. Dependency CVE remediation remains incomplete until the lockfile is regenerated and the pinned-version assertions pass.
+
+
+## Experimental PostgreSQL wire gateway
+
+The optional in-process PostgreSQL wire prototype was found to send AuthenticationOk without validating a client credential and to bind its TCP listener to 0.0.0.0. The server now refuses any configuration that attempts to enable this listener. Re-enablement requires a real authentication handshake, TLS strategy, network exposure review, and protocol-level security tests. The unsafe prototype is not part of the supported deployment surface.

@@ -75,6 +75,15 @@ void test('ECHOLOG boots on an explicit port and exposes only honest health surf
   assert.ok(app.printRoutes().includes('api/v1/') && app.printRoutes().includes('objects (POST)'))
 })
 
+void test('ECHOLOG refuses the unauthenticated experimental Postgres wire gateway', () => {
+  const database = openTestDatabase()
+  assert.throws(
+    () => createEchologServer(parseConfig({}), { database, pgWirePort: 5432 }),
+    /Postgres wire gateway is disabled.*authentication or TLS/,
+  )
+  database.handle.close()
+})
+
 void test('ECHOLOG config rejects an invalid port with a readable message', () => {
   assert.throws(
     () => parseConfig({ ECHOLOG_PORT: '70000' }),

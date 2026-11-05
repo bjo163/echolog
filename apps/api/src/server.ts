@@ -10,7 +10,6 @@ import { registerOciRoutes } from './modules/oci/routes.js'
 import { registerToolsRoutes } from './modules/tools/index.js'
 import { registerSemanticSearchRoutes } from './modules/ai/routes.js'
 import { BackgroundVectorIngestor } from './modules/ai/worker.js'
-import { PostgresWireServer } from './modules/wire/pg-server.js'
 import { ShapeSyncManager, registerShapeSyncRoutes } from './modules/sync/shape-stream.js'
 import { BranchManager, registerBranchRoutes } from './modules/branch/index.js'
 import { HoneypotManager, registerHoneypotRoutes } from './modules/security/honeypot.js'
@@ -30,6 +29,10 @@ export interface EchologServerConfig extends EchologServerOptions {
 }
 
 export function createEchologServer(config: EchologConfig, options: EchologServerConfig) {
+  if (options.pgWirePort !== undefined) {
+    throw new Error('ECHOLOG Postgres wire gateway is disabled: the experimental protocol handler does not implement client authentication or TLS.')
+  }
+
   const app = Fastify({
     logger: options.logger ?? false,
     // Keep Fastify's hard ceiling above the app-specific stream guard so the
@@ -159,16 +162,6 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
 
   // Columnar Analytical OLAP Layer & Telemetry
   registerAnalyticsRoutes(app, { database: options.database, serviceKey: config.serviceKey, arsyUrl: config.arsyUrl, scrubber, ...(options.fetcher ? { fetcher: options.fetcher } : {}), ...(options.now ? { now: options.now } : {}) })
-
-  // Postgres Wire Gateway (:5432)
-  let pgWireServer: PostgresWireServer | null = null
-  if (options.pgliteAdapter && options.pgWirePort) {
-    pgWireServer = new PostgresWireServer(options.pgliteAdapter, options.pgWirePort)
-    void pgWireServer.start().catch(() => {})
-    app.addHook('onClose', async () => {
-      if (pgWireServer) await pgWireServer.stop()
-    })
-  }
 
   app.get('/health', {
     schema: {
