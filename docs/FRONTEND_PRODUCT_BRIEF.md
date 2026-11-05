@@ -517,7 +517,7 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 - [ ] F1.1 Use typed request/response contracts from the existing codebase.
 - [x] F1.2 Centralize API error parsing and safe error messages in the shared request helper.
 - [ ] F1.3 Handle request cancellation on route changes where appropriate.
-- [ ] F1.4 Prevent stale responses from overwriting newer search/filter results.
+- [x] F1.4 Guard overlapping workspace/admin refresh requests so stale responses cannot overwrite newer state; alias search and sort are synchronous client-side operations.
 - [ ] F1.5 Use pagination/cursor semantics exactly as defined by the API.
 - [ ] F1.6 Avoid unnecessary polling; respect backend rate limits.
 - [ ] F1.7 Use SSE only if the actual event stream is available and its durability limitations are disclosed.
@@ -730,4 +730,4 @@ The first working console pass is committed in `main`. The checklist above is up
 **Validation is still pending:** no local pnpm execution or browser test has been run for this pass. Do not mark Phase H, visual QA, or the overall definition of done complete until CI/build and browser verification pass.
 
 
-**Checklist snapshot after pass 3:** 121 items checked and 279 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. CI, local pnpm checks, and browser checks remain pending.
+**Checklist snapshot after pass 3:** 122 items checked and 278 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. CI, local pnpm checks, and browser checks remain pending.
