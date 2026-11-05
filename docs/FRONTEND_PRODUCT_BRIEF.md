@@ -81,15 +81,15 @@ The transformation is complete only when:
 
 ## A1. Inventory
 
-- [ ] A1.1 Inspect the root package manager, workspace configuration, scripts, and lockfile.
-- [ ] A1.2 Inspect the complete `apps/web` route tree and identify existing pages, layouts, loading files, error boundaries, and route handlers.
-- [ ] A1.3 Inspect the existing UI/component package and identify reusable primitives.
-- [ ] A1.4 Inspect current CSS, theme tokens, fonts, icons, and responsive breakpoints.
+- [x] A1.1 Inspect the root package manager, workspace configuration, scripts, and lockfile.
+- [x] A1.2 Inspect the complete `apps/web` route tree and identify existing pages, layouts, loading files, error boundaries, and route handlers.
+- [x] A1.3 Inspect the existing UI/component package and identify reusable primitives.
+- [x] A1.4 Inspect current CSS, theme tokens, fonts, icons, and responsive breakpoints.
 - [ ] A1.5 Inspect API client code, SDK, OpenAPI/schema files, shared contracts, and generated types.
-- [ ] A1.6 Inspect authentication, authorization, session handling, middleware, and standalone/federated mode detection.
-- [ ] A1.7 Inspect current API endpoints and record their actual request/response shapes.
+- [x] A1.6 Inspect authentication, authorization, session handling, middleware, and standalone/federated mode detection.
+- [x] A1.7 Inspect current API endpoints and record their actual request/response shapes.
 - [ ] A1.8 Inspect tests, fixtures, mocks, and existing CI commands.
-- [ ] A1.9 Identify existing frontend behavior that must not regress.
+- [x] A1.9 Identify existing frontend behavior that must not regress.
 - [ ] A1.10 Produce a concise baseline inventory before implementation.
 
 **Acceptance criteria**
@@ -104,16 +104,16 @@ Create and maintain a route-to-capability matrix with these columns:
 
 `Screen | User task | API/SDK source | Auth requirement | Implemented? | UI state | Blocker | Test`
 
-- [ ] A2.1 Map object listing, object detail, object upload/deposit, object download, and metadata operations.
+- [x] A2.1 Map object listing, object detail, object upload/deposit, object download, and metadata operations.
 - [ ] A2.2 Map digest/fixity verification and verification history.
-- [ ] A2.3 Map retention, legal hold, and deletion behavior.
-- [ ] A2.4 Map audit/activity events and their actual scope.
-- [ ] A2.5 Map storage volume/configuration and capacity reporting.
-- [ ] A2.6 Map backup, restore, export, and import capabilities.
-- [ ] A2.7 Map standalone identity and ARSY federation.
+- [x] A2.3 Map retention, legal hold, and deletion behavior.
+- [x] A2.4 Map audit/activity events and their actual scope.
+- [x] A2.5 Map storage volume/configuration and capacity reporting.
+- [x] A2.6 Map backup, restore, export, and import capabilities.
+- [x] A2.7 Map standalone identity and ARSY federation.
 - [ ] A2.8 Map experimental endpoints separately from production-ready capabilities.
-- [ ] A2.9 Mark each unsupported action as `NOT_AVAILABLE`, not as implemented.
-- [ ] A2.10 Save the matrix in the repository, preferably `apps/web/ROUTE_API_MATRIX.md` or the established docs location.
+- [x] A2.9 Mark each unsupported action as `NOT_AVAILABLE`, not as implemented.
+- [x] A2.10 Save the matrix in the repository, preferably `apps/web/ROUTE_API_MATRIX.md` or the established docs location.
 
 **Acceptance criteria**
 - [ ] No visible action lacks an implementation mapping or an explicit unavailable state.
@@ -130,55 +130,55 @@ Create and maintain a route-to-capability matrix with these columns:
 The product should feel like a high-trust archival instrument: precise, quiet, technical, and human. It must not look like a generic admin template, crypto dashboard, cloud drive, or sci-fi game HUD.
 
 - [ ] B1.1 Define the ECHOLOG wordmark treatment using existing brand assets if available.
-- [ ] B1.2 Define a restrained palette: deep charcoal, graphite, warm ivory, moonlight silver, and controlled cyan/teal.
-- [ ] B1.3 Define semantic colors: success/verified, warning/stale, danger/mismatch, neutral/unknown, disabled/unavailable.
-- [ ] B1.4 Use amber for caution and red only for destructive or failed states.
-- [ ] B1.5 Define typography scale for page title, section title, body, labels, metadata, and monospace identifiers.
+- [x] B1.2 Define a restrained palette: deep charcoal, graphite, warm ivory, moonlight silver, and controlled cyan/teal.
+- [x] B1.3 Define semantic colors: success/verified, warning/stale, danger/mismatch, neutral/unknown, disabled/unavailable.
+- [x] B1.4 Use amber for caution and red only for destructive or failed states.
+- [x] B1.5 Define typography scale for page title, section title, body, labels, metadata, and monospace identifiers.
 - [ ] B1.6 Use tabular numerals for sizes, timestamps, counters, and digest fragments.
-- [ ] B1.7 Define spacing, layout widths, border weights, radii, shadows, and density.
+- [x] B1.7 Define spacing, layout widths, border weights, radii, shadows, and density.
 - [ ] B1.8 Define data-table density modes where useful.
-- [ ] B1.9 Define icon style and a consistent icon library; avoid emoji as core interface icons.
+- [x] B1.9 Define icon style and a consistent icon library; avoid emoji as core interface icons.
 - [ ] B1.10 Use subtle texture/grid only where it improves hierarchy; never reduce readability.
-- [ ] B1.11 Avoid purple gradients, neon overload, excessive glassmorphism, oversized rounded cards, and decorative fake charts.
-- [ ] B1.12 Create a small set of reusable visual patterns rather than styling each page independently.
+- [x] B1.11 Avoid purple gradients, neon overload, excessive glassmorphism, oversized rounded cards, and decorative fake charts.
+- [x] B1.12 Create a small set of reusable visual patterns rather than styling each page independently.
 
 ## B2. Theme and accessibility
 
-- [ ] B2.1 Implement complete dark theme.
-- [ ] B2.2 Implement complete light theme; do not simply invert colors.
-- [ ] B2.3 Add a theme switcher with persisted preference using the project's existing preference mechanism.
+- [x] B2.1 Implement complete dark theme.
+- [x] B2.2 Implement complete light theme; do not simply invert colors.
+- [x] B2.3 Add a theme switcher with persisted preference using the project's existing preference mechanism.
 - [ ] B2.4 Respect system preference when no explicit preference exists.
 - [ ] B2.5 Verify text and control contrast.
-- [ ] B2.6 Add visible keyboard focus to all interactive controls.
-- [ ] B2.7 Ensure all controls have accessible names and labels.
-- [ ] B2.8 Use semantic headings, landmarks, tables, dialogs, and form labels.
+- [x] B2.6 Add visible keyboard focus to all interactive controls.
+- [x] B2.7 Ensure all controls have accessible names and labels.
+- [x] B2.8 Use semantic headings, landmarks, tables, dialogs, and form labels.
 - [ ] B2.9 Support keyboard-only navigation and logical tab order.
-- [ ] B2.10 Respect `prefers-reduced-motion`.
-- [ ] B2.11 Ensure status is never communicated by color alone.
+- [x] B2.10 Respect `prefers-reduced-motion`.
+- [x] B2.11 Ensure status is never communicated by color alone.
 - [ ] B2.12 Test screen-reader labels for digest, object key, status, and destructive actions.
 
 ## B3. Shared component inventory
 
 Build or adapt reusable components only after checking the current component library.
 
-- [ ] B3.1 App shell and responsive navigation.
-- [ ] B3.2 Page header with title, description, breadcrumbs, and contextual actions.
-- [ ] B3.3 Status badge with explicit semantic variants.
-- [ ] B3.4 Metric display that supports unknown/unavailable values.
+- [x] B3.1 App shell and responsive navigation.
+- [x] B3.2 Page header with title, description, breadcrumbs, and contextual actions.
+- [x] B3.3 Status badge with explicit semantic variants.
+- [x] B3.4 Metric display that supports unknown/unavailable values.
 - [ ] B3.5 Data table with sorting, pagination, selection, empty state, and responsive fallback.
-- [ ] B3.6 Search field and filter controls.
-- [ ] B3.7 Digest display with truncation, full-value reveal, and copy action.
-- [ ] B3.8 Object-key display with safe copy behavior.
-- [ ] B3.9 Timestamp display with timezone clarity.
-- [ ] B3.10 Byte-size formatter.
+- [x] B3.6 Search field and filter controls.
+- [x] B3.7 Digest display with truncation, full-value reveal, and copy action.
+- [x] B3.8 Object-key display with safe copy behavior.
+- [x] B3.9 Timestamp display with timezone clarity.
+- [x] B3.10 Byte-size formatter.
 - [ ] B3.11 Verification result panel.
 - [ ] B3.12 Event timeline.
 - [ ] B3.13 Retention and legal-hold indicator.
 - [ ] B3.14 Privacy classification indicator that does not reveal unauthorized object existence.
-- [ ] B3.15 Empty, loading/skeleton, error, stale, unavailable, and unauthorized state components.
-- [ ] B3.16 Confirmation dialog for destructive or irreversible operations.
-- [ ] B3.17 Toast/inline feedback that reflects actual server outcomes.
-- [ ] B3.18 Copy-to-clipboard feedback.
+- [x] B3.15 Empty, loading/skeleton, error, stale, unavailable, and unauthorized state components.
+- [x] B3.16 Confirmation dialog for destructive or irreversible operations.
+- [x] B3.17 Toast/inline feedback that reflects actual server outcomes.
+- [x] B3.18 Copy-to-clipboard feedback.
 - [ ] B3.19 Code/JSON viewer with safe truncation and no secret leakage.
 - [ ] B3.20 Responsive side panel or detail drawer where appropriate.
 
@@ -193,16 +193,16 @@ Build or adapt reusable components only after checking the current component lib
 
 ## C1. Global shell
 
-- [ ] C1.1 Create a stable application shell with a clear content hierarchy.
-- [ ] C1.2 Show ECHOLOG identity and the D19 designation without overwhelming the interface.
+- [x] C1.1 Create a stable application shell with a clear content hierarchy.
+- [x] C1.2 Show ECHOLOG identity and the D19 designation without overwhelming the interface.
 - [ ] C1.3 Show environment (local/development/staging/production) only when reliably known.
-- [ ] C1.4 Show current identity mode: standalone or ARSY-federated.
+- [x] C1.4 Show current identity mode: standalone or ARSY-federated.
 - [ ] C1.5 Show service connectivity based on a real health check; distinguish unknown from offline.
-- [ ] C1.6 Add responsive primary navigation.
+- [x] C1.6 Add responsive primary navigation.
 - [ ] C1.7 Add global search only if a real searchable resource exists; otherwise omit or scope it clearly.
 - [ ] C1.8 Add command palette only for real navigation/actions already supported.
-- [ ] C1.9 Add theme control.
-- [ ] C1.10 Add account/identity menu without exposing credentials.
+- [x] C1.9 Add theme control.
+- [x] C1.10 Add account/identity menu without exposing credentials.
 - [ ] C1.11 Add notification surface only if backed by real events; otherwise do not fabricate notifications.
 - [ ] C1.12 Add help/about and version/build information when available.
 - [ ] C1.13 Preserve deep-link navigation and browser back/forward behavior.
@@ -239,17 +239,17 @@ Implement these in order. A flow is complete only when it works with actual API 
 **Purpose:** provide a truthful operational snapshot, not a decorative analytics dashboard.
 
 - [ ] D1.1 Show service health from a verified health endpoint.
-- [ ] D1.2 Show object count only if the backend returns an authorized, correctly scoped count.
-- [ ] D1.3 Show stored bytes/capacity only if the source and units are defined.
+- [x] D1.2 Show object count only if the backend returns an authorized, correctly scoped count.
+- [x] D1.3 Show stored bytes/capacity only if the source and units are defined.
 - [ ] D1.4 Show verification backlog only if a real queue/status API exists.
 - [ ] D1.5 Show last successful fixity check only if recorded by the backend.
 - [ ] D1.6 Show backup age/status only if a real backup subsystem reports it.
 - [ ] D1.7 Show last restore proof only if a restore drill record exists.
-- [ ] D1.8 Show recent storage events only from the actual ECHOLOG event source.
-- [ ] D1.9 Clearly label stale and unavailable metrics.
+- [x] D1.8 Show recent storage events only from the actual ECHOLOG event source.
+- [x] D1.9 Clearly label stale and unavailable metrics.
 - [ ] D1.10 Link each metric to the relevant detail view where possible.
-- [ ] D1.11 Add an explanatory first-run state when no data exists.
-- [ ] D1.12 Do not show invented charts, percentages, uptime, growth, savings, or risk scores.
+- [x] D1.11 Add an explanatory first-run state when no data exists.
+- [x] D1.12 Do not show invented charts, percentages, uptime, growth, savings, or risk scores.
 
 **Acceptance criteria**
 - [ ] Every metric can be traced to a response field or configuration source.
@@ -259,17 +259,17 @@ Implement these in order. A flow is complete only when it works with actual API 
 ## D2. Object Explorer
 
 - [ ] D2.1 Build a searchable object list using the real list endpoint.
-- [ ] D2.2 Support only filters that the API actually supports or can safely apply client-side to the authorized result set.
-- [ ] D2.3 Show object key, digest, size, content type, ingest time, retention/hold, and privacy state when returned.
+- [x] D2.2 Support only filters that the API actually supports or can safely apply client-side to the authorized result set.
+- [x] D2.3 Show object key, digest, size, content type, ingest time, retention/hold, and privacy state when returned.
 - [ ] D2.4 Add pagination/cursor handling according to the actual API contract.
 - [ ] D2.5 Preserve search/filter state in the URL when appropriate.
 - [ ] D2.6 Add sorting only for fields with supported ordering or safe client-side sorting.
 - [ ] D2.7 Add table and compact-list modes only if both improve usability.
-- [ ] D2.8 Implement empty, loading, stale, unauthorized, and error states.
-- [ ] D2.9 Avoid leaking private-witness objects through totals, autocomplete, suggestions, or error messages.
+- [x] D2.8 Implement empty, loading, stale, unauthorized, and error states.
+- [x] D2.9 Avoid leaking private-witness objects through totals, autocomplete, suggestions, or error messages.
 - [ ] D2.10 Ensure object rows link to a stable detail route.
-- [ ] D2.11 Add safe copy for object key and digest.
-- [ ] D2.12 Add authorized download only if the backend supports it and authorization is enforced server-side.
+- [x] D2.11 Add safe copy for object key and digest.
+- [x] D2.12 Add authorized download only if the backend supports it and authorization is enforced server-side.
 - [ ] D2.13 Do not add bulk delete or bulk mutation unless the backend contract explicitly supports safe authorization and confirmation.
 
 **Acceptance criteria**
@@ -280,18 +280,18 @@ Implement these in order. A flow is complete only when it works with actual API 
 ## D3. Object Detail
 
 - [ ] D3.1 Create a stable detail route keyed by the canonical object key/identifier.
-- [ ] D3.2 Show the four-field consumer reference: `object_key`, `digest`, `size`, `content_type`.
-- [ ] D3.3 Show ingest timestamp and storage-level metadata when available.
-- [ ] D3.4 Show retention and legal-hold state when available.
+- [x] D3.2 Show the four-field consumer reference: `object_key`, `digest`, `size`, `content_type`.
+- [x] D3.3 Show ingest timestamp and storage-level metadata when available.
+- [x] D3.4 Show retention and legal-hold state when available.
 - [ ] D3.5 Show privacy/access state without disclosing protected metadata.
 - [ ] D3.6 Show verification history only when actual records exist.
 - [ ] D3.7 Show receipt details only when a real receipt format/API exists.
-- [ ] D3.8 Add authorized download with server-side access control.
-- [ ] D3.9 Add copy-reference action that copies exactly the supported four-field contract.
-- [ ] D3.10 Explain that SHA-256 confirms byte-level consistency against a known digest, not truth or authorship.
+- [x] D3.8 Add authorized download with server-side access control.
+- [x] D3.9 Add copy-reference action that copies exactly the supported four-field contract.
+- [x] D3.10 Explain that SHA-256 confirms byte-level consistency against a known digest, not truth or authorship.
 - [ ] D3.11 Show derivative/related objects only when a real relationship exists.
-- [ ] D3.12 Provide clear not-found and unauthorized behavior that does not leak protected existence.
-- [ ] D3.13 Prevent accidental display of secrets or internal filesystem paths.
+- [x] D3.12 Provide clear not-found and unauthorized behavior that does not leak protected existence.
+- [x] D3.13 Prevent accidental display of secrets or internal filesystem paths.
 
 **Acceptance criteria**
 - [ ] Detail data matches the API response.
@@ -302,15 +302,15 @@ Implement these in order. A flow is complete only when it works with actual API 
 
 Only implement if the current API supports object creation/upload.
 
-- [ ] D4.1 Confirm the actual upload protocol, size limits, content-type behavior, and authorization.
-- [ ] D4.2 Build a clear file selection/drop area.
+- [x] D4.1 Confirm the actual upload protocol, size limits, content-type behavior, and authorization.
+- [x] D4.2 Build a clear file selection/drop area.
 - [ ] D4.3 Validate constraints before upload where possible; preserve server-side validation as authoritative.
 - [ ] D4.4 Show upload progress only when measurable.
-- [ ] D4.5 Handle interrupted, rejected, duplicate, and failed uploads.
-- [ ] D4.6 Show the server-issued object key and digest after confirmed success.
-- [ ] D4.7 Generate a copyable four-field reference from the confirmed response.
-- [ ] D4.8 Do not claim preservation receipt issuance unless the backend returns a receipt.
-- [ ] D4.9 Do not retry non-idempotent uploads blindly.
+- [x] D4.5 Handle interrupted, rejected, duplicate, and failed uploads.
+- [x] D4.6 Show the server-issued object key and digest after confirmed success.
+- [x] D4.7 Generate a copyable four-field reference from the confirmed response.
+- [x] D4.8 Do not claim preservation receipt issuance unless the backend returns a receipt.
+- [x] D4.9 Do not retry non-idempotent uploads blindly.
 - [ ] D4.10 Add tests for success, rejection, timeout, and duplicate/idempotency behavior.
 
 **Acceptance criteria**
@@ -320,8 +320,8 @@ Only implement if the current API supports object creation/upload.
 
 ## D5. Integrity Center
 
-- [ ] D5.1 Inspect the existing fixity verification implementation and contract first.
-- [ ] D5.2 Show only real verification records.
+- [x] D5.1 Inspect the existing fixity verification implementation and contract first.
+- [x] D5.2 Show only real verification records.
 - [ ] D5.3 Display timestamp, object reference, checker/source, expected digest, observed digest, and result when available.
 - [ ] D5.4 Normalize outcomes into explicit labels: verified, mismatch, unavailable, not_checked; preserve raw backend status in diagnostics where safe.
 - [ ] D5.5 Make mismatch visually distinct and accessible.
@@ -331,7 +331,7 @@ Only implement if the current API supports object creation/upload.
 - [ ] D5.9 Show quarantine/repair only if actual backend workflows exist.
 - [ ] D5.10 Never imply a mismatch was repaired merely because it was acknowledged.
 - [ ] D5.11 Add filters for outcome/time only when supported.
-- [ ] D5.12 Explain what a digest check can and cannot establish.
+- [x] D5.12 Explain what a digest check can and cannot establish.
 
 **Acceptance criteria**
 - [ ] No fabricated green checks or verification history.
@@ -340,16 +340,16 @@ Only implement if the current API supports object creation/upload.
 
 ## D6. Retention & Legal Holds
 
-- [ ] D6.1 Inspect current retention and legal-hold contracts.
+- [x] D6.1 Inspect current retention and legal-hold contracts.
 - [ ] D6.2 Display current retention policy and expiry where available.
 - [ ] D6.3 Display hold state and reason only to authorized roles.
-- [ ] D6.4 Show which actions are blocked by a hold.
-- [ ] D6.5 Explain consequences before any destructive action.
-- [ ] D6.6 Require explicit confirmation for destructive or irreversible operations.
+- [x] D6.4 Show which actions are blocked by a hold.
+- [x] D6.5 Explain consequences before any destructive action.
+- [x] D6.6 Require explicit confirmation for destructive or irreversible operations.
 - [ ] D6.7 Require typed confirmation for high-impact actions if consistent with existing UX patterns.
-- [ ] D6.8 Show the server's final result and updated state.
+- [x] D6.8 Show the server's final result and updated state.
 - [ ] D6.9 Handle stale data and concurrent policy changes safely.
-- [ ] D6.10 Do not imply legal validity or compliance certification.
+- [x] D6.10 Do not imply legal validity or compliance certification.
 
 **Acceptance criteria**
 - [ ] The UI never bypasses backend policy.
@@ -360,13 +360,13 @@ Only implement if the current API supports object creation/upload.
 
 - [ ] D7.1 Detect standalone versus ARSY-federated mode from trusted server-side configuration/session data.
 - [ ] D7.2 Clearly identify ARSY/D00 as canonical authority in federated mode.
-- [ ] D7.3 Show local standalone identity separately and avoid presenting it as MoonWitness-wide identity.
-- [ ] D7.4 Display current principal and effective scope only when safe and authorized.
-- [ ] D7.5 Show credential IDs/status/expiry only if safely returned by the API.
-- [ ] D7.6 Never display secret material after creation or retrieval.
-- [ ] D7.7 Add credential creation/rotation/revocation only if real secure APIs exist.
-- [ ] D7.8 Explain permission-denied behavior without revealing protected object existence.
-- [ ] D7.9 Ensure all privileged UI actions are enforced by backend authorization, not just hidden in the browser.
+- [x] D7.3 Show local standalone identity separately and avoid presenting it as MoonWitness-wide identity.
+- [x] D7.4 Display current principal and effective scope only when safe and authorized.
+- [x] D7.5 Show credential IDs/status/expiry only if safely returned by the API.
+- [x] D7.6 Never display secret material after creation or retrieval.
+- [x] D7.7 Add credential creation/rotation/revocation only if real secure APIs exist.
+- [x] D7.8 Explain permission-denied behavior without revealing protected object existence.
+- [x] D7.9 Ensure all privileged UI actions are enforced by backend authorization, not just hidden in the browser.
 
 **Acceptance criteria**
 - [ ] No client-side secret exposure.
@@ -375,13 +375,13 @@ Only implement if the current API supports object creation/upload.
 
 ## D8. Activity
 
-- [ ] D8.1 Inspect the actual audit/event source and retention behavior.
-- [ ] D8.2 Display only ECHOLOG events available to the current principal.
+- [x] D8.1 Inspect the actual audit/event source and retention behavior.
+- [x] D8.2 Display only ECHOLOG events available to the current principal.
 - [ ] D8.3 Distinguish event time, ingestion time, and display time if the schema provides them.
-- [ ] D8.4 Show actor/action/target/result only when present in the event schema.
+- [x] D8.4 Show actor/action/target/result only when present in the event schema.
 - [ ] D8.5 Add filters only for supported fields.
 - [ ] D8.6 Show whether the log is durable or in-process/non-durable if relevant.
-- [ ] D8.7 Do not label the feed as a complete MoonWitness-wide audit trail.
+- [x] D8.7 Do not label the feed as a complete MoonWitness-wide audit trail.
 - [ ] D8.8 Do not fabricate real-time updates if the event stream is not durable or available.
 
 **Acceptance criteria**
@@ -390,17 +390,17 @@ Only implement if the current API supports object creation/upload.
 
 ## D9. Storage & Recovery
 
-- [ ] D9.1 Inspect actual storage configuration and health APIs.
+- [x] D9.1 Inspect actual storage configuration and health APIs.
 - [ ] D9.2 Show configured storage target(s) without implying independent copies.
-- [ ] D9.3 Show capacity/free-space only when measured and returned by a trusted source.
+- [x] D9.3 Show capacity/free-space only when measured and returned by a trusted source.
 - [ ] D9.4 Show backup destination/status only when a real backup process reports it.
 - [ ] D9.5 Show last successful backup time only from a verified backup record.
 - [ ] D9.6 Show restore history only from actual restore operations/drills.
 - [ ] D9.7 Show RPO/RTO only after measured restore evidence exists.
-- [ ] D9.8 Distinguish same-host copy, off-host backup, and independent failure domain.
+- [x] D9.8 Distinguish same-host copy, off-host backup, and independent failure domain.
 - [ ] D9.9 Do not present multiple configured paths as replication.
-- [ ] D9.10 Do not show a “healthy” badge merely because a volume is mounted.
-- [ ] D9.11 If no recovery API exists, show a clear not-yet-supported state and link to documentation.
+- [x] D9.10 Do not show a “healthy” badge merely because a volume is mounted.
+- [x] D9.11 If no recovery API exists, show a clear not-yet-supported state and link to documentation.
 
 **Acceptance criteria**
 - [ ] No backup/recovery claim without evidence.
@@ -410,9 +410,9 @@ Only implement if the current API supports object creation/upload.
 
 This area is future-facing until export/import and validators exist.
 
-- [ ] D10.1 Inspect whether any package/export endpoint already exists.
-- [ ] D10.2 If unsupported, build an informational planned state only.
-- [ ] D10.3 Do not simulate BagIt export or validation.
+- [x] D10.1 Inspect whether any package/export endpoint already exists.
+- [x] D10.2 If unsupported, build an informational planned state only.
+- [x] D10.3 Do not simulate BagIt export or validation.
 - [ ] D10.4 If supported later, show package manifest, checksums, validation report, and package version.
 - [ ] D10.5 Show independent validation outcome separately from ECHOLOG's own generation outcome.
 - [ ] D10.6 Preserve original object bytes; derivatives must be separate objects with explicit relationships.
@@ -713,3 +713,10 @@ Avoid:
 The finished console should feel like a precision archive instrument. It should make evidence status understandable without turning technical complexity into decoration. The operator should be able to move from an object to its digest, preservation history, access policy, and recovery evidence with minimal ambiguity.
 
 **ECHOLOG does not ask users to trust a green badge. It gives them the information and tools to inspect what actually happened.**
+
+
+## Implementation progress — pass 1 (6 November 2026)
+
+The first working console pass is committed in `main`. The checklist above is updated only for tasks implemented or verified by source inspection. The UI currently supports standalone session login/logout, storage statistics, visible S3 alias browsing, object metadata/detail, copy-reference, grant-based download, deposit, retention/hold summaries, quota display, administrator GC, user/API-key administration, and standalone audit-log display. Unsupported fixity, preservation-package, backup, and restore capabilities remain unavailable/planned. See [route/API matrix](../apps/web/ROUTE_API_MATRIX.md) and [implementation handoff](FRONTEND_IMPLEMENTATION_HANDOFF.md).
+
+**Validation is still pending:** no local pnpm execution or browser test has been run for this pass. Do not mark Phase H, visual QA, or the overall definition of done complete until CI/build and browser verification pass.
