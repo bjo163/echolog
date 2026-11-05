@@ -1,5 +1,37 @@
 # Frontend Implementation Handoff
 
+## Pass 7 — Web test suite
+
+The web package now runs its own tests instead of relying on source inspection. Six suites, 38 tests, executed with `tsx --test` under Node 24:
+
+| Suite | What it holds the console to |
+|---|---|
+| `test/api-client.test.ts` | Failure classification and remedies; a private-witness 404 explains the privacy rule; a digest conflict is reported as key immutability |
+| `test/format.test.ts` | "Not available" never becomes `0`; timestamps carry a timezone and their ISO value; maturity wording is never upgraded |
+| `test/table.test.ts` | Sorting, filtering, pagination clamping, selection counting; missing values sort last in both directions |
+| `test/nav.test.ts` | Section ids are unique, hrefs resolve back to their section, unknown paths fall back to the overview |
+| `test/upload-validate.test.ts` | Every rejection names the limit it broke; a near-full quota warns without blocking; a legal hold is surfaced before commit |
+| `test/primitives.test.tsx` | Primitives rendered to static markup: tone classes, `role="alert"` only for a failed notice, a "Not available" value shown verbatim |
+
+Validation executed on this revision:
+
+| Command | Result |
+|---|---|
+| `pnpm typecheck` | Passed, 9/9 tasks |
+| `pnpm --filter @echolog/web build` | Passed, routes `/`, `/_not-found`, `/[section]`, `/objects/[digest]` |
+| `pnpm test` | Passed, 136 tests (api 98, web 38), 0 failures |
+
+`apps/web/tsconfig.json` changed `"jsx": "preserve"` to `"react-jsx"` for the test run. Next.js compiles JSX with SWC regardless of this field; `preserve` left the classic transform in place under `tsx`, which made every component test fail with `React is not defined`. `next build` compiles and typechecks cleanly with the new value and leaves the file untouched. The `tsx` transform cache is keyed by file content rather than by this setting, so a cache written before the change replays the old output — delete the `tsx-*` directory in the OS temp folder if component tests fail with that error.
+
+Integration tests against a live API (H1.7) were not run. Browser interaction, real viewport widths, keyboard traversal, screen readers, contrast, Docker readiness and CI remain unverified.
+
+Running the API tests directly — rather than through the Turborepo cache — exposed three suites left behind by the experimental-surface hardening pass:
+
+- `v2-expansions.test.ts` called `/v1/models`, `/v1/embeddings`, `/v1/chat/completions` and `/api/v1/analytics/overview` anonymously and expected `200`. Those routes are now service-only, so the suites assert the secure behaviour by issuing an administrator key; the anonymous `401`, the member `403` and the request-size limits stay asserted in `experimental-routes-auth.test.ts`.
+- `nextgen-all.test.ts` started the server with `pgWirePort`, which now throws, and then spoke the PostgreSQL startup protocol over TCP. The wire gateway is retired and `echolog.test.ts` already asserts that enabling it is refused, so the TCP section is removed and the suite keeps the auto-ingestion and shape-sync coverage.
+
+The API suite is 98 tests. `pnpm test` runs it through Turborepo, which replays cached results, so a green `pnpm test` is not by itself evidence that the API suite was executed — compare against `pnpm --filter @echolog/api test` after `pnpm --filter @echolog/api build` when the result matters.
+
 ## Pass 6 — Checklist reconciliation
 
 Every open item in `docs/FRONTEND_PRODUCT_BRIEF.md` was re-audited against the current source. The console already implemented more than the checklist recorded, so 35 source-verified items are now marked: the shared data table, verification panel, event timeline, privacy indicator, JSON viewer and detail drawer; global search and the command palette; the diagnostics surface; retention and hold display, identity-mode reporting, audit filtering, the storage target, the package planned-state, the pre-upload validation and progress; and the request-behaviour items the console already satisfies. The checklist now records 168 checked and 232 open.

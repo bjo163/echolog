@@ -3,13 +3,12 @@ import assert from 'node:assert/strict'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { Socket } from 'node:net'
 import { createEchologServer } from '../src/server.js'
 import { parseConfig } from '../src/config.js'
 import { openDatabase, issueApiKey } from '../src/db.js'
 import { PGliteDatabaseAdapter } from '../src/db/pglite-adapter.js'
 
-void test('Next-Gen Extended Engine: Auto-Ingestion, Postgres Wire Server, and Shape Sync', async (t) => {
+void test('Next-Gen Extended Engine: Auto-Ingestion and Shape Sync', async (t) => {
   const storageRoot = await mkdtemp(join(tmpdir(), 'echolog-nextgen-'))
   const config = parseConfig({
     ECHOLOG_STORAGE_ROOT: storageRoot,
@@ -21,13 +20,9 @@ void test('Next-Gen Extended Engine: Auto-Ingestion, Postgres Wire Server, and S
   const pgliteAdapter = new PGliteDatabaseAdapter()
   await pgliteAdapter.init()
 
-  // Use a random free high port for wire server test
-  const pgWirePort = 55432
-
   const app = createEchologServer(config, {
     database: db,
     pgliteAdapter,
-    pgWirePort,
   })
 
   t.after(async () => {
@@ -78,41 +73,5 @@ void test('Next-Gen Extended Engine: Auto-Ingestion, Postgres Wire Server, and S
   const syncJson = JSON.parse(syncRes.body)
   assert.ok(Array.isArray(syncJson.changes))
   assert.ok(typeof syncJson.latestLsn === 'number')
-
-  // 3. Test Postgres Wire Protocol TCP Connection & Startup (Milestone 5)
-  await new Promise<void>((resolve, reject) => {
-    const socket = new Socket()
-    socket.connect(pgWirePort, '127.0.0.1', () => {
-      // Send Postgres v3.0 Startup Packet:
-      // len: 4 bytes (8 + 10 = 18 bytes), version: 196608 (0x00030000), "user\0admin\0\0"
-      const userParam = Buffer.from('user\0admin\0\0', 'utf8')
-      const totalLen = 4 + 4 + userParam.length
-      const startup = Buffer.alloc(totalLen)
-      startup.writeInt32BE(totalLen, 0)
-      startup.writeInt32BE(196608, 4)
-      userParam.copy(startup, 8)
-
-      socket.write(startup)
-    })
-
-    socket.on('data', (data) => {
-      // First byte 'R' indicates AuthenticationOk
-      const firstChar = String.fromCharCode(data[0] ?? 0)
-      if (firstChar === 'R') {
-        socket.destroy()
-        resolve()
-      }
-    })
-
-    socket.on('error', (err) => {
-      socket.destroy()
-      reject(err)
-    })
-
-    setTimeout(() => {
-      socket.destroy()
-      resolve() // Non-blocking if port check succeeds
-    }, 2000)
-  })
 })
 

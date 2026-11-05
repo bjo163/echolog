@@ -85,8 +85,11 @@ Each task has code change, focused positive and negative tests, documentation up
 
 ## Progress snapshot — 2026-11-06
 
+- Operator console now has a web test suite: 38 tests across failure classification, formatting, table behaviour, navigation, upload validation, and the shared primitives rendered to static markup. `pnpm test` runs api 98 + web 38, 0 failures.
+- Three API suites that predated the experimental-surface hardening were corrected, not weakened: `v2-expansions.test.ts` now presents an administrator key to the service-only OpenAI-compatible and analytics routes, and `nextgen-all.test.ts` no longer starts the retired PostgreSQL wire gateway. The anonymous `401`, member `403`, and request-size limits remain asserted in `experimental-routes-auth.test.ts`.
+- `pnpm test` replays Turborepo cache results, so it can report green without executing the API suite. Run `pnpm --filter @echolog/api build` then `pnpm --filter @echolog/api test` when the API result matters.
 - Operator console build fixed: `components/ui/primitives.tsx` and `components/ui/layout.tsx` contained JSX attribute values that were not quoted (`className=fine`, `aria-hidden=true`), which made the web app fail to parse. Attributes are now valid JSX.
-- Operator console verification run locally for the first time: `pnpm install --frozen-lockfile`, `pnpm typecheck` (9/9 tasks), `pnpm --filter @echolog/web build`, and `pnpm test` (96 passing) all succeed on this revision.
+- Operator console verification run locally: `pnpm typecheck` (9/9 tasks), `pnpm --filter @echolog/web build`, `pnpm --filter @echolog/api test`, and `pnpm --filter @echolog/web test` all succeed on this revision.
 - Operator console: pathname routes, object detail, readiness state, alias search/sort, responsive shell, theme support, and initial accessibility announcements are implemented.
 - The console now follows the operating system colour-scheme preference when no saved theme exists, and records the last successful full refresh so stale values are distinguishable from current ones.
 - The console intentionally keeps the previous value of a panel whose endpoint failed and reports the failure in a console-level notice; it does not clear a panel to an empty state, because "the collection is empty" and "the endpoint could not be read" are different claims.

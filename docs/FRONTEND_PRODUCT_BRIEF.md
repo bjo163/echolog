@@ -594,7 +594,7 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 - [ ] H1.3 Run lint.
 - [x] H1.4 Run TypeScript typecheck.
 - [x] H1.5 Run unit tests.
-- [ ] H1.6 Run component tests if configured.
+- [x] H1.6 Run component tests if configured.
 - [ ] H1.7 Run integration tests against the supported API test environment.
 - [x] H1.8 Run production build.
 - [ ] H1.9 Add tests for every new critical UI state and mutation flow.
@@ -714,6 +714,25 @@ The finished console should feel like a precision archive instrument. It should 
 
 **ECHOLOG does not ask users to trust a green badge. It gives them the information and tools to inspect what actually happened.**
 
+
+## Implementation progress — pass 8 (6 November 2026)
+
+The web package now has a test suite of its own, so H1.5 and H1.6 are satisfied by executed tests rather than by inspection. Thirty-eight tests run through `tsx --test` under Node 24:
+
+- `test/api-client.test.ts` — failure classification and remedy wording, including that a private-witness 404 explains the privacy rule and that a digest conflict is reported as key immutability, not a generic failure.
+- `test/format.test.ts` — "Not available" never degrades into `0`, timestamps carry an explicit timezone and their ISO value, staleness is decided by the window, and capability maturity is never upgraded in wording.
+- `test/table.test.ts` — sorting, filtering, pagination clamping and selection counting, with missing values sorting last in both directions.
+- `test/nav.test.ts` — every section id is unique, each href resolves back to its own section, and an unknown path falls back to the overview.
+- `test/upload-validate.test.ts` — every rejection names the limit it broke, a near-full quota warns without blocking, and a legal hold is surfaced before the upload commits.
+- `test/primitives.test.tsx` — the shared primitives rendered to static markup: tone classes, `role="alert"` only for a failed notice, an empty state that states both the fact and the reason, a "Not available" value shown verbatim, and a panel that renders no head when it has nothing to head.
+
+Integration tests against a running API (H1.7) were **not** run and remain open.
+
+Running the API suite directly, instead of replaying it from the Turborepo cache, showed that three suites still expected the pre-hardening behaviour: `v2-expansions.test.ts` called the OpenAI-compatible and analytics routes anonymously and expected `200`, and `nextgen-all.test.ts` started the retired PostgreSQL wire gateway. Both are corrected to the secure behaviour — an administrator key for the service-only routes, and the wire-gateway section removed because `echolog.test.ts` already asserts that enabling it is refused and `experimental-routes-auth.test.ts` still asserts the anonymous `401`, the member `403` and the request-size limits. The API suite is 98 tests.
+
+One configuration change was needed to run JSX tests without adding a browser or a third-party runner: `apps/web/tsconfig.json` now sets `"jsx": "react-jsx"` instead of `"preserve"`. Next.js compiles JSX with SWC regardless of this field; the value only governs `tsc` typechecking and the standalone test run, where `preserve` left the classic transform in place and every component test failed with `React is not defined`. `next build` compiles and typechecks cleanly with the new value and leaves the file untouched. Note that the `tsx` transform cache is keyed by file content, not by this setting, so a stale cache from before the change must be cleared (delete the `tsx-*` directory in the OS temp folder) or the tests keep replaying the old output.
+
+**Checklist snapshot after pass 8:** 169 items checked and 231 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. Browser checks and CI remain pending.
 
 ## Implementation progress — pass 7 (6 November 2026)
 

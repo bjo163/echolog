@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createEchologServer } from '../src/server.js'
 import { parseConfig } from '../src/config.js'
-import { openDatabase } from '../src/db.js'
+import { openDatabase, issueApiKey } from '../src/db.js'
 import { PGliteDatabaseAdapter } from '../src/db/pglite-adapter.js'
 import { eventBus } from '../src/modules/realtime/event-bus.js'
 
@@ -15,10 +15,16 @@ test('OpenAI Gateway: /v1/models, /v1/embeddings, /v1/chat/completions', async (
   await pgliteAdapter.init()
 
   const config = parseConfig({ ECHOLOG_STORAGE_ROOT: storageRoot })
+  const database = openDatabase(':memory:')
+  const admin = issueApiKey(database, 'test admin', 'admin')
   const app = createEchologServer(config, {
-    database: openDatabase(':memory:'),
+    database,
     pgliteAdapter,
   })
+  // The OpenAI-compatible surface is service-only: every call below carries an
+  // administrator credential, because the anonymous case is covered by
+  // experimental-routes-auth.test.ts and must stay rejected.
+  const adminHeaders = { authorization: `Bearer ${admin.token}` }
 
   t.after(async () => {
     await app.close()
@@ -30,6 +36,7 @@ test('OpenAI Gateway: /v1/models, /v1/embeddings, /v1/chat/completions', async (
   const modelsRes = await app.inject({
     method: 'GET',
     url: '/v1/models',
+    headers: adminHeaders,
   })
   assert.equal(modelsRes.statusCode, 200)
   const modelsJson = JSON.parse(modelsRes.payload)
@@ -40,7 +47,7 @@ test('OpenAI Gateway: /v1/models, /v1/embeddings, /v1/chat/completions', async (
   const embedRes = await app.inject({
     method: 'POST',
     url: '/v1/embeddings',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...adminHeaders },
     payload: JSON.stringify({
       input: 'Autonomous cloud storage and database architecture',
       model: 'text-embedding-384',
@@ -56,7 +63,7 @@ test('OpenAI Gateway: /v1/models, /v1/embeddings, /v1/chat/completions', async (
   const chatRes = await app.inject({
     method: 'POST',
     url: '/v1/chat/completions',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...adminHeaders },
     payload: JSON.stringify({
       messages: [{ role: 'user', content: 'What is ECHOLOG?' }],
     }),
@@ -70,8 +77,10 @@ test('OpenAI Gateway: /v1/models, /v1/embeddings, /v1/chat/completions', async (
 test('Real-Time CDC Event Bus & Analytics Overview', async (t) => {
   const storageRoot = await mkdtemp(join(tmpdir(), 'echolog-realtime-'))
   const config = parseConfig({ ECHOLOG_STORAGE_ROOT: storageRoot })
+  const database = openDatabase(':memory:')
+  const admin = issueApiKey(database, 'test admin', 'admin')
   const app = createEchologServer(config, {
-    database: openDatabase(':memory:'),
+    database,
   })
 
   t.after(async () => {
@@ -102,6 +111,7 @@ test('Real-Time CDC Event Bus & Analytics Overview', async (t) => {
   const analyticsRes = await app.inject({
     method: 'GET',
     url: '/api/v1/analytics/overview',
+    headers: { authorization: `Bearer ${admin.token}` },
   })
   assert.equal(analyticsRes.statusCode, 200)
   const analyticsJson = JSON.parse(analyticsRes.payload)
