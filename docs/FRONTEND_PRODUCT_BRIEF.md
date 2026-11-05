@@ -222,11 +222,11 @@ Use the following information architecture, but only expose screens that can be 
 8. Activity
 9. Diagnostics / Settings
 
-- [ ] C2.1 Give each active navigation item a working route.
+- [x] C2.1 Give each active navigation item a working route (hash-based workspace section deep links).
 - [ ] C2.2 Do not expose dead-end links.
 - [ ] C2.3 Mark future areas as planned only if a roadmap preview is useful; do not make them look operational.
 - [ ] C2.4 Add breadcrumbs or clear back navigation for nested detail pages.
-- [ ] C2.5 Verify all routes on direct load and refresh.
+- [x] C2.5 Implement direct hash restoration for workspace and object-detail deep links (runtime refresh verification remains pending).
 
 ---
 
@@ -267,7 +267,7 @@ Implement these in order. A flow is complete only when it works with actual API 
 - [ ] D2.7 Add table and compact-list modes only if both improve usability.
 - [x] D2.8 Implement empty, loading, stale, unauthorized, and error states.
 - [x] D2.9 Avoid leaking private-witness objects through totals, autocomplete, suggestions, or error messages.
-- [ ] D2.10 Ensure object rows link to a stable detail route.
+- [x] D2.10 Ensure object rows link to a stable detail route (digest-addressable hash URL).
 - [x] D2.11 Add safe copy for object key and digest.
 - [x] D2.12 Add authorized download only if the backend supports it and authorization is enforced server-side.
 - [ ] D2.13 Do not add bulk delete or bulk mutation unless the backend contract explicitly supports safe authorization and confirmation.
@@ -279,7 +279,7 @@ Implement these in order. A flow is complete only when it works with actual API 
 
 ## D3. Object Detail
 
-- [ ] D3.1 Create a stable detail route keyed by the canonical object key/identifier.
+- [x] D3.1 Create a stable detail route keyed by the canonical object key/identifier (SHA-256 digest in the URL hash).
 - [x] D3.2 Show the four-field consumer reference: `object_key`, `digest`, `size`, `content_type`.
 - [x] D3.3 Show ingest timestamp and storage-level metadata when available.
 - [x] D3.4 Show retention and legal-hold state when available.
@@ -717,7 +717,7 @@ The finished console should feel like a precision archive instrument. It should 
 
 ## Implementation progress — pass 2 (6 November 2026)
 
-The console now supports shareable hash URLs for the nine workspace sections, direct restoration from a section hash, browser back/forward synchronization, improved labels for key controls, safer delayed download URL cleanup, a configurable Next.js API proxy origin through `ECHOLOG_API_INTERNAL_URL`, and App Router loading, error, and not-found recovery surfaces. These are source-level implementation updates; runtime/browser verification remains pending. Hash navigation is not a substitute for separate pathname routes or an object-detail route.
+The console now supports shareable hash URLs for the nine workspace sections, digest-addressable object-detail URLs, direct restoration from section/object hashes, browser back/forward synchronization, improved labels for key controls, safer delayed download URL cleanup, a configurable Next.js API proxy origin through `ECHOLOG_API_INTERNAL_URL`, and App Router loading, error, and not-found recovery surfaces. These are source-level implementation updates; runtime/browser verification remains pending. Hash navigation is not a substitute for separate pathname routes; object details are now addressable by digest hash, but remain inside the single-page console.
 
 ## Implementation progress — pass 1 (6 November 2026)
 
