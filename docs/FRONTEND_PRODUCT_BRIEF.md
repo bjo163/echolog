@@ -205,7 +205,7 @@ Build or adapt reusable components only after checking the current component lib
 - [x] C1.10 Add account/identity menu without exposing credentials.
 - [ ] C1.11 Add notification surface only if backed by real events; otherwise do not fabricate notifications.
 - [ ] C1.12 Add help/about and version/build information when available.
-- [ ] C1.13 Preserve deep-link navigation and browser back/forward behavior.
+- [x] C1.13 Preserve deep-link navigation and browser back/forward behavior (workspace sections use hash URLs; object detail remains a separate follow-up).
 - [ ] C1.14 Ensure mobile navigation is accessible and does not hide critical actions.
 
 ## C2. Navigation map
@@ -714,6 +714,10 @@ The finished console should feel like a precision archive instrument. It should 
 
 **ECHOLOG does not ask users to trust a green badge. It gives them the information and tools to inspect what actually happened.**
 
+
+## Implementation progress — pass 2 (6 November 2026)
+
+The console now supports shareable hash URLs for the nine workspace sections, direct restoration from a section hash, browser back/forward synchronization, improved labels for key controls, safer delayed download URL cleanup, and a configurable Next.js API proxy origin through `ECHOLOG_API_INTERNAL_URL`. These are source-level implementation updates; runtime/browser verification remains pending. Hash navigation is not a substitute for separate pathname routes or an object-detail route.
 
 ## Implementation progress — pass 1 (6 November 2026)
 
