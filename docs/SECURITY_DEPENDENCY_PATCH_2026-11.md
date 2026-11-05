@@ -44,3 +44,18 @@
 5. The deployed frontend/API images are rebuilt from the patched lockfile.
 
 At the time of writing, GitHub Actions jobs were queued. Manifest changes are committed, but lockfile regeneration and runtime verification are pending. Do not report the deployed environment as patched until it has been rebuilt and its installed dependency tree is verified.
+
+
+## Additional API hardening (2026-11-06)
+
+The experimental route surface was reviewed and hardened in the follow-up API pass:
+
+- Realtime SSE stream and event broadcast require administrator or service credentials.
+- Analytics overview and manual scrub require administrator or service credentials.
+- OpenAI-compatible model, embeddings, and chat endpoints require an authenticated principal.
+- Embeddings accept at most 32 text inputs of at most 8192 characters each.
+- Chat accepts at most 64 messages and 32768 total content characters.
+- Global response headers now include HSTS, nosniff, frame denial, strict-origin referrer policy, restrictive permissions policy, and same-origin resource policy.
+- Integration tests cover anonymous denial, member privilege denial, authorized admin calls, and payload limits.
+
+These code changes are committed, but the CI run is still the authority for typecheck/build/test confirmation. Dependency CVE remediation remains incomplete until the lockfile is regenerated and the pinned-version assertions pass.

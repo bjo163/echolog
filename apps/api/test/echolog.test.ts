@@ -38,8 +38,15 @@ void test('every ECHOLOG response pins HTTPS with HSTS', async (t) => {
 
   const healthy = await app.inject({ method: 'GET', url: '/health' })
   assert.equal(healthy.headers['strict-transport-security'], 'max-age=15552000')
+  assert.equal(healthy.headers['x-content-type-options'], 'nosniff')
+  assert.equal(healthy.headers['x-frame-options'], 'DENY')
+  assert.equal(healthy.headers['referrer-policy'], 'strict-origin-when-cross-origin')
+  assert.equal(healthy.headers['permissions-policy'], 'camera=(), microphone=(), geolocation=()')
+  assert.equal(healthy.headers['cross-origin-resource-policy'], 'same-origin')
   const missing = await app.inject({ method: 'GET', url: '/no-such-route' })
   assert.equal(missing.headers['strict-transport-security'], 'max-age=15552000')
+  assert.equal(missing.headers['x-content-type-options'], 'nosniff')
+  assert.equal(missing.headers['x-frame-options'], 'DENY')
 })
 
 void test('ECHOLOG boots on an explicit port and exposes only honest health surfaces', async (t) => {

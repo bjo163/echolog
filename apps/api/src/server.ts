@@ -44,6 +44,11 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
   // answers plain HTTP with a 302 rather than a browser-pinned redirect (M44-08).
   app.addHook('onSend', (_request, reply, _payload, done) => {
     reply.header('strict-transport-security', 'max-age=15552000')
+    reply.header('x-content-type-options', 'nosniff')
+    reply.header('x-frame-options', 'DENY')
+    reply.header('referrer-policy', 'strict-origin-when-cross-origin')
+    reply.header('permissions-policy', 'camera=(), microphone=(), geolocation=()')
+    reply.header('cross-origin-resource-policy', 'same-origin')
     done()
   })
 
