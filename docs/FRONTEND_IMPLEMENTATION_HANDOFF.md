@@ -3,14 +3,14 @@
 ## Pass 2 — Navigation and deployment boundary
 
 Implemented in `main`:
-- Added shareable section hash links for all nine workspace areas and digest-addressable object detail links (`#object/<digest>`).
-- Added browser back/forward synchronization and direct hash restoration on page load.
+- Added real App Router pathname routes for all nine workspace areas and digest-addressable object details (`/objects/<sha256-digest>`).
+- Added direct route restoration and browser back/forward through Next.js App Router. Object metadata loads only after session restoration.
 - Added accessible labels to key icon-only and filter controls, plus `aria-current` for active navigation.
 - Delayed download object-URL revocation to avoid racing the browser's download start.
 - Made the Next.js API/health rewrite target configurable through `ECHOLOG_API_INTERNAL_URL`.
 - Added App Router loading, error, and not-found fallbacks with safe recovery copy; error details are not exposed to the user.
 
-Navigation limitation: workspace and object details are addressable by URL hashes inside the existing single-page console. They are not separate Next.js pathname routes.
+Navigation status: workspace sections and object details now have distinct Next.js pathname routes while reusing the shared authenticated console component.
 
 Deployment note: local default remains `http://127.0.0.1:3006`. For Coolify, set `ECHOLOG_API_INTERNAL_URL` on the frontend service to the API container's private service URL (for example `http://echolog-api:3006`) and attach both services to the same private network. Do not point a separate frontend container at its own `127.0.0.1`.
 
