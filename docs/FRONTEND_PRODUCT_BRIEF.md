@@ -724,3 +724,6 @@ The console now supports shareable hash URLs for the nine workspace sections, di
 The first working console pass is committed in `main`. The checklist above is updated only for tasks implemented or verified by source inspection. The UI currently supports standalone session login/logout, storage statistics, visible S3 alias browsing, object metadata/detail, copy-reference, grant-based download, deposit, retention/hold summaries, quota display, administrator GC, user/API-key administration, and standalone audit-log display. Unsupported fixity, preservation-package, backup, and restore capabilities remain unavailable/planned. See [route/API matrix](../apps/web/ROUTE_API_MATRIX.md) and [implementation handoff](FRONTEND_IMPLEMENTATION_HANDOFF.md).
 
 **Validation is still pending:** no local pnpm execution or browser test has been run for this pass. Do not mark Phase H, visual QA, or the overall definition of done complete until CI/build and browser verification pass.
+
+
+**Checklist snapshot after pass 2:** 104 items checked and 296 still open. Checked items include implementation/source-inspection tasks; this is not an end-to-end test pass. CI run [#40](https://github.com/bjo163/echolog/actions/runs/42087579899) for the current `main` head was still queued when this note was recorded. Local typecheck/build and browser checks remain unverified.
