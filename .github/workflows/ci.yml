@@ -41,6 +41,12 @@ jobs:
       - name: Install (lockfile is the whole truth)
         run: pnpm install --frozen-lockfile
 
+      - name: Verify patched dependency lock entries
+        run: |
+          grep -Fq 'next@16.4.5:' pnpm-lock.yaml
+          grep -Fq 'fastify@5.12.8:' pnpm-lock.yaml
+          grep -Fq 'sharp@0.35.5:' pnpm-lock.yaml
+
       - name: Typecheck
         run: pnpm typecheck
 
