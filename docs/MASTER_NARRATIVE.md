@@ -1,141 +1,122 @@
 # ECHOLOG — Master Narrative
-## MoonWitness XV · Domain D19 · Object Memory & Evidence Integrity
+## MoonWitness XV · D19 · Object Memory, Evidence Integrity & Digital Preservation
 
 > **THE MOON WATCHES. THE RECORD REMEMBERS. THE EVIDENCE REMAINS INSPECTABLE.**
 >
-> **Preserve the Original. Prove the Integrity. Protect the Witness.**
+> **Preserve the Original. Verify the Bytes. Keep the Record Inspectable.**
 
-**Document role:** Product narrative and identity authority for this repository.  
-**Baseline reviewed:** 6 November 2026.  
+**Role:** Product identity and narrative authority for this repository.  
 **Parent ecosystem:** MoonWitness XV / Empire of the Light.  
-**Domain:** D19 — Object Memory & Evidence Integrity.  
-**Runtime home:** standalone repository `bjo163/echolog`; extracted from the MoonWitness XV monorepo.
+**Domain:** D19.  
+**Architecture authority:** MoonWitness XV ADR-0007 and docs/architecture/ECHOLOG.md.  
+**Status:** Strategic direction; future capabilities are not automatically implemented.
 
----
+## 1. The idea
 
-## 1. What ECHOLOG is
+ECHOLOG is the **Evidence Preservation Layer of MoonWitness**: a bounded service that preserves original digital objects and makes their storage integrity inspectable over time.
 
-**ECHOLOG is the memory layer of the MoonWitness ecosystem.** It preserves the original digital objects behind knowledge, research, stories, creative works, and human witness.
+The objects may be manuscripts, source editions, scans, photographs, audio/video recordings, research papers, datasets, witness submissions, story artwork, generated media, or technical artifacts. Their meanings differ. Their bytes still need a dependable home.
 
-It provides a durable object identity, byte-level integrity, controlled access, lifecycle protection, and interoperable delivery surfaces. Its foundational object model is content-addressed: the SHA-256 digest identifies the bytes, and an existing object key cannot silently be replaced with different content.
-
-ECHOLOG does not decide what is true, who is right, what a witness means, or whether a claim is justified. It preserves the digital material so that people and the domain applications they govern can inspect, verify, compare, and understand it.
-
-ECHOLOG is a bounded MoonWitness service, not a second Hub and not the owner of every kind of data in the ecosystem.
+ECHOLOG preserves the material. MoonWitness domains explain what the material means. Humans remain responsible for interpretation and decisions.
 
 ## 2. Why it exists
 
-Knowledge and witness systems depend on source material: manuscripts, documents, scans, photographs, recordings, datasets, research attachments, illustrations, and generated artifacts. If the underlying bytes silently change, disappear, or become detached from their provenance, downstream interpretation becomes harder to trust.
+Digital knowledge can fail quietly: an original is overwritten; a file becomes detached from its source record; storage corruption goes unnoticed; an operator cannot explain when an object was received or checked; a provider disappears; a private witness object leaks through an overlooked protocol alias; or a backup exists but has never been restored.
 
-ECHOLOG addresses the storage part of this problem:
+A conventional object store solves only part of this. A digest detects byte mismatch when compared with a trusted recorded digest. Long-term preservation additionally needs clear receipts, fixity schedules, event records, portable packaging, recovery drills, and honest limits.
 
-- Preserve original bytes independently of consumer application lifecycles.
-- Give each byte sequence a verifiable content identity.
-- Refuse silent replacement of immutable objects.
-- Apply retention and legal-hold constraints fail-closed.
-- Protect private-witness objects across every supported access alias.
-- Provide consistent references to approved MoonWitness consumers.
-- Keep storage operations inspectable and recoverable.
+ECHOLOG makes these operations practical and inspectable without pretending to certify the truth of the content.
 
-## 3. Place in MoonWitness XV
+## 3. Position inside MoonWitness
 
 MoonWitness XV is a human-governed knowledge, witness, research, storytelling, and action ecosystem. Its north star is:
 
 > Preserve the original. Trace each claim. Respect each perspective. Investigate openly. Create freely. Keep humans responsible.
 
-ECHOLOG supports this promise by preserving the digital objects that those domains use. It does not replace their domain semantics.
-
-| Ecosystem responsibility | Owner |
+| Responsibility | Owner |
 |---|---|
-| Central Hub, orchestration, canonical ecosystem run state | ARSY |
+| Single central Hub and canonical run state | ARSY |
 | Global identity and authorization authority | D00 / ARSY |
-| Original object bytes, digest identity, storage lifecycle | ECHOLOG / D19 |
-| Source, passage, witness, research, story, and artifact meaning | Owning consumer domain |
-| Human review, consent decisions, and governance | Authorized human-governance surfaces and domain owners |
+| Original bytes, digest, storage lifecycle and retrieval grants | ECHOLOG / D19 |
+| Source, passage, witness, research, story and artifact meaning | Owning consumer domain |
+| Rights, consent and editorial decisions | Domain owners and human governance |
+| AI execution and model routing | Approved LUMEN / AI Gateway boundary |
+| Durable workflows and messaging | ARSY / explicitly approved domain |
 
-Conceptual flow:
+**ECHOLOG is not a second Hub.** It does not issue MoonWitness sessions, own global identity, execute agents, schedule workflows, or become a universal database.
 
-`MoonWitness XV → ARSY / D00 → ECHOLOG / D19 → approved consumer domains`
+## 4. The preservation lifecycle
 
-ARSY is the single central Hub. ECHOLOG must never become a second Hub, global identity authority, message broker, or agent runtime.
+The long-term product is organized around a lifecycle, not a collection of unrelated features.
 
-## 4. What ECHOLOG preserves
+1. **Deposit:** accept bytes through an authorized path, enforce limits, stream to a temporary location, calculate the digest, and publish atomically.
+2. **Identify:** return a stable object reference and exact byte metadata.
+3. **Receipt:** record a versioned storage receipt describing what ECHOLOG observed at ingest time.
+4. **Protect:** apply retention, legal hold, privacy markers, scoped access, and short-lived grants.
+5. **Verify:** re-read bytes and compare against the recorded digest; report verified, mismatch, inaccessible, or not-yet-checked states.
+6. **Witness:** optionally publish signed checkpoints or transparency proofs so independent parties can detect later alteration or omission.
+7. **Package:** export originals, manifests, checksums, and preservation metadata in documented portable formats.
+8. **Recover:** restore to a separate destination and re-verify every object before declaring recovery successful.
+9. **Migrate:** move storage backends without changing object identity or losing preservation history.
 
-Examples of eligible objects include:
+Only source-backed capabilities are current. Receipt signing, transparency checkpoints, portable package export, independent witnesses, scheduled verification, and backend migration are future capabilities requiring implementation and acceptance tests.
 
-- Corpus source documents, editions, scans, and datasets.
-- Witness photographs, audio, video, and supporting documents.
-- Research papers, evidence attachments, tables, and reproducibility artifacts.
-- Story and SHADOW illustrations, comic artwork, covers, and media.
-- Dock posters and approved public assets.
-- AI input artifacts and generated output files.
-- Application exports and technical artifacts.
+## 5. What the evidence can and cannot prove
 
-These are examples of consumer use, not a claim that every consumer integration is already live.
+| Mechanism | Can support | Cannot establish by itself |
+|---|---|---|
+| SHA-256 digest | Byte equality against a recorded digest | Truth, author, capture time, consent |
+| Write-once object key | No silent replacement under that key | No deletion or operator misconduct |
+| Ingest receipt | What the service recorded at receipt time | Whether uploader claims are true |
+| Authenticated principal reference | Which service identity authenticated | Real-world identity beyond its authority |
+| Signed timestamp/checkpoint | A signer attested to a record/checkpoint | Universal trusted time or completeness |
+| Merkle inclusion proof | Entry is included in a committed log state | That every relevant event was submitted |
+| Independent replicas | Availability across failure domains | Integrity unless each copy is checked |
+| Fixity report | Result of a specific check at a specific time | Future availability or permanent correctness |
 
-The owning domain remains responsible for object meaning, source attribution, rights, consent, classification, editorial state, and relationships. ECHOLOG stores the bytes and its storage-level metadata; it does not become a universal semantic catalog.
+No screen, badge, export, or marketing copy may turn these limited statements into a truth score, authenticity verdict, chain-of-custody certification, or legal-admissibility claim.
 
-## 5. Core promise
+## 6. Canonical consumer reference
 
-### Identity
-Every stored object has a content identity derived from its SHA-256 digest.
+Consumers store only:
 
-### Integrity
-Original bytes are write-once at a given content address. Verification can establish whether bytes match a recorded digest; it does not establish the truth of their contents.
+~~~ts
+{
+  object_key: string
+  digest: string
+  size: number
+  content_type: string
+}
+~~~
 
-### Persistence
-Objects and their storage metadata live on an explicit ECHOLOG storage volume. Persistence, backup, recovery, and replication must be verified independently; a filesystem volume alone is not a disaster-recovery strategy.
+The owning domain keeps the relation between that reference and its own source, witness, passage, research record, rights, consent, or editorial state.
 
-### Protection
-Retention deadlines, legal holds, private-witness markers, authorization, and short-lived download grants establish explicit protection boundaries.
+A future receipt or proof is a separate, versioned artifact referenced by a new optional contract field only after an upstream XV decision. Never silently expand the existing four-field contract.
 
-### Interoperability
-REST and the intentionally bounded S3-compatible surface support application integrations. OCI distribution is an additional implemented protocol surface whose production readiness must be evaluated separately.
+## 7. What ECHOLOG preserves
 
-### Accountability
-ECHOLOG reports storage and service events. Ecosystem-wide audit, rights, consent, and human decisions remain outside its authority.
+Corpus source documents, editions, manuscripts and scans; witness photographs, audio, video and submitted documents; research papers, datasets, tables and reproducibility artifacts; Story and SHADOW illustrations, comic artwork, covers and approved media; Dock assets; AI input artifacts and generated outputs; and application exports.
 
-## 6. Operating modes and identity
+These are intended consumer scenarios, not a claim that every integration is already live.
 
-ECHOLOG is extracted and can run as a standalone service for development, controlled deployment, and independent storage operations. The standalone repository currently includes local operator identity backed by SQLite.
+## 8. Product principles
 
-When integrated into MoonWitness, ARSY/D00 remains the ecosystem identity and authorization authority. Optional ARSY federation is present in the current service configuration. Local standalone credentials must not be mistaken for global MoonWitness identity.
+- **Original first:** never transform, normalize, OCR, transcode, redact, or recompress the canonical original in place. Derivatives are new immutable objects linked to their source digest.
+- **Integrity is not truth:** a correct hash means bytes match a reference; it does not make the content accurate.
+- **Evidence without overclaiming:** receipts, events, timestamps, signatures and proofs state who asserted what and what was actually verified.
+- **Portable by design:** an archive must not become hostage to one database, UI, storage vendor, or service operator.
+- **Privacy by default:** private-witness objects remain private across REST, S3, OCI, tools, aliases, previews, search and logs.
+- **Human governance:** rights, consent, interpretation, source quality and publication decisions remain with the owning domain and authorized humans.
+- **Small core, optional edges:** do not absorb queues, workflows, global IAM, AI inference, generic database APIs, or analytics platforms merely because they are technically possible.
 
-The local identity store is an extraction/deployment accommodation and an explicit architectural deviation from the original XV ADR-0007 stateless contract. This deviation must remain documented and must not silently spread into consumer-domain identity ownership.
+## 9. What ECHOLOG is not
 
-## 7. Four-field consumer reference
+ECHOLOG is not the MoonWitness Hub or global identity provider; a truth engine or witness judge; a rights, consent, case-management or editorial system; a generic cloud drive; a universal database or data lakehouse; a message broker, workflow scheduler or agent runtime; a replacement for Corpus, Witness, Research or Story; proof of legal admissibility; or a guarantee of indefinite availability because a file has a hash or blockchain entry.
 
-A consumer stores only:
+Experimental AI, search, realtime, branching, sync, database, and platform modules do not automatically become D19 scope.
 
-`{ object_key, digest, size, content_type }`
+## 10. The future in one sentence
 
-The consumer owns the relationship between that reference and its domain record. It must not persist object bytes, long-lived download grants, ECHOLOG service secrets, or a searchable copy of ECHOLOG sidecar metadata as a second source of truth.
+**ECHOLOG should let MoonWitness preserve an original today, verify it tomorrow, move it elsewhere years later, and still explain exactly what was preserved and what each verification did — without pretending that storage integrity is the same thing as truth.**
 
-A grant is a temporary capability, not an object reference. Request a fresh grant when authorized access is needed.
-
-## 8. What ECHOLOG is not
-
-ECHOLOG is not:
-
-- The MoonWitness Hub or global identity provider.
-- A truth engine or authority over witness interpretation.
-- A rights, consent, or case-management system.
-- A generic cloud drive or consumer file manager.
-- A universal database platform or Supabase replacement.
-- A durable message broker or workflow scheduler.
-- An agent execution platform.
-- A replacement for Corpus, Witness, Research, Story, or other domain applications.
-- A guarantee of off-site backup, disaster recovery, or regulatory compliance merely because objects are content-addressed.
-
-Some experimental database, AI, realtime, sync, and platform modules currently exist in this repository. Their presence in source code does not automatically make them part of the accepted D19 core or production-certified capabilities. See the capability matrix and architecture boundary.
-
-## 9. Product narrative
-
-ECHOLOG is where MoonWitness keeps the original digital memory behind its knowledge, research, stories, and witnesses.
-
-Every object carries an identity. Every byte can be checked against that identity. Every protected record has a boundary. Every consumer remains responsible for the meaning it assigns.
-
-ECHOLOG preserves the material. MoonWitness domains investigate and interpret it. Humans remain responsible for decisions.
-
-**ECHOLOG — The Memory Layer of MoonWitness.**  
-**Preserve the Original. Prove the Integrity. Protect the Witness.**
+**ECHOLOG — The Evidence Preservation Layer of MoonWitness.**

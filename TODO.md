@@ -1,63 +1,83 @@
 # ECHOLOG — Execution TODO
-## D19 · MoonWitness Object Memory & Evidence Integrity
+## D19 · Evidence Preservation Layer
 
-**Last reviewed:** 6 November 2026  
-**Source of truth for product direction:** `docs/MASTER_NARRATIVE.md`  
-**Architecture boundaries:** `docs/ARCHITECTURE.md`  
-**Verified code snapshot:** `docs/CAPABILITY_MATRIX.md`  
-**Sequencing:** `docs/ROADMAP.md`
+Product scope and technical boundaries are in BLUEPRINT.md; product identity is in docs/MASTER_NARRATIVE.md; upstream authority remains MoonWitness XV ADR-0007.
 
-> This TODO records the next work. It does not claim the current implementation is production-certified. Existing GitHub issues EL-001–EL-040 remain traceability references; update their scope/status only after evidence is available.
+**Rule:** do not implement future capabilities merely because they appear in the blueprint. Complete security and recovery foundations first. Every task should be independently testable and produce evidence.
 
-## A. Documentation baseline — completed in this commit
+## P0 — Secure the existing service
+- [ ] Inventory every REST route and its authorization policy.
+- [ ] Inventory every S3 operation and its authorization policy.
+- [ ] Inventory every OCI route and its authorization policy.
+- [ ] Inventory every tools/admin/analytics route and its authorization policy.
+- [ ] Add default-deny tests for unknown routes and methods.
+- [ ] Add cross-surface private-witness denial tests.
+- [ ] Verify private object existence is not exposed through list/count/search/error aliases.
+- [ ] Secure or disable experimental realtime endpoints.
+- [ ] Secure or disable experimental analytics endpoints.
+- [ ] Secure or disable OpenAI-compatible prototype endpoints.
+- [ ] Decide whether to retire the custom PostgreSQL wire gateway.
+- [ ] Audit scrubber traversal and symlink behavior.
+- [ ] Make scrubber report-only and non-destructive by default.
+- [ ] Verify secrets never appear in browser assets, URLs or logs.
 
-- [x] Master product narrative aligned to MoonWitness XV / D19.
-- [x] Vision and mission published.
-- [x] Architecture and ownership boundaries documented.
-- [x] Capability matrix separates code presence from production readiness.
-- [x] Product roadmap prioritizes security, recovery, ARSY integration, and evidence integrity.
-- [x] Frontend product brief prepared for `apps/web` redesign.
-- [x] README and agent governance aligned with the D19 boundary.
+## P0 — Recoverability and reference safety
+- [ ] Define backup consistency boundary for bytes, sidecars and indexes.
+- [ ] Create an off-host backup destination.
+- [ ] Restore a synthetic collection to an isolated host.
+- [ ] Re-hash every restored object.
+- [ ] Produce a machine-readable restore report.
+- [ ] Define measured RPO/RTO from restore drills.
+- [ ] Inventory every consumer reference and GC root.
+- [ ] Prevent GC from deleting referenced objects.
+- [ ] Test delete/retention/legal-hold races.
 
-## B. Immediate P0/P1 engineering gates
+## P1 — Fixity and receipts
+- [ ] Define fixity report schema v1.
+- [ ] Add full-read SHA-256 verification for one object.
+- [ ] Add explicit verified/mismatch/unavailable/not_checked states.
+- [ ] Test byte corruption detection with synthetic fixtures.
+- [ ] Add bounded scan pagination and concurrency.
+- [ ] Add scan checkpoint/restart behavior.
+- [ ] Define preservation receipt schema v1.
+- [ ] Canonicalize receipt serialization.
+- [ ] Threat-model detached signatures and key rotation.
+- [ ] Add offline receipt verifier CLI.
 
-- [ ] **EL-002 / #10** — Prove a clean frozen-lockfile Docker build and readiness check.
-- [ ] **EL-003 / #11** — Reconcile root scripts, API scripts, Next.js scripts, Docker entrypoint, and README.
-- [ ] **EL-004 / #12** — Inventory and enforce default-deny authorization across every route/protocol.
-- [ ] **EL-005 / #13** — Secure realtime, analytics, and manual scrub routes.
-- [ ] **EL-006 / #14** — Secure OpenAI-compatible endpoints or disable them until safe.
-- [ ] **EL-007 / #15** — Audit custom PostgreSQL wire gateway and retire if protocol/security guarantees cannot be proven.
-- [ ] **EL-008 / #16** — Repair scrubber traversal and verification; no silent success on traversal errors.
-- [ ] **EL-022 / #30** — Unify object access policy across REST, S3, OCI, tools, grants, and aliases.
-- [ ] **EL-025 / #33** — Define durable consumer references and GC roots.
+## P1 — Portable preservation
+- [ ] Prototype BagIt export for one object.
+- [ ] Validate export with an independent BagIt implementation.
+- [ ] Include object reference and manifest in package.
+- [ ] Include receipt and fixity report when available.
+- [ ] Prototype import into a clean ECHOLOG instance.
+- [ ] Evaluate OCFL compatibility in a disposable fixture.
+- [ ] Map event vocabulary to PREMIS concepts.
 
-## C. D19 durability and integration
+## P1 — MoonWitness integration
+- [ ] Reconcile standalone identity deviation with XV ADR-0007 owner.
+- [ ] Verify ARSY/D00 auth against current XV contract.
+- [ ] Add consumer contract tests for the four-field object reference.
+- [ ] Integrate one approved consumer end-to-end.
+- [ ] Verify rollback when ECHOLOG is unavailable.
+- [ ] Publish consumer onboarding runbook.
 
-- [ ] **EL-037 / #45** — Implement consistent backup and restore with off-host destination.
-- [ ] Run a full restore drill and verify every restored digest.
-- [ ] Ratify standalone identity deviation against XV ADR-0007.
-- [ ] Verify ARSY federation and fail-closed private-witness authorization.
-- [ ] Publish consumer contract tests for `{ object_key, digest, size, content_type }`.
-- [ ] Integrate one approved MoonWitness consumer end-to-end.
-- [ ] Add evidence receipt and explicit integrity verification contracts.
-- [ ] Add immutable derivative provenance without mutating original objects.
+## P2 — Operator console
+- [ ] Map every existing API route to typed client methods.
+- [ ] Implement real overview health states.
+- [ ] Implement object explorer and detail.
+- [ ] Implement integrity center from actual fixity API.
+- [ ] Implement retention and legal-hold screens.
+- [ ] Add preservation package screen only when APIs exist.
+- [ ] Add storage/recovery view based on verified evidence.
+- [ ] Complete dark/light, responsive and accessibility checks.
 
-## D. Frontend
+## P3 — Research only
+- [ ] Prototype signed Merkle checkpoints.
+- [ ] Prototype independent consistency monitor.
+- [ ] Benchmark remote proof-of-retrievability options.
+- [ ] Explore storage adapter and migration contract.
+- [ ] Explore format-obsolescence metadata.
+- [ ] Explore evidence dependency closure.
 
-- [ ] Use `docs/FRONTEND_PRODUCT_BRIEF.md` as the authoritative design/UX brief.
-- [ ] Audit real API support before wiring each screen.
-- [ ] Replace current tab prototype with D19 operator information architecture.
-- [ ] Ensure all values are API-backed and unavailable states are explicit.
-- [ ] Complete accessibility, responsive behavior, and dark/light themes.
-
-## E. Scope governance
-
-- [ ] Review EL-009–EL-020 before implementing database, global IAM, generated API, or SQL Studio features.
-- [ ] Review EL-026–EL-030 before implementing durable CDC, WebSocket, functions, queues, or cron.
-- [ ] Review EL-031–EL-033 before promoting AI indexing or model gateway features.
-- [ ] Review EL-034–EL-036 before promoting database/storage branching or peer replication.
-- [ ] Keep platform extensions outside D19 core unless owner and MoonWitness XV architecture explicitly ratify the boundary.
-
-## Completion policy
-
-A task is complete only when code, tests, documentation, and exact-commit CI evidence agree. Do not close an issue because a class, route, or screen exists. Do not describe a prototype as production-ready. Do not silently change MoonWitness XV ADR-0007; submit a corresponding owner-reviewed change there when needed.
+## Definition of done
+Each task has code change, focused positive and negative tests, documentation update, exact commit SHA, CI evidence, and rollback note. Never mark an operational guarantee complete based only on source presence.
