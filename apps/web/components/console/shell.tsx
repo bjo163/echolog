@@ -70,10 +70,14 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
 
   return (
     <div className='app'>
+      <a className='skip-link' href='#main-content'>
+        Skip to main content
+      </a>
       <button
         type='button'
         className='mobile-menu'
         aria-label={mobileOpen ? 'Close the navigation' : 'Open the navigation'}
+        aria-controls='console-navigation'
         aria-expanded={mobileOpen}
         onClick={() => setMobileOpen((open) => !open)}
       >
@@ -90,7 +94,7 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
             <small>D19 · Object Memory</small>
           </div>
         </div>
-        <nav className='nav'>
+        <nav className='nav' id='console-navigation'>
           {SECTIONS.map((entry) => {
             const Icon = ICONS[entry.id]
             const isActive = active ? active.id === entry.id : false
@@ -120,7 +124,7 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
           ) : null}
         </div>
       </aside>
-      <div className='main'>
+      <div className='main' id='main-content' tabIndex={-1}>
         <header className='topbar'>
           <div className='crumb'>
             <b>{active ? active.label : 'Overview'}</b>

@@ -165,8 +165,6 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
   // Columnar Analytical OLAP Layer & Telemetry
   registerAnalyticsRoutes(app, { database: options.database, serviceKey: config.serviceKey, arsyUrl: config.arsyUrl, scrubber, ...(options.fetcher ? { fetcher: options.fetcher } : {}), ...(options.now ? { now: options.now } : {}) })
 
-<<<<<<< HEAD
-=======
   // Operator console runtime facts.
   //
   // The console must not infer the identity mode, the environment or the
@@ -199,7 +197,7 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
     independent_witness: 'unavailable',
     semantic_search: options.pgliteAdapter ? 'experimental' : 'unavailable',
     shape_sync: options.pgliteAdapter ? 'experimental' : 'unavailable',
-    postgres_wire: options.pgliteAdapter && options.pgWirePort ? 'experimental' : 'unavailable',
+    postgres_wire: 'unavailable',
     realtime_events: 'experimental',
     olap_analytics: 'experimental',
     oci_registry: 'experimental',
@@ -215,17 +213,6 @@ export function createEchologServer(config: EchologConfig, options: EchologServe
     ...(options.now ? { now: options.now } : {}),
   })
 
-  // Postgres Wire Gateway (:5432)
-  let pgWireServer: PostgresWireServer | null = null
-  if (options.pgliteAdapter && options.pgWirePort) {
-    pgWireServer = new PostgresWireServer(options.pgliteAdapter, options.pgWirePort)
-    void pgWireServer.start().catch(() => {})
-    app.addHook('onClose', async () => {
-      if (pgWireServer) await pgWireServer.stop()
-    })
-  }
-
->>>>>>> 719aff3 (oke)
   app.get('/health', {
     schema: {
       response: {
