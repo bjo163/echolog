@@ -37,7 +37,7 @@ Backend-dependent items not implemented:
 - User creation/password reset endpoint.
 
 ## Validation status
-Changes were committed through GitHub repository APIs without a local Node/pnpm execution environment. Typecheck, tests, production build, browser interaction and responsive screenshot checks are **not verified**. Do not treat this pass as release-certified until CI/build and browser tests run against this revision.
+Changes were committed through GitHub repository APIs without a local Node/pnpm execution environment. Typecheck, tests, production build, browser interaction and responsive screenshot checks are **not verified**. The latest GitHub Actions run for the current `main` head (#40) was queued at the last status check; no passing CI result is available yet. Do not treat this pass as release-certified until CI/build and browser tests run against this revision.
 
 ## Next verification
 1. pnpm install --frozen-lockfile
