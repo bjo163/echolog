@@ -1,5 +1,17 @@
 # Frontend Implementation Handoff
 
+## Pass 3 — Pathname routes and resilience
+
+Implemented in `main`:
+- Replaced hash-only workspace navigation with dedicated Next.js App Router paths for all nine sections.
+- Added `/objects/<sha256-digest>` object detail routes with digest validation and session-aware metadata loading.
+- Added a 15-second API timeout and safe network-unavailable messages.
+- Isolated partial API failures, cleared failed panels to avoid stale-as-current data, and retained successful panels.
+- Added a last-successful-refresh timestamp and a visible refresh action.
+- Prevented duplicate API-key and user administrator mutations.
+
+Validation remains pending: the GitHub Actions queue has not returned a result, and no local pnpm or browser test was executed.
+
 ## Pass 2 — Navigation and deployment boundary
 
 Implemented in `main`:
@@ -35,6 +47,10 @@ Backend-dependent items not implemented:
 - Backup inventory, restore drill, RPO/RTO evidence.
 - ARSY federation discovery in browser session endpoint.
 - User creation/password reset endpoint.
+
+## Security dependency remediation
+
+Manifest updates target Next.js 16.4.5, Fastify 5.12.8, and the Next.js optional sharp dependency 0.35.5 or later. See [security patch report](SECURITY_DEPENDENCY_PATCH_2026-11.md). The lockfile refresh is CI-driven and remains unverified until the lockfile commit and version assertions succeed.
 
 ## Validation status
 Changes were committed through GitHub repository APIs without a local Node/pnpm execution environment. Typecheck, tests, production build, browser interaction and responsive screenshot checks are **not verified**. The latest GitHub Actions run was queued at the last status check; no passing CI result is available yet. Check the repository Actions page for the current revision's result. Do not treat this pass as release-certified until CI/build and browser tests run against this revision.
