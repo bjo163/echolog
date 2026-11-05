@@ -3,7 +3,7 @@
 ## Pass 2 — Navigation and deployment boundary
 
 Implemented in `main`:
-- Added shareable section hash links for all nine workspace areas.
+- Added shareable section hash links for all nine workspace areas and digest-addressable object detail links (`#object/<digest>`).
 - Added browser back/forward synchronization and direct hash restoration on page load.
 - Added accessible labels to key icon-only and filter controls, plus `aria-current` for active navigation.
 - Delayed download object-URL revocation to avoid racing the browser's download start.
