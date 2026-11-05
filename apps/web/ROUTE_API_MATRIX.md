@@ -1,6 +1,6 @@
 # ECHOLOG Frontend Route / API Matrix
 
-Implementation pass 1 · verified against current source.
+Implementation pass 2 · updated against current source.
 
 | Screen | API source | Auth | UI status | Limitation |
 |---|---|---|---|---|
@@ -18,6 +18,12 @@ Implementation pass 1 · verified against current source.
 | Integrity | No fixity endpoint | — | Unavailable state | No durable fixity API |
 | Packages/recovery | No export/restore endpoints | — | Deferred | Backend capability absent |
 | Settings | Browser theme preference | Session | Implemented | No server settings mutation |
+
+## Navigation and deployment
+
+- Workspace sections are addressable by hash: `#overview`, `#objects`, `#deposit`, `#integrity`, `#retention`, `#storage`, `#access`, `#activity`, and `#settings`.
+- Hash changes support direct opening, refresh, and browser back/forward. These are section deep links inside the single-page console, not separate Next.js pathname routes; object details do not yet have their own URL.
+- Next.js rewrites `/api/*` and `/health/*` to `ECHOLOG_API_INTERNAL_URL` when set. Default is `http://127.0.0.1:3006` for local development. In Coolify, set it to the API service's internal DNS URL, for example `http://echolog-api:3006`, on a shared private network.
 
 ## Safety
 - Calls use same-origin /api routes and browser credentials.
