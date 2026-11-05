@@ -25,6 +25,7 @@ Implementation pass 2 · updated against current source.
 - Object details use `/objects/<sha256-digest>` and validate the digest shape before rendering.
 - Direct route loads restore the correct section; browser back/forward uses Next.js App Router.
 - Object metadata is fetched only after the operator session has been restored.
+- The object explorer filters the authorized visible-alias response client-side and stores its search term as `?q=`; sorting is client-side by alias, size, or last-modified time. No server pagination is claimed because the API currently exposes no cursor contract.
 - These routes reuse the same authenticated console component; they do not introduce new API capabilities or bypass backend authorization.
 - Next.js rewrites `/api/*` and `/health/*` to `ECHOLOG_API_INTERNAL_URL` when set. Default is `http://127.0.0.1:3006` for local development. In Coolify, set it to the API service's internal DNS URL, for example `http://echolog-api:3006`, on a shared private network.
 
