@@ -21,10 +21,11 @@ Implementation pass 2 · updated against current source.
 
 ## Navigation and deployment
 
-- Workspace sections are addressable by hash: `#overview`, `#objects`, `#deposit`, `#integrity`, `#retention`, `#storage`, `#access`, `#activity`, and `#settings`.
-- Section hashes support direct opening, refresh, and browser back/forward inside the single-page console.
-- Object details are addressable as `#object/<sha256-digest>`; opening a row updates the URL, direct hash restoration loads metadata, and closing returns to `#objects`.
-- These are hash deep links, not separate Next.js pathname routes.
+- Workspace sections use real App Router paths: `/`, `/overview`, `/objects`, `/deposit`, `/integrity`, `/retention`, `/storage`, `/access`, `/activity`, and `/settings`.
+- Object details use `/objects/<sha256-digest>` and validate the digest shape before rendering.
+- Direct route loads restore the correct section; browser back/forward uses Next.js App Router.
+- Object metadata is fetched only after the operator session has been restored.
+- These routes reuse the same authenticated console component; they do not introduce new API capabilities or bypass backend authorization.
 - Next.js rewrites `/api/*` and `/health/*` to `ECHOLOG_API_INTERNAL_URL` when set. Default is `http://127.0.0.1:3006` for local development. In Coolify, set it to the API service's internal DNS URL, for example `http://echolog-api:3006`, on a shared private network.
 
 ## Safety
