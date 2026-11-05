@@ -10,7 +10,7 @@ Implemented in `main`:
 - Made the Next.js API/health rewrite target configurable through `ECHOLOG_API_INTERNAL_URL`.
 - Added App Router loading, error, and not-found fallbacks with safe recovery copy; error details are not exposed to the user.
 
-Navigation limitation: section deep links use URL hashes in the existing single-page console. They are not separate pathname routes, and object detail is not yet independently addressable.
+Navigation limitation: workspace and object details are addressable by URL hashes inside the existing single-page console. They are not separate Next.js pathname routes.
 
 Deployment note: local default remains `http://127.0.0.1:3006`. For Coolify, set `ECHOLOG_API_INTERNAL_URL` on the frontend service to the API container's private service URL (for example `http://echolog-api:3006`) and attach both services to the same private network. Do not point a separate frontend container at its own `127.0.0.1`.
 
@@ -37,7 +37,7 @@ Backend-dependent items not implemented:
 - User creation/password reset endpoint.
 
 ## Validation status
-Changes were committed through GitHub repository APIs without a local Node/pnpm execution environment. Typecheck, tests, production build, browser interaction and responsive screenshot checks are **not verified**. The latest GitHub Actions run for the current `main` head (#40) was queued at the last status check; no passing CI result is available yet. Do not treat this pass as release-certified until CI/build and browser tests run against this revision.
+Changes were committed through GitHub repository APIs without a local Node/pnpm execution environment. Typecheck, tests, production build, browser interaction and responsive screenshot checks are **not verified**. The latest GitHub Actions run for the current `main` head (#46) was queued at the last status check; no passing CI result is available yet. Do not treat this pass as release-certified until CI/build and browser tests run against this revision.
 
 ## Next verification
 1. pnpm install --frozen-lockfile
