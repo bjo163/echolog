@@ -1,5 +1,18 @@
 # Frontend Implementation Handoff
 
+## Pass 2 — Navigation and deployment boundary
+
+Implemented in `main`:
+- Added shareable section hash links for all nine workspace areas.
+- Added browser back/forward synchronization and direct hash restoration on page load.
+- Added accessible labels to key icon-only and filter controls, plus `aria-current` for active navigation.
+- Delayed download object-URL revocation to avoid racing the browser's download start.
+- Made the Next.js API/health rewrite target configurable through `ECHOLOG_API_INTERNAL_URL`.
+
+Navigation limitation: section deep links use URL hashes in the existing single-page console. They are not separate pathname routes, and object detail is not yet independently addressable.
+
+Deployment note: local default remains `http://127.0.0.1:3006`. For Coolify, set `ECHOLOG_API_INTERNAL_URL` on the frontend service to the API container's private service URL (for example `http://echolog-api:3006`) and attach both services to the same private network. Do not point a separate frontend container at its own `127.0.0.1`.
+
 ## Pass 1 — Core operator console
 
 Implemented:
