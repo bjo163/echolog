@@ -1,392 +1,61 @@
 'use client'
-
-import { useEffect, useState } from 'react'
-import {
-  SparklesIcon,
-  SearchIcon,
-  DatabaseIcon,
-  FileTextIcon,
-  ArrowRightIcon,
-  RefreshCwIcon,
-  LayersIcon,
-  BoxIcon,
-  HardDriveIcon,
-  KeyIcon,
-  RadioIcon,
-  BotIcon,
-  ShieldCheckIcon,
-} from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@echolog/ui'
-import { Input } from '@echolog/ui'
-import { Button } from '@echolog/ui'
-import { Badge } from '@echolog/ui'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@echolog/ui'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@echolog/ui'
-import { Alert, AlertDescription } from '@echolog/ui'
-import type { SemanticSearchResult, VectorStatsResponse } from '@echolog/contract'
-
-export default function EchologWebConsole() {
-  const [activeTab, setActiveTab] = useState('search')
-  const [query, setQuery] = useState('')
-  const [stats, setStats] = useState<VectorStatsResponse | null>(null)
-  const [results, setResults] = useState<SemanticSearchResult[]>([])
-  const [busy, setBusy] = useState(false)
-  const [failure, setFailure] = useState<string | null>(null)
-  const [hasSearched, setHasSearched] = useState(false)
-
-  const apiBase = typeof window !== 'undefined' ? (window.location.origin.includes('3106') ? 'http://localhost:3006' : '') : ''
-
-  const loadStats = () => {
-    fetch(`${apiBase}/api/v1/search/stats`, { credentials: 'include' })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => setStats(data))
-      .catch(() => setStats(null))
-  }
-
-  useEffect(() => {
-    loadStats()
-  }, [])
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!query.trim()) return
-    setBusy(true)
-    setFailure(null)
-    setHasSearched(true)
-
-    fetch(`${apiBase}/api/v1/search/semantic`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ query: query.trim(), limit: 10 }),
-      credentials: 'include',
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(`Search failed: status ${res.status}`)
-        return res.json()
-      })
-      .then((res) => {
-        setResults(res.results ?? [])
-        setBusy(false)
-      })
-      .catch((err: any) => {
-        setFailure(err.message ?? 'Search request failed')
-        setBusy(false)
-      })
-  }
-
-  return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Top Navigation Bar */}
-      <header className="border-b px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="h-7 w-7 rounded bg-primary flex items-center justify-center text-primary-foreground font-mono font-bold text-sm">
-            E
-          </div>
-          <div>
-            <h1 className="font-mono text-base font-bold tracking-tight">ECHOLOG</h1>
-            <p className="text-xs text-muted-foreground font-mono">Autonomous Multimodal Storage Platform</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 font-mono text-xs">
-          <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
-            pgvector :5432 ACTIVE
-          </Badge>
-          <Badge variant="outline" className="border-blue-500/30 text-blue-400 bg-blue-500/10">
-            OCI/ORAS v1.1
-          </Badge>
-          <Badge variant="outline" className="border-amber-500/30 text-amber-400 bg-amber-500/10">
-            CAS WORM
-          </Badge>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="flex-1 p-6 max-w-7xl mx-auto w-full flex flex-col gap-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="gap-6">
-          <TabsList>
-            <TabsTrigger value="search" className="flex items-center gap-1.5">
-              <SparklesIcon className="h-4 w-4 text-amber-400" /> AI Semantic Search
-            </TabsTrigger>
-            <TabsTrigger value="realtime" className="flex items-center gap-1.5">
-              <RadioIcon className="h-4 w-4 text-emerald-400" /> Live Realtime CDC
-            </TabsTrigger>
-            <TabsTrigger value="openai" className="flex items-center gap-1.5">
-              <BotIcon className="h-4 w-4 text-cyan-400" /> OpenAI Gateway
-            </TabsTrigger>
-            <TabsTrigger value="overview" className="flex items-center gap-1.5">
-              <HardDriveIcon className="h-4 w-4" /> Storage Overview
-            </TabsTrigger>
-            <TabsTrigger value="oci" className="flex items-center gap-1.5">
-              <BoxIcon className="h-4 w-4" /> OCI Registry
-            </TabsTrigger>
-            <TabsTrigger value="sync" className="flex items-center gap-1.5">
-              <LayersIcon className="h-4 w-4" /> Shape Sync P2P
-            </TabsTrigger>
-          </TabsList>
-
-          {/* AI Semantic Search Tab */}
-          <TabsContent value="search">
-            <Card>
-              <CardHeader>
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <SparklesIcon className="h-5 w-5 text-amber-400" />
-                      <CardTitle>Autonomous AI Semantic Search</CardTitle>
-                    </div>
-                    <CardDescription>
-                      Search your Content-Addressable Storage by meaning and context via embedded PostgreSQL (PGlite) + pgvector.
-                    </CardDescription>
-                  </div>
-                  {stats && (
-                    <div className="flex items-center gap-2 text-xs font-mono">
-                      <Badge variant={stats.vector_extension === 'active' ? 'default' : 'outline'}>
-                        <DatabaseIcon className="mr-1 h-3 w-3" />
-                        {stats.engine} ({stats.dimensions}d)
-                      </Badge>
-                      <Badge variant="outline">Indexed: {stats.indexed_objects}</Badge>
-                      <Button size="icon" variant="ghost" onClick={loadStats} title="Refresh vector stats">
-                        <RefreshCwIcon className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSearch} className="flex gap-2">
-                  <div className="relative flex-1">
-                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      placeholder="Ask or search by concept (e.g. 'kubernetes networking', 'q3 financial report', 'device driver logic')..."
-                      className="pl-9 font-mono text-sm"
-                    />
-                  </div>
-                  <Button type="submit" disabled={busy || !query.trim()} className="font-mono">
-                    {busy ? 'Searching...' : 'Search'}
-                  </Button>
-                </form>
-
-                {failure && (
-                  <Alert variant="destructive" className="mt-4">
-                    <AlertDescription>{failure}</AlertDescription>
-                  </Alert>
-                )}
-
-                {hasSearched && (
-                  <div className="mt-6 flex flex-col gap-4">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground font-mono">
-                      <span>Matches found: {results.length}</span>
-                    </div>
-
-                    {results.length === 0 ? (
-                      <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground font-mono">
-                        No semantic matches found for "{query}". Try uploading or indexing more documents.
-                      </div>
-                    ) : (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>File / Digest</TableHead>
-                            <TableHead>Similarity</TableHead>
-                            <TableHead>Content Snippet</TableHead>
-                            <TableHead className="text-right">Action</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {results.map((item) => (
-                            <TableRow key={item.digest}>
-                              <TableCell className="font-medium">
-                                <div className="flex items-center gap-2">
-                                  <FileTextIcon className="h-4 w-4 text-muted-foreground" />
-                                  <div>
-                                    <div className="font-sans font-medium">{item.filename}</div>
-                                    <div className="font-mono text-xs text-muted-foreground">
-                                      {item.digest.slice(0, 16)}...
-                                    </div>
-                                  </div>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                {item.similarity !== null ? (
-                                  <Badge variant="secondary" className="font-mono font-semibold">
-                                    {(item.similarity * 100).toFixed(1)}% match
-                                  </Badge>
-                                ) : (
-                                  <span className="text-xs text-muted-foreground">N/A</span>
-                                )}
-                              </TableCell>
-                              <TableCell className="max-w-md">
-                                <p className="line-clamp-2 text-xs font-mono text-muted-foreground bg-muted/40 p-1.5 rounded">
-                                  {item.snippet ?? '(Snippet unavailable)'}
-                                </p>
-                              </TableCell>
-                              <TableCell className="text-right">
-                                <Button size="sm" variant="outline" asChild>
-                                  <a href={`${apiBase}${item.url}`} target="_blank" rel="noreferrer">
-                                    Download <ArrowRightIcon className="ml-1 h-3 w-3" />
-                                  </a>
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    )}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Storage Overview Tab */}
-          <TabsContent value="overview">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm font-mono text-muted-foreground">Engine Architecture</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold font-mono">Single-Process</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Zero Docker containers. Memory footprint &lt; 80MB RAM.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm font-mono text-muted-foreground">Postgres Wire Gateway</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold font-mono text-emerald-400">Port 5432</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Direct access via DBeaver, DataGrip, or CLI <code>psql</code>.
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm font-mono text-muted-foreground">Content-Addressed Storage</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold font-mono text-amber-400">SHA-256 CAS</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Zero-duplicate bits, WORM compliance, and active retention timers.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Realtime CDC Tab */}
-          <TabsContent value="realtime">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <RadioIcon className="h-5 w-5 text-emerald-400" />
-                  <CardTitle>Real-Time Change Data Capture (Server-Sent Events)</CardTitle>
-                </div>
-                <CardDescription>
-                  In-process zero-dependency streaming bus broadcasting instant object mutations, vector events, and honeypot alerts without Elixir overhead.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 font-mono text-sm">
-                <div className="bg-muted p-3 rounded">
-                  <span className="text-muted-foreground"># Connect to live SSE stream via curl / browser</span>
-                  <br />
-                  curl -N http://localhost:3006/api/v1/realtime/stream
-                </div>
-                <div className="border border-emerald-500/20 bg-emerald-500/5 p-4 rounded-lg">
-                  <div className="flex items-center justify-between text-xs text-emerald-400 font-bold mb-2">
-                    <span>STATUS: LISTENING FOR BROKER EVENTS</span>
-                    <span>PROTO: HTTP/1.1 SSE (keepalive: 15s)</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <div>• event: object.created — Triggers instantly on REST / S3 PutObject commits</div>
-                    <div>• event: ai.indexed — Triggers when background 384d vector projection completes</div>
-                    <div>• event: security.honeypot_triggered — Instant alert with auto-quarantine actor details</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* OpenAI Compatible Gateway Tab */}
-          <TabsContent value="openai">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <BotIcon className="h-5 w-5 text-cyan-400" />
-                  <CardTitle>OpenAI-Compatible Local AI Gateway</CardTitle>
-                </div>
-                <CardDescription>
-                  Drop-in replacement for OpenAI endpoints. Connect Cursor, Continue.dev, LangChain, or OpenAI SDK directly to your local ECHOLOG node.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 font-mono text-sm">
-                <div className="bg-muted p-3 rounded">
-                  <span className="text-muted-foreground"># Query local 384d embedding via standard OpenAI client</span>
-                  <br />
-                  curl http://localhost:3006/v1/embeddings \<br />
-                  &nbsp;&nbsp;-H &quot;Content-Type: application/json&quot; \<br />
-                  &nbsp;&nbsp;-d &apos;{JSON.stringify({ input: "Sample semantic text", model: "text-embedding-384" })}&apos;
-                </div>
-                <div className="bg-muted p-3 rounded">
-                  <span className="text-muted-foreground"># Local RAG storage assistant completion</span>
-                  <br />
-                  curl http://localhost:3006/v1/chat/completions \<br />
-                  &nbsp;&nbsp;-H &quot;Content-Type: application/json&quot; \<br />
-                  &nbsp;&nbsp;-d &apos;{JSON.stringify({ messages: [{ role: "user", content: "Search recent logs" }] })}&apos;
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* OCI Registry Tab */}
-          <TabsContent value="oci">
-            <Card>
-              <CardHeader>
-                <CardTitle>OCI Distribution v1.1 Registry</CardTitle>
-                <CardDescription>
-                  Store Docker container images, Helm charts, and AI model weights natively in ECHOLOG.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 font-mono text-sm">
-                <div className="bg-muted p-3 rounded">
-                  <span className="text-muted-foreground"># Push OCI artifact directly</span>
-                  <br />
-                  oras push localhost:3006/my-app:v1.0.0 ./my-app.tar.gz
-                </div>
-                <div className="bg-muted p-3 rounded">
-                  <span className="text-muted-foreground"># Pull with docker</span>
-                  <br />
-                  docker pull localhost:3006/library/alpine:latest
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Shape Sync Tab */}
-          <TabsContent value="sync">
-            <Card>
-              <CardHeader>
-                <CardTitle>Local-First Shape Sync (P2P Delta Stream)</CardTitle>
-                <CardDescription>
-                  Replicate metadata and CAS objects between multiple ECHOLOG instances without a central cloud.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 font-mono text-sm">
-                <div className="bg-muted p-3 rounded">
-                  <span className="text-muted-foreground"># Pull delta stream changes</span>
-                  <br />
-                  GET /api/v1/sync/shapes/all?since_lsn=0
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </main>
-    </div>
-  )
+import {useCallback,useEffect,useMemo,useState} from 'react'
+import {Activity,Archive,ArrowUpFromLine,CheckCircle2,ChevronRight,Clock3,Copy,Database,Download,FileCheck2,FileSearch,Files,HardDrive,LayoutDashboard,LoaderCircle,LogOut,Menu,Moon,RefreshCw,Search,Settings2,Shield,ShieldAlert,ShieldCheck,Sun,Trash2,UploadCloud,X,AlertTriangle,KeyRound} from 'lucide-react'
+type Principal={login:string;role:string;kind:string}
+type Stats={quota_bytes:number;committed_bytes:number;objects_count:number;held_bytes:number;held_count:number;active_retention_bytes:number;active_retention_count:number;eligible_gc_bytes:number;eligible_gc_count:number;s3_aliases_count:number}
+type Alias={key:string;object_key:string;digest:string;size:number;content_type:string;etag:string;last_modified:string;retention_until:string|null;legal_hold:boolean}
+type Meta={object_key:string;digest:string;size:number;content_type:string;filename:string;uploader:string;created_at:string;retention_until:string|null;legal_hold:boolean;scan:string;tags:string[]}
+type Event={id:string;timestamp:string;actor:string;action:string;target:string;details?:string|null}
+type User={id:string;login:string;role:string;created_at:string;disabled:boolean}
+type Key={id:string;name:string;prefix:string;role:string;created_at:string;last_used_at:string|null;revoked_at:string|null}
+type Section='overview'|'objects'|'deposit'|'integrity'|'retention'|'storage'|'access'|'activity'|'settings'
+const nav:any[]=[['overview','Overview',LayoutDashboard,'WORKSPACE'],['objects','Object explorer',Files,'WORKSPACE'],['deposit','Deposit object',ArrowUpFromLine,'WORKSPACE'],['integrity','Integrity center',FileCheck2,'PRESERVATION'],['retention','Retention & holds',Shield,'PRESERVATION'],['storage','Storage & recovery',HardDrive,'OPERATIONS'],['access','Access & identity',KeyRound,'OPERATIONS'],['activity','Activity',Activity,'OPERATIONS'],['settings','Settings',Settings2,'SYSTEM']]
+async function api<T>(path:string,init:RequestInit={}):Promise<T>{const r=await fetch(path,{...init,credentials:'include',cache:'no-store',headers:{...(init.body instanceof FormData?{}:{'content-type':'application/json'}),...init.headers}});if(!r.ok){let m='Request failed ('+r.status+')';try{const b=await r.json();m=b?.error?.message??b?.message??m}catch{}throw new Error(m)}if(r.status===204)return undefined as T;return r.json() as Promise<T>}
+const bfmt=(n?:number|null)=>n==null?'—':!n?'0 B':(()=>{const u=['B','KB','MB','GB','TB'],i=Math.min(Math.floor(Math.log(n)/Math.log(1024)),4);return(n/Math.pow(1024,i)).toFixed(i?1:0)+' '+u[i]})()
+const dfmt=(v?:string|null)=>{if(!v)return'Not recorded';const d=new Date(v);return Number.isNaN(d.getTime())?v:d.toLocaleString()}
+const cut=(v:string)=>v.length>28?v.slice(0,16)+'…'+v.slice(-8):v
+function Status({kind,children}:{kind:string;children:React.ReactNode}){return <span className={'status status-'+kind}><i/>{children}</span>}
+function Empty({title,detail}:{title:string;detail:string}){return <div className="empty"><Archive size={23}/><b>{title}</b><p>{detail}</p></div>}
+function Metric({label,value,note,icon:Icon}:any){return <article className="metric"><div>{label}<Icon size={17}/></div><strong>{value}</strong><small>{note}</small></article>}
+export default function EchologConsole(){
+const[principal,setPrincipal]=useState<Principal|null>(null),[authLoading,setAuthLoading]=useState(true),[login,setLogin]=useState(''),[password,setPassword]=useState(''),[loginError,setLoginError]=useState('')
+const[section,setSection]=useState<Section>('overview'),[stats,setStats]=useState<Stats|null>(null),[aliases,setAliases]=useState<Alias[]>([]),[events,setEvents]=useState<Event[]>([]),[users,setUsers]=useState<User[]>([]),[keys,setKeys]=useState<Key[]>([]),[selected,setSelected]=useState<Meta|null>(null)
+const[query,setQuery]=useState(''),[loading,setLoading]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[theme,setTheme]=useState<'dark'|'light'>('dark'),[mobile,setMobile]=useState(false)
+const[file,setFile]=useState<File|null>(null),[uploading,setUploading]=useState(false),[busy,setBusy]=useState(false),[keyName,setKeyName]=useState(''),[keyRole,setKeyRole]=useState<'member'|'admin'>('member'),[token,setToken]=useState('')
+const admin=principal?.role==='admin',title=nav.find(x=>x[0]===section)?.[1]??'Overview'
+const loadSession=useCallback(async()=>{try{setPrincipal(await api<Principal>('/api/v1/session'))}catch{setPrincipal(null)}finally{setAuthLoading(false)}},[])
+const loadCore=useCallback(async()=>{if(!principal)return;setLoading(true);setError('');const r=await Promise.allSettled([api<Stats>('/api/v1/storage/stats'),api<Alias[]>('/api/v1/s3-keys'),api<Event[]>('/api/v1/audit-logs?limit=100')]);if(r[0].status==='fulfilled')setStats(r[0].value);else setError(r[0].reason instanceof Error?r[0].reason.message:'Storage stats unavailable');if(r[1].status==='fulfilled')setAliases(r[1].value);if(r[2].status==='fulfilled')setEvents(r[2].value);setLoading(false)},[principal])
+const loadAdmin=useCallback(async()=>{if(!admin)return;const r=await Promise.allSettled([api<{users:User[]}>('/api/v1/users'),api<{keys:Key[]}>('/api/v1/keys')]);if(r[0].status==='fulfilled')setUsers(r[0].value.users);if(r[1].status==='fulfilled')setKeys(r[1].value.keys)},[admin])
+useEffect(()=>{const s=localStorage.getItem('echolog-theme');if(s==='dark'||s==='light')setTheme(s);void loadSession()},[loadSession])
+useEffect(()=>{if(principal)void loadCore()},[principal,loadCore])
+useEffect(()=>{if(principal&&admin&&(section==='access'||section==='activity'))void loadAdmin()},[principal,admin,section,loadAdmin])
+const visible=useMemo(()=>{const q=query.toLowerCase().trim();return q?aliases.filter(x=>[x.key,x.object_key,x.digest,x.content_type].some(v=>v.toLowerCase().includes(q))):aliases},[aliases,query])
+async function signIn(e:React.FormEvent){e.preventDefault();setBusy(true);setLoginError('');try{setPrincipal(await api<Principal>('/api/v1/session',{method:'POST',body:JSON.stringify({login,password})}));setPassword('')}catch(e){setLoginError(e instanceof Error?e.message:'Sign in failed')}finally{setBusy(false)}}
+async function signOut(){try{await api('/api/v1/session',{method:'DELETE'})}finally{setPrincipal(null);setStats(null);setAliases([]);setEvents([]);setSelected(null)}}
+async function openObject(d:string){setError('');setLoading(true);try{setSelected(await api<Meta>('/api/v1/objects/sha256/'+d+'/meta'))}catch(e){setError(e instanceof Error?e.message:'Metadata unavailable')}finally{setLoading(false)}}
+async function downloadObject(d:string){setBusy(true);try{const g=await api<{url:string}>('/api/v1/objects/sha256/'+d),r=await fetch(g.url,{credentials:'include',cache:'no-store'});if(!r.ok)throw new Error('Download failed ('+r.status+')');const u=URL.createObjectURL(await r.blob()),a=document.createElement('a');a.href=u;a.download=selected?.filename??d+'.bin';a.click();URL.revokeObjectURL(u);setNotice('Download started with a short-lived access grant.')}catch(e){setError(e instanceof Error?e.message:'Download failed')}finally{setBusy(false)}}
+async function uploadObject(e:React.FormEvent){e.preventDefault();if(!file)return;setUploading(true);setError('');try{const r=await fetch('/api/v1/objects',{method:'POST',credentials:'include',cache:'no-store',headers:{'content-type':file.type||'application/octet-stream','x-filename':file.name},body:file});if(!r.ok){let m='Upload failed ('+r.status+')';try{m=(await r.json())?.error?.message??m}catch{}throw new Error(m)}const o=await r.json() as Meta;setNotice('Object deposited. SHA-256: '+o.digest);setFile(null);setSelected(o);setSection('objects');await loadCore()}catch(e){setError(e instanceof Error?e.message:'Upload failed')}finally{setUploading(false)}}
+async function deleteObject(d:string){if(!confirm('Delete this object? Server-side retention and legal-hold rules still apply.'))return;setBusy(true);try{await api('/api/v1/objects/sha256/'+d,{method:'DELETE'});setSelected(null);setNotice('Delete request completed.');await loadCore()}catch(e){setError(e instanceof Error?e.message:'Delete failed')}finally{setBusy(false)}}
+async function gc(){if(!confirm('Run retention-aware garbage collection?'))return;setBusy(true);try{const r=await api<{deleted:string[];held:unknown[];bytes_freed:number}>('/api/v1/gc',{method:'POST'});setNotice('GC completed: '+r.deleted.length+' removed, '+r.held.length+' protected, '+bfmt(r.bytes_freed)+' freed.');await loadCore()}catch(e){setError(e instanceof Error?e.message:'GC failed')}finally{setBusy(false)}}
+async function issueKey(e:React.FormEvent){e.preventDefault();setToken('');try{const r=await api<{token:string}>('/api/v1/keys',{method:'POST',body:JSON.stringify({name:keyName,role:keyRole})});setToken(r.token);setKeyName('');await loadAdmin()}catch(e){setError(e instanceof Error?e.message:'Could not issue key')}}
+async function revokeKey(p:string){if(!confirm('Revoke API key '+p+'?'))return;try{await api('/api/v1/keys/'+encodeURIComponent(p),{method:'DELETE'});await loadAdmin();setNotice('API key revoked.')}catch(e){setError(e instanceof Error?e.message:'Could not revoke key')}}
+async function toggleUser(u:User){if(!confirm((u.disabled?'Enable':'Disable')+' '+u.login+'?'))return;try{await api('/api/v1/users/'+encodeURIComponent(u.login),{method:'PATCH',body:JSON.stringify({disabled:!u.disabled})});await loadAdmin()}catch(e){setError(e instanceof Error?e.message:'Could not update user')}}
+function copy(v:string){void navigator.clipboard.writeText(v).then(()=>setNotice('Copied to clipboard.')).catch(()=>setError('Clipboard access denied.'))}
+function themeToggle(){const t=theme==='dark'?'light':'dark';setTheme(t);localStorage.setItem('echolog-theme',t)}
+if(authLoading)return <div className="boot"><div className="mark">E</div>Preparing ECHOLOG console</div>
+if(!principal)return <main className={'login theme-'+theme}><section className="login-aside"><div className="brand"><div className="mark">E</div><div><b>ECHOLOG</b><small>D19 · EVIDENCE PRESERVATION</small></div></div><div className="login-message"><span className="eyebrow">THE EVIDENCE PRESERVATION LAYER</span><h1>Preserve the original.<br/><em>Inspect what happened.</em></h1><p>Object memory and evidence integrity for MoonWitness XV. Keep original bytes inspectable across time.</p><div className="login-points"><span><ShieldCheck size={16}/> Content identity</span><span><FileCheck2 size={16}/> Preservation records</span><span><Archive size={16}/> Portable by design</span></div></div><small className="login-foot">MOONWITNESS XV · DOMAIN D19</small></section><section className="login-main"><button className="theme-toggle" onClick={themeToggle}>{theme==='dark'?<Sun size={17}/>:<Moon size={17}/>}</button><form className="login-card" onSubmit={signIn}><span className="eyebrow">OPERATOR ACCESS</span><h2>Welcome back.</h2><p>Sign in with your ECHOLOG operator account.</p>{loginError&&<div className="notice error"><AlertTriangle size={16}/>{loginError}</div>}<label>Login<input autoComplete="username" value={login} onChange={e=>setLogin(e.target.value)} required placeholder="Your operator login"/></label><label>Password<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required placeholder="Enter your password"/></label><button className="btn primary wide" disabled={busy}>{busy?<LoaderCircle className="spin" size={16}/>:null}Sign in <ChevronRight size={16}/></button><div className="login-secure"><ShieldCheck size={14}/> HttpOnly session cookie</div></form></section></main>
+return <div className={'app theme-'+theme}><aside className={'sidebar '+(mobile?'sidebar-open':'')}><div className="brand"><div className="mark">E</div><div><b>ECHOLOG</b><small>D19 · ARCHIVE SYSTEM</small></div><button className="mobile-close" onClick={()=>setMobile(false)}><X size={18}/></button></div><div className="workspace"><i/><div><b>Operator workspace</b><small>Standalone instance</small></div></div><nav>{['WORKSPACE','PRESERVATION','OPERATIONS','SYSTEM'].map(g=><div className="nav-group" key={g}><small>{g}</small>{nav.filter(x=>x[3]===g).map(([id,label,Icon])=><button key={id} className={'nav-item '+(section===id?'active':'')} onClick={()=>{setSection(id);setMobile(false);setError('')}}><Icon size={17}/><span>{label}</span></button>)}</div>)}</nav><div className="sidebar-bottom"><div className="session-status"><i/><div><b>API session active</b><small>Authenticated operator</small></div></div><button className="profile" onClick={signOut}><span className="avatar">{principal.login[0].toUpperCase()}</span><div><b>{principal.login}</b><small>{principal.role} account</small></div><LogOut size={16}/></button></div></aside>{mobile&&<button className="scrim" onClick={()=>setMobile(false)} aria-label="Close navigation"/>}
+<main className="main"><header className="topbar"><div className="crumb"><button className="mobile-menu" onClick={()=>setMobile(true)}><Menu size={19}/></button>Workspace <ChevronRight size={13}/><b>{title}</b></div><div className="top-actions"><span className="instance"><i/> STANDALONE</span><button className="icon-btn" onClick={()=>void loadCore()} title="Refresh"><RefreshCw size={16}/></button><button className="icon-btn" onClick={themeToggle} title="Theme">{theme==='dark'?<Sun size={16}/>:<Moon size={16}/>}</button><span className="avatar">{principal.login[0].toUpperCase()}</span></div></header>
+<div className="content"><div className="page-title"><div><span className="eyebrow">ECHOLOG / D19</span><h1>{title}</h1><p>{({overview:'A clear operational picture of your preservation store.',objects:'Browse object references and inspect stored metadata.',deposit:'Add original bytes to the preservation store.',integrity:'Inspect what can currently be verified.',retention:'Review objects protected by retention and legal hold.',storage:'Storage utilization and safe recovery operations.',access:'Manage operator accounts and API credentials.',activity:'Review recorded ECHOLOG administrative events.',settings:'Instance preferences and service information.'} as Record<Section,string>)[section]}</p></div><button className="btn secondary" onClick={()=>void loadCore()}><RefreshCw size={15}/> Refresh</button></div>
+{notice&&<div className="notice success"><CheckCircle2 size={16}/><span>{notice}</span><button onClick={()=>setNotice('')}><X size={15}/></button></div>}{error&&<div className="notice error"><AlertTriangle size={16}/><span>{error}</span></div>}{loading&&<div className="loading"><LoaderCircle className="spin" size={15}/> Updating from API…</div>}
+{section==='overview'&&<div className="stack"><div className="hero"><div><span className="eyebrow">PRESERVATION STATUS</span><h2>Your archive, in focus.</h2><p>Operational values come from the authenticated storage API. Missing capabilities are identified rather than simulated.</p></div><div className="hero-stamp"><Archive size={32}/><small>D19</small></div></div><div className="metrics"><Metric label="Stored objects" value={stats?String(stats.objects_count):'Unavailable'} note="Authorized storage count" icon={Files}/><Metric label="Committed storage" value={stats?bfmt(stats.committed_bytes):'Unavailable'} note={stats?'Quota '+bfmt(stats.quota_bytes):'Stats unavailable'} icon={Database}/><Metric label="Protected objects" value={stats?String(stats.held_count+stats.active_retention_count):'Unavailable'} note="Legal hold + active retention" icon={ShieldCheck}/><Metric label="S3 aliases" value={stats?String(stats.s3_aliases_count):'Unavailable'} note="Aliases, not total objects" icon={HardDrive}/></div><div className="columns"><section className="panel"><div className="panel-head"><div><span className="eyebrow">SERVICE</span><h3>Instance health</h3></div><Status kind={stats?'good':'warn'}>{stats?'API responding':'Unavailable'}</Status></div>{[['Storage API','Authenticated statistics endpoint',stats?'Connected':'Unknown'],['Identity mode','Local operator session','Standalone'],['Fixity verification','No report API exposed','Unavailable']].map((x,i)=><div className="health" key={x[0]}><span>{i===0?<Activity size={17}/>:i===1?<Shield size={17}/>:<FileCheck2 size={17}/>}</span><div><b>{x[0]}</b><small>{x[1]}</small></div><Status kind={i===0&&stats?'good':'warn'}>{x[2]}</Status></div>)}</section><section className="panel"><div className="panel-head"><div><span className="eyebrow">RECENT RECORDS</span><h3>Latest activity</h3></div><button className="text-btn" onClick={()=>setSection('activity')}>View all <ChevronRight size={14}/></button></div>{events.slice(0,5).length?events.slice(0,5).map(e=><div className="event" key={e.id}><span><Activity size={14}/></span><div><b>{e.action.replaceAll('_',' ')}</b><small>{e.actor} · {cut(e.target)}</small></div><time>{dfmt(e.timestamp)}</time></div>):<Empty title="No activity records" detail="Recorded operator events appear here when available."/>}</section></div><div className="truth"><ShieldAlert size={17}/><div><b>Integrity is not inferred.</b><p>SHA-256 identifies bytes. No fixity history endpoint is exposed, so no verification badge or backup guarantee is shown.</p></div></div></div>}
+{section==='objects'&&<div className="stack"><div className="toolbar"><div className="search"><Search size={16}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Filter visible S3 aliases…"/></div><small>{visible.length} aliases</small><button className="btn primary" onClick={()=>setSection('deposit')}><UploadCloud size={15}/> Deposit object</button></div><section className="panel table-panel"><div className="panel-head"><div><span className="eyebrow">OBJECT REFERENCES</span><h3>Visible S3 aliases</h3></div><small>GET /api/v1/s3-keys</small></div>{visible.length?<div className="table-wrap"><table><thead><tr><th>ALIAS / OBJECT KEY</th><th>CONTENT</th><th>SIZE</th><th>PROTECTION</th><th>LAST MODIFIED</th><th/></tr></thead><tbody>{visible.map(x=><tr key={x.key}><td><button className="object-link" onClick={()=>void openObject(x.digest)}><b>{x.key}</b><small>{cut(x.object_key)}</small></button></td><td>{x.content_type}</td><td>{bfmt(x.size)}</td><td>{x.legal_hold?<Status kind="bad">Legal hold</Status>:x.retention_until?<Status kind="warn">Retention</Status>:<Status kind="muted">No hold</Status>}</td><td>{dfmt(x.last_modified)}</td><td><button className="icon-btn" onClick={()=>void openObject(x.digest)}><ChevronRight size={16}/></button></td></tr>)}</tbody></table></div>:<Empty title="No visible aliases" detail="No S3 aliases are available, or none exist. This is not a complete CAS object listing."/>}</section>{selected&&<section className="panel detail"><div className="panel-head"><div><span className="eyebrow">OBJECT DETAIL</span><h3>{selected.filename}</h3></div><button className="icon-btn" onClick={()=>setSelected(null)}>×</button></div><div className="detail-grid">{[['Object key',selected.object_key],['SHA-256 digest',selected.digest],['Size',bfmt(selected.size)],['Content type',selected.content_type],['Deposited',dfmt(selected.created_at)],['Uploader',selected.uploader],['Retention until',dfmt(selected.retention_until)],['Legal hold',selected.legal_hold?'Active':'Not active']].map(x=><div key={x[0]}><label>{x[0]}</label><b>{x[1]}</b></div>)}</div><div className="actions"><button className="btn secondary" onClick={()=>copy(JSON.stringify({object_key:selected.object_key,digest:selected.digest,size:selected.size,content_type:selected.content_type},null,2))}><Copy size={15}/> Copy reference</button><button className="btn secondary" disabled={busy} onClick={()=>void downloadObject(selected.digest)}><Download size={15}/> Download</button>{admin&&<button className="btn danger" disabled={busy} onClick={()=>void deleteObject(selected.digest)}><Trash2 size={15}/> Delete object</button>}</div><p className="fine">Digest identity supports byte-level comparison. It does not establish truth, authorship, consent, or legal admissibility.</p></section>}</div>}
+{section==='deposit'&&<div className="stack"><section className="panel deposit"><div className="panel-head"><div><span className="eyebrow">INGEST / WRITE-ONCE</span><h3>Deposit original bytes</h3><p>Upload to the authenticated byte-stream endpoint. Server-side limits remain authoritative.</p></div><UploadCloud size={23}/></div><form onSubmit={uploadObject}><label className="drop"><input type="file" onChange={e=>setFile(e.target.files?.[0]??null)}/><UploadCloud size={28}/><b>{file?file.name:'Choose a file to deposit'}</b><small>{file?bfmt(file.size)+' · '+(file.type||'application/octet-stream'):'Select a file from your device.'}</small><em>Browse files</em></label><div className="deposit-foot"><p>Original bytes are preserved as received. Conflicting bytes at an existing key are rejected.</p><button className="btn primary" disabled={!file||uploading}>{uploading?<LoaderCircle className="spin" size={15}/>:<ArrowUpFromLine size={15}/>} {uploading?'Uploading…':'Deposit object'}</button></div></form></section><div className="truth"><Shield size={17}/><div><b>After successful ingest</b><p>The API returns object key, digest, size and metadata. No signed preservation receipt or fixity report is issued by this UI.</p></div></div></div>}
+{section==='integrity'&&<section className="feature"><FileSearch size={25}/><span className="eyebrow">CAPABILITY STATUS</span><h2>Fixity history is not available yet.</h2><p>The API exposes SHA-256 object identity but no fixity scan endpoint or durable verification report history.</p><div className="capabilities"><div><CheckCircle2 size={16}/> SHA-256 digest recorded during ingest <Status kind="good">Available</Status></div><div>× Scheduled full-read verification <Status kind="muted">Not implemented</Status></div><div>× Verification history and reports <Status kind="muted">Not implemented</Status></div><div>× Independent witness checkpoints <Status kind="muted">Planned</Status></div></div></section>}
+{section==='retention'&&<div className="stack"><div className="metrics three"><Metric label="Legal hold" value={stats?String(stats.held_count):'Unavailable'} note={stats?bfmt(stats.held_bytes)+' protected':'Not available'} icon={ShieldCheck}/><Metric label="Active retention" value={stats?String(stats.active_retention_count):'Unavailable'} note={stats?bfmt(stats.active_retention_bytes)+' protected':'Not available'} icon={Clock3}/><Metric label="Eligible for GC" value={stats?String(stats.eligible_gc_count):'Unavailable'} note={stats?bfmt(stats.eligible_gc_bytes)+' eligible':'Not available'} icon={Trash2}/></div><section className="panel table-panel"><div className="panel-head"><div><span className="eyebrow">VISIBLE ALIASES</span><h3>Retention and legal holds</h3></div></div>{aliases.filter(x=>x.legal_hold||x.retention_until).length?<div className="table-wrap"><table><thead><tr><th>ALIAS</th><th>OBJECT</th><th>LEGAL HOLD</th><th>RETENTION UNTIL</th></tr></thead><tbody>{aliases.filter(x=>x.legal_hold||x.retention_until).map(x=><tr key={x.key}><td>{x.key}</td><td><button className="object-link" onClick={()=>void openObject(x.digest)}>{cut(x.object_key)}</button></td><td>{x.legal_hold?<Status kind="bad">Active</Status>:<Status kind="muted">No</Status>}</td><td>{dfmt(x.retention_until)}</td></tr>)}</tbody></table></div>:<Empty title="No visible protected aliases" detail="No alias records currently expose retention or legal-hold metadata."/>}</section><div className="truth"><Shield size={17}/><div><b>Deletion protection is server-enforced.</b><p>The API checks retention and legal hold on deletion and garbage collection.</p></div></div></div>}
+{section==='storage'&&<div className="stack"><div className="metrics three"><Metric label="Committed bytes" value={stats?bfmt(stats.committed_bytes):'Unavailable'} note="Current storage usage" icon={Database}/><Metric label="Configured quota" value={stats?bfmt(stats.quota_bytes):'Unavailable'} note="Application quota, not disk capacity" icon={HardDrive}/><Metric label="GC eligible" value={stats?bfmt(stats.eligible_gc_bytes):'Unavailable'} note={(stats?.eligible_gc_count??'—')+' objects'} icon={Trash2}/></div><section className="panel"><div className="panel-head"><div><span className="eyebrow">STORAGE UTILIZATION</span><h3>Application quota</h3></div><small>Live API values</small></div>{stats?<><div className="usage-number"><b>{bfmt(stats.committed_bytes)}</b><span>of {bfmt(stats.quota_bytes)}</span></div><div className="usage-track"><i style={{width:Math.min(100,stats.quota_bytes?stats.committed_bytes/stats.quota_bytes*100:0)+'%'}}/></div><p className="fine">{stats.quota_bytes?(stats.committed_bytes/stats.quota_bytes*100).toFixed(1)+'% of configured quota used.':'Quota is zero.'}</p></>:<Empty title="Storage statistics unavailable" detail="The authenticated storage statistics endpoint did not return data."/>}</section><section className="panel gc"><div><span className="eyebrow">ADMINISTRATOR ACTION</span><h3>Garbage collection</h3><p>Run the server's retention-aware collection process. Protected objects are reported, not removed.</p>{!admin&&<small>Administrator role required.</small>}</div><button className="btn danger" disabled={!admin||busy} onClick={()=>void gc()}><Trash2 size={15}/> Run garbage collection</button></section><div className="truth"><AlertTriangle size={17}/><div><b>Backup and restore are not reported.</b><p>A persistent volume is not an off-host backup. No backup inventory, restore drill or RPO/RTO API is available.</p></div></div></div>}
+{section==='access'&&(!admin?<Empty title="Administrator access required" detail="Account and API key management is administrator-only."/>:<div className="stack"><section className="panel"><div className="panel-head"><div><span className="eyebrow">OPERATOR ACCOUNTS</span><h3>Users</h3></div><small>{users.length} accounts</small></div><div className="table-wrap"><table><thead><tr><th>LOGIN</th><th>ROLE</th><th>CREATED</th><th>STATUS</th><th/></tr></thead><tbody>{users.map(u=><tr key={u.id}><td>{u.login}</td><td>{u.role}</td><td>{dfmt(u.created_at)}</td><td>{u.disabled?<Status kind="bad">Disabled</Status>:<Status kind="good">Active</Status>}</td><td><button className="btn small secondary" onClick={()=>void toggleUser(u)}>{u.disabled?'Enable':'Disable'}</button></td></tr>)}</tbody></table></div></section><section className="panel"><div className="panel-head"><div><span className="eyebrow">SERVICE CREDENTIALS</span><h3>API keys</h3></div></div><form className="key-form" onSubmit={issueKey}><label>Key name<input value={keyName} onChange={e=>setKeyName(e.target.value)} maxLength={60} required placeholder="consumer-integration"/></label><label>Role<select value={keyRole} onChange={e=>setKeyRole(e.target.value as 'member'|'admin')}><option value="member">Member</option><option value="admin">Admin</option></select></label><button className="btn primary"><KeyRound size={15}/> Issue API key</button></form>{token&&<div className="issued"><b>Copy this token now</b><small>Returned only once. Store securely; never put it in frontend code.</small><code>{token}</code><button className="btn secondary small" onClick={()=>copy(token)}><Copy size={14}/> Copy token</button></div>}<div className="table-wrap"><table><thead><tr><th>NAME / PREFIX</th><th>ROLE</th><th>CREATED</th><th>LAST USED</th><th>STATUS</th><th/></tr></thead><tbody>{keys.map(k=><tr key={k.id}><td>{k.name}<small className="table-sub">{k.prefix}</small></td><td>{k.role}</td><td>{dfmt(k.created_at)}</td><td>{dfmt(k.last_used_at)}</td><td>{k.revoked_at?<Status kind="bad">Revoked</Status>:<Status kind="good">Active</Status>}</td><td>{!k.revoked_at&&<button className="btn danger small" onClick={()=>void revokeKey(k.prefix)}>Revoke</button>}</td></tr>)}</tbody></table></div></section></div>)}
+{section==='activity'&&<section className="panel table-panel"><div className="panel-head"><div><span className="eyebrow">AUDIT LOG</span><h3>Recorded service events</h3></div><small>Latest {events.length}</small></div>{events.length?<div className="table-wrap"><table><thead><tr><th>TIME</th><th>ACTOR</th><th>ACTION</th><th>TARGET</th><th>DETAILS</th></tr></thead><tbody>{events.map(e=><tr key={e.id}><td>{dfmt(e.timestamp)}</td><td>{e.actor}</td><td>{e.action}</td><td>{cut(e.target)}</td><td>{e.details??'—'}</td></tr>)}</tbody></table></div>:<Empty title="No recorded events" detail="Audit records appear after supported operations."/>}<p className="fine">Standalone ECHOLOG audit log, not a complete MoonWitness-wide audit trail.</p></section>}
+{section==='settings'&&<div className="stack"><section className="panel"><div className="panel-head"><div><span className="eyebrow">PREFERENCES</span><h3>Appearance</h3></div></div><div className="setting"><div><b>Color theme</b><small>Preference is saved in this browser.</small></div><button className="btn secondary" onClick={themeToggle}>{theme==='dark'?<Sun size={15}/>:<Moon size={15}/>} Switch to {theme==='dark'?'light':'dark'}</button></div></section><section className="panel"><div className="panel-head"><div><span className="eyebrow">INSTANCE</span><h3>Service information</h3></div></div><div className="detail-grid">{[['Product','ECHOLOG'],['Domain','D19 · Object Memory & Evidence Integrity'],['Identity mode','Standalone'],['Operator',principal.login+' ('+principal.role+')'],['Health endpoint','/health/ready'],['API base','/api/v1']].map(x=><div key={x[0]}><label>{x[0]}</label><b>{x[1]}</b></div>)}</div></section><section className="panel"><div className="panel-head"><div><span className="eyebrow">PRODUCT BOUNDARY</span><h3>What ECHOLOG does not claim</h3></div></div><div className="boundaries"><p>SHA-256 does not prove truth or authorship.</p><p>Standalone identity is not ARSY/D00 federation.</p><p>Configured quota is not physical disk capacity.</p><p>A persistent volume is not a verified backup.</p><p>Service audit is not the full ecosystem history.</p><p>Fixity verification is not currently exposed by the API.</p></div></section></div>}
+<footer className="footer"><span>ECHOLOG · PRESERVE THE ORIGINAL. VERIFY THE BYTES.</span><span>MOONWITNESS XV / D19</span></footer></div></main></div>
 }
