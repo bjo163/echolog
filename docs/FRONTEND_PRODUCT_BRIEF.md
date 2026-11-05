@@ -726,4 +726,4 @@ The first working console pass is committed in `main`. The checklist above is up
 **Validation is still pending:** no local pnpm execution or browser test has been run for this pass. Do not mark Phase H, visual QA, or the overall definition of done complete until CI/build and browser verification pass.
 
 
-**Checklist snapshot after pass 2:** 108 items checked and 292 still open. Checked items include implementation/source-inspection tasks; this is not an end-to-end test pass. CI run [#46](https://github.com/bjo163/echolog/actions/runs/42087970475) for the current `main` head was still queued when this note was recorded. Local typecheck/build and browser checks remain unverified.
+**Checklist snapshot after pass 2:** 108 items checked and 292 still open. Checked items include implementation/source-inspection tasks; this is not an end-to-end test pass. The GitHub Actions run for the latest recorded `main` revision was queued when this note was recorded; consult the repository Actions page for the current run. Local typecheck/build and browser checks remain unverified.
