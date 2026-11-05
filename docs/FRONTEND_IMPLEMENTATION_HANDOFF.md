@@ -1,5 +1,13 @@
 # Frontend Implementation Handoff
 
+## Pass 4 — Readiness, preference, and data legibility
+
+Implemented in `main`:
+- Added a real `/health/ready` probe to the overview and service health surface.
+- The UI distinguishes checking, ready, and unavailable; it does not infer health from storage statistics.
+- System color preference is used when the browser has no saved ECHOLOG theme preference.
+- Operational numeric values use tabular numerals for easier comparison.
+
 ## Pass 3 — Pathname routes and resilience
 
 Implemented in `main`:

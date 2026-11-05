@@ -5,7 +5,8 @@ Implementation pass 2 · updated against current source.
 | Screen | API source | Auth | UI status | Limitation |
 |---|---|---|---|---|
 | Sign in/session/logout | POST/GET/DELETE /api/v1/session | Public login/session | Implemented | HttpOnly cookie |
-| Overview | GET /api/v1/storage/stats | Required | Implemented | No physical disk or backup metrics |
+| Service readiness | GET /health/ready | Public | Implemented | API/storage readiness probe; not a full subsystem health/SLO report |
+| Overview | GET /api/v1/storage/stats | Required | Implemented | No physical disk or backup metrics; readiness shown separately |
 | Object explorer | GET /api/v1/s3-keys | Required | Implemented | Alias list is not full CAS inventory |
 | Object detail | GET /api/v1/objects/sha256/:digest/meta | Required | Implemented | Hidden objects return not found |
 | Download | GET /api/v1/objects/sha256/:digest then grant URL | Required | Implemented | Short-lived grant |
@@ -25,6 +26,8 @@ Implementation pass 2 · updated against current source.
 - Object details use `/objects/<sha256-digest>` and validate the digest shape before rendering.
 - Direct route loads restore the correct section; browser back/forward uses Next.js App Router.
 - Object metadata is fetched only after the operator session has been restored.
+- Alias search is preserved in `?q=`; safe client-side sorting supports alias, size, and last-modified time.
+- The Overview health indicator reads `/health/ready`; it does not infer health from statistics success.
 - The object explorer filters the authorized visible-alias response client-side and stores its search term as `?q=`; sorting is client-side by alias, size, or last-modified time. No server pagination is claimed because the API currently exposes no cursor contract.
 - These routes reuse the same authenticated console component; they do not introduce new API capabilities or bypass backend authorization.
 - Next.js rewrites `/api/*` and `/health/*` to `ECHOLOG_API_INTERNAL_URL` when set. Default is `http://127.0.0.1:3006` for local development. In Coolify, set it to the API service's internal DNS URL, for example `http://echolog-api:3006`, on a shared private network.
