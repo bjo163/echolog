@@ -8,6 +8,7 @@ Implemented in `main`:
 - Added accessible labels to key icon-only and filter controls, plus `aria-current` for active navigation.
 - Delayed download object-URL revocation to avoid racing the browser's download start.
 - Made the Next.js API/health rewrite target configurable through `ECHOLOG_API_INTERNAL_URL`.
+- Added App Router loading, error, and not-found fallbacks with safe recovery copy; error details are not exposed to the user.
 
 Navigation limitation: section deep links use URL hashes in the existing single-page console. They are not separate pathname routes, and object detail is not yet independently addressable.
 
