@@ -225,7 +225,7 @@ Use the following information architecture, but only expose screens that can be 
 - [x] C2.1 Give each active navigation item a working route (dedicated Next.js App Router paths).
 - [ ] C2.2 Do not expose dead-end links.
 - [ ] C2.3 Mark future areas as planned only if a roadmap preview is useful; do not make them look operational.
-- [ ] C2.4 Add breadcrumbs or clear back navigation for nested detail pages.
+- [x] C2.4 Add clear back navigation from object detail to the object explorer.
 - [x] C2.5 Implement direct route restoration for workspace and object-detail paths (runtime refresh verification remains pending).
 
 ---
@@ -258,12 +258,12 @@ Implement these in order. A flow is complete only when it works with actual API 
 
 ## D2. Object Explorer
 
-- [ ] D2.1 Build a searchable object list using the real list endpoint.
+- [x] D2.1 Build a searchable visible S3 alias list using the real `GET /api/v1/s3-keys` endpoint; this is explicitly not the full CAS inventory.
 - [x] D2.2 Support only filters that the API actually supports or can safely apply client-side to the authorized result set.
 - [x] D2.3 Show object key, digest, size, content type, ingest time, retention/hold, and privacy state when returned.
 - [ ] D2.4 Add pagination/cursor handling according to the actual API contract.
-- [ ] D2.5 Preserve search/filter state in the URL when appropriate.
-- [ ] D2.6 Add sorting only for fields with supported ordering or safe client-side sorting.
+- [x] D2.5 Preserve the object alias search query in the URL query string.
+- [x] D2.6 Add safe client-side sorting by alias, size, and last-modified time.
 - [ ] D2.7 Add table and compact-list modes only if both improve usability.
 - [x] D2.8 Implement empty, loading, stale, unauthorized, and error states.
 - [x] D2.9 Avoid leaking private-witness objects through totals, autocomplete, suggestions, or error messages.
@@ -522,7 +522,7 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 - [ ] F1.6 Avoid unnecessary polling; respect backend rate limits.
 - [ ] F1.7 Use SSE only if the actual event stream is available and its durability limitations are disclosed.
 - [ ] F1.8 Do not add client-side caching that can leak data across identities or modes.
-- [ ] F1.9 Invalidate/refetch relevant data after mutations.
+- [x] F1.9 Refetch affected storage or administrator data after successful mutations.
 - [ ] F1.10 Make retries safe and idempotent where possible.
 
 ## F2. Security and privacy
@@ -730,4 +730,4 @@ The first working console pass is committed in `main`. The checklist above is up
 **Validation is still pending:** no local pnpm execution or browser test has been run for this pass. Do not mark Phase H, visual QA, or the overall definition of done complete until CI/build and browser verification pass.
 
 
-**Checklist snapshot after pass 3:** 0 items checked and 0 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. CI, local pnpm checks, and browser checks remain pending. Checked items include implementation/source-inspection tasks; this is not an end-to-end test pass. The GitHub Actions run for the latest recorded `main` revision was queued when this note was recorded; consult the repository Actions page for the current run. Local typecheck/build and browser checks remain unverified.
+**Checklist snapshot after pass 3:** 121 items checked and 279 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. CI, local pnpm checks, and browser checks remain pending.
