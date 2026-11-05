@@ -8,6 +8,7 @@ Implemented in `main`:
 - Added a 15-second API timeout and safe network-unavailable messages.
 - Isolated partial API failures, cleared failed panels to avoid stale-as-current data, and retained successful panels.
 - Added a last-successful-refresh timestamp and a visible refresh action.
+- Added client-side alias sorting (key, size, last modified), URL-persisted alias search (`?q=`), and explicit back-to-object-list navigation from detail pages.
 - Prevented duplicate API-key and user administrator mutations.
 
 Validation remains pending: the GitHub Actions queue has not returned a result, and no local pnpm or browser test was executed.
@@ -22,7 +23,7 @@ Implemented in `main`:
 - Made the Next.js API/health rewrite target configurable through `ECHOLOG_API_INTERNAL_URL`.
 - Added App Router loading, error, and not-found fallbacks with safe recovery copy; error details are not exposed to the user.
 
-Navigation status: workspace sections and object details now have distinct Next.js pathname routes while reusing the shared authenticated console component.
+Navigation status: workspace sections and object details now have distinct Next.js pathname routes while reusing the shared authenticated console component. Alias search state is preserved in the URL; pagination remains unavailable because the backend has no cursor contract.
 
 Deployment note: local default remains `http://127.0.0.1:3006`. For Coolify, set `ECHOLOG_API_INTERNAL_URL` on the frontend service to the API container's private service URL (for example `http://echolog-api:3006`) and attach both services to the same private network. Do not point a separate frontend container at its own `127.0.0.1`.
 
