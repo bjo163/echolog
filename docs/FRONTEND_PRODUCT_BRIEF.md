@@ -343,7 +343,7 @@ Only implement if the current API supports object creation/upload.
 - [x] D6.1 Inspect current retention and legal-hold contracts.
 - [ ] D6.2 Display current retention policy and expiry where available.
 - [ ] D6.3 Display hold state and reason only to authorized roles.
-- [x] D6.4 Show which actions are blocked by a hold.
+- [ ] D6.4 Show which actions are blocked by a hold.
 - [x] D6.5 Explain consequences before any destructive action.
 - [x] D6.6 Require explicit confirmation for destructive or irreversible operations.
 - [ ] D6.7 Require typed confirmation for high-impact actions if consistent with existing UX patterns.
@@ -363,7 +363,7 @@ Only implement if the current API supports object creation/upload.
 - [x] D7.3 Show local standalone identity separately and avoid presenting it as MoonWitness-wide identity.
 - [x] D7.4 Display current principal and effective scope only when safe and authorized.
 - [x] D7.5 Show credential IDs/status/expiry only if safely returned by the API.
-- [x] D7.6 Never display secret material after creation or retrieval.
+- [ ] D7.6 Never display secret material after creation or retrieval.
 - [x] D7.7 Add credential creation/rotation/revocation only if real secure APIs exist.
 - [x] D7.8 Explain permission-denied behavior without revealing protected object existence.
 - [x] D7.9 Ensure all privileged UI actions are enforced by backend authorization, not just hidden in the browser.
@@ -397,7 +397,7 @@ Only implement if the current API supports object creation/upload.
 - [ ] D9.5 Show last successful backup time only from a verified backup record.
 - [ ] D9.6 Show restore history only from actual restore operations/drills.
 - [ ] D9.7 Show RPO/RTO only after measured restore evidence exists.
-- [x] D9.8 Distinguish same-host copy, off-host backup, and independent failure domain.
+- [ ] D9.8 Distinguish same-host copy, off-host backup, and independent failure domain.
 - [ ] D9.9 Do not present multiple configured paths as replication.
 - [x] D9.10 Do not show a “healthy” badge merely because a volume is mounted.
 - [x] D9.11 If no recovery API exists, show a clear not-yet-supported state and link to documentation.
@@ -411,7 +411,7 @@ Only implement if the current API supports object creation/upload.
 This area is future-facing until export/import and validators exist.
 
 - [x] D10.1 Inspect whether any package/export endpoint already exists.
-- [x] D10.2 If unsupported, build an informational planned state only.
+- [ ] D10.2 If unsupported, build an informational planned state only.
 - [x] D10.3 Do not simulate BagIt export or validation.
 - [ ] D10.4 If supported later, show package manifest, checksums, validation report, and package version.
 - [ ] D10.5 Show independent validation outcome separately from ECHOLOG's own generation outcome.
