@@ -542,8 +542,8 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 
 ## F3. Resilience
 
-- [ ] F3.1 Add route-level loading boundaries.
-- [ ] F3.2 Add route-level error boundaries with safe recovery actions.
+- [x] F3.1 Add route-level loading boundaries.
+- [x] F3.2 Add route-level error boundaries with safe recovery actions.
 - [ ] F3.3 Handle API timeout and service-unavailable states.
 - [ ] F3.4 Handle partial service failure without blanking unrelated screens.
 - [ ] F3.5 Handle empty first-run state.
@@ -717,7 +717,7 @@ The finished console should feel like a precision archive instrument. It should 
 
 ## Implementation progress — pass 2 (6 November 2026)
 
-The console now supports shareable hash URLs for the nine workspace sections, direct restoration from a section hash, browser back/forward synchronization, improved labels for key controls, safer delayed download URL cleanup, and a configurable Next.js API proxy origin through `ECHOLOG_API_INTERNAL_URL`. These are source-level implementation updates; runtime/browser verification remains pending. Hash navigation is not a substitute for separate pathname routes or an object-detail route.
+The console now supports shareable hash URLs for the nine workspace sections, direct restoration from a section hash, browser back/forward synchronization, improved labels for key controls, safer delayed download URL cleanup, a configurable Next.js API proxy origin through `ECHOLOG_API_INTERNAL_URL`, and App Router loading, error, and not-found recovery surfaces. These are source-level implementation updates; runtime/browser verification remains pending. Hash navigation is not a substitute for separate pathname routes or an object-detail route.
 
 ## Implementation progress — pass 1 (6 November 2026)
 
