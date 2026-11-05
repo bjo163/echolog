@@ -13,9 +13,9 @@ Product scope and technical boundaries are in BLUEPRINT.md; product identity is 
 - [ ] Add default-deny tests for unknown routes and methods.
 - [ ] Add cross-surface private-witness denial tests.
 - [ ] Verify private object existence is not exposed through list/count/search/error aliases.
-- [ ] Secure or disable experimental realtime endpoints.
-- [ ] Secure or disable experimental analytics endpoints.
-- [ ] Secure or disable OpenAI-compatible prototype endpoints.
+- [x] Secure experimental realtime stream and broadcast endpoints (admin/service only).
+- [x] Secure experimental analytics overview and scrub endpoints (admin/service only).
+- [x] Require authentication for OpenAI-compatible endpoints and bound request sizes.
 - [ ] Decide whether to retire the custom PostgreSQL wire gateway.
 - [ ] Audit scrubber traversal and symlink behavior.
 - [ ] Make scrubber report-only and non-destructive by default.
@@ -63,10 +63,10 @@ Product scope and technical boundaries are in BLUEPRINT.md; product identity is 
 
 ## P2 — Operator console
 - [ ] Map every existing API route to typed client methods.
-- [ ] Implement real overview health states.
-- [ ] Implement object explorer and detail.
+- [x] Implement real overview health states from `/health/ready` (source implemented; runtime QA pending).
+- [x] Implement visible-alias explorer and digest detail routes (source implemented; runtime QA pending).
 - [ ] Implement integrity center from actual fixity API.
-- [ ] Implement retention and legal-hold screens.
+- [x] Implement retention/legal-hold summaries from existing stats and alias APIs (source implemented; runtime QA pending).
 - [ ] Add preservation package screen only when APIs exist.
 - [ ] Add storage/recovery view based on verified evidence.
 - [ ] Complete dark/light, responsive and accessibility checks.
@@ -81,3 +81,12 @@ Product scope and technical boundaries are in BLUEPRINT.md; product identity is 
 
 ## Definition of done
 Each task has code change, focused positive and negative tests, documentation update, exact commit SHA, CI evidence, and rollback note. Never mark an operational guarantee complete based only on source presence.
+
+
+## Progress snapshot — 2026-11-06
+
+- API security pass: experimental realtime, analytics, and OpenAI-compatible surfaces now enforce authentication and privilege boundaries; request sizes are bounded.
+- Browser security headers: HSTS, nosniff, frame denial, referrer policy, permissions policy, and same-origin resource policy are emitted globally.
+- Operator console: pathname routes, object detail, readiness state, alias search/sort, responsive shell, theme support, and initial accessibility announcements are implemented.
+- Verification is still pending: GitHub Actions run #84 is queued/pending and has not produced typecheck, test, build, or Docker evidence.
+- Dependency CVE remediation is incomplete until the pnpm lockfile contains the patched versions and frozen install passes.

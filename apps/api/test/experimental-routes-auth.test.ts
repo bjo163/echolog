@@ -59,6 +59,12 @@ void test('experimental realtime, analytics and OpenAI-compatible routes enforce
 
   const tooManyInputs = await app.inject({ method: 'POST', url: '/v1/embeddings', headers: adminHeaders, payload: { input: Array.from({ length: 33 }, () => 'x') } })
   assert.equal(tooManyInputs.statusCode, 413)
+  const oversizedInput = await app.inject({ method: 'POST', url: '/v1/embeddings', headers: adminHeaders, payload: { input: 'x'.repeat(8193) } })
+  assert.equal(oversizedInput.statusCode, 413)
   const tooManyMessages = await app.inject({ method: 'POST', url: '/v1/chat/completions', headers: adminHeaders, payload: { messages: Array.from({ length: 65 }, () => ({ role: 'user', content: 'x' })) } })
   assert.equal(tooManyMessages.statusCode, 413)
+  const oversizedChat = await app.inject({ method: 'POST', url: '/v1/chat/completions', headers: adminHeaders, payload: { messages: [{ role: 'user', content: 'x'.repeat(32_769) }] } })
+  assert.equal(oversizedChat.statusCode, 413)
+  assert.equal((await app.inject({ method: 'GET', url: '/api/v1/not-a-route' })).statusCode, 404)
+  assert.equal((await app.inject({ method: 'PATCH', url: '/health/ready' })).statusCode, 404)
 })
