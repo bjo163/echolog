@@ -105,3 +105,9 @@ The strategic direction is informed by OCFL, BagIt, PREMIS, transparency-log des
 These upstream documents remain authoritative for the integrated MoonWitness architecture. This repository records the standalone extraction and its deviations; it does not silently amend XV ADRs.
 
 **ECHOLOG — Preserve the Original. Verify the Bytes. Keep the Record Inspectable.**
+
+## Deploy with Coolify
+
+A minimal production Compose file is provided at [`docker-compose.yml`](docker-compose.yml). It runs the API/storage service as one container, persists data in a named volume, and leaves public routing, TLS, and network isolation to Coolify. No host port is published.
+
+See [Coolify deployment instructions](docs/DEPLOY_COOLIFY.md) for the required environment variables and setup.
