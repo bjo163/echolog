@@ -205,7 +205,7 @@ Build or adapt reusable components only after checking the current component lib
 - [x] C1.10 Add account/identity menu without exposing credentials.
 - [ ] C1.11 Add notification surface only if backed by real events; otherwise do not fabricate notifications.
 - [ ] C1.12 Add help/about and version/build information when available.
-- [x] C1.13 Preserve deep-link navigation and browser back/forward behavior (workspace sections use hash URLs; object detail remains a separate follow-up).
+- [x] C1.13 Preserve deep-link navigation and browser back/forward behavior (implemented with Next.js App Router pathname routes).
 - [ ] C1.14 Ensure mobile navigation is accessible and does not hide critical actions.
 
 ## C2. Navigation map
@@ -222,11 +222,11 @@ Use the following information architecture, but only expose screens that can be 
 8. Activity
 9. Diagnostics / Settings
 
-- [x] C2.1 Give each active navigation item a working route (hash-based workspace section deep links).
+- [x] C2.1 Give each active navigation item a working route (dedicated Next.js App Router paths).
 - [ ] C2.2 Do not expose dead-end links.
 - [ ] C2.3 Mark future areas as planned only if a roadmap preview is useful; do not make them look operational.
 - [ ] C2.4 Add breadcrumbs or clear back navigation for nested detail pages.
-- [x] C2.5 Implement direct hash restoration for workspace and object-detail deep links (runtime refresh verification remains pending).
+- [x] C2.5 Implement direct route restoration for workspace and object-detail paths (runtime refresh verification remains pending).
 
 ---
 
@@ -267,7 +267,7 @@ Implement these in order. A flow is complete only when it works with actual API 
 - [ ] D2.7 Add table and compact-list modes only if both improve usability.
 - [x] D2.8 Implement empty, loading, stale, unauthorized, and error states.
 - [x] D2.9 Avoid leaking private-witness objects through totals, autocomplete, suggestions, or error messages.
-- [x] D2.10 Ensure object rows link to a stable detail route (digest-addressable hash URL).
+- [x] D2.10 Ensure object rows link to a stable detail route (digest-addressable pathname).
 - [x] D2.11 Add safe copy for object key and digest.
 - [x] D2.12 Add authorized download only if the backend supports it and authorization is enforced server-side.
 - [ ] D2.13 Do not add bulk delete or bulk mutation unless the backend contract explicitly supports safe authorization and confirmation.
@@ -279,7 +279,7 @@ Implement these in order. A flow is complete only when it works with actual API 
 
 ## D3. Object Detail
 
-- [x] D3.1 Create a stable detail route keyed by the canonical object key/identifier (SHA-256 digest in the URL hash).
+- [x] D3.1 Create a stable detail route keyed by the canonical object identifier (SHA-256 digest in the pathname).
 - [x] D3.2 Show the four-field consumer reference: `object_key`, `digest`, `size`, `content_type`.
 - [x] D3.3 Show ingest timestamp and storage-level metadata when available.
 - [x] D3.4 Show retention and legal-hold state when available.
@@ -717,7 +717,7 @@ The finished console should feel like a precision archive instrument. It should 
 
 ## Implementation progress — pass 2 (6 November 2026)
 
-The console now supports shareable hash URLs for the nine workspace sections, digest-addressable object-detail URLs, direct restoration from section/object hashes, browser back/forward synchronization, improved labels for key controls, safer delayed download URL cleanup, a configurable Next.js API proxy origin through `ECHOLOG_API_INTERNAL_URL`, and App Router loading, error, and not-found recovery surfaces. These are source-level implementation updates; runtime/browser verification remains pending. Hash navigation is not a substitute for separate pathname routes; object details are now addressable by digest hash, but remain inside the single-page console.
+The console now supports dedicated Next.js App Router paths for all nine workspace sections, digest-addressable object-detail paths, direct route restoration, browser back/forward synchronization, improved labels for key controls, safer delayed download URL cleanup, a configurable Next.js API proxy origin through `ECHOLOG_API_INTERNAL_URL`, and App Router loading, error, and not-found recovery surfaces. These are source-level implementation updates; runtime/browser verification remains pending. The pathname routes reuse the same authenticated console component; they do not add backend capabilities or bypass authorization.
 
 ## Implementation progress — pass 1 (6 November 2026)
 
