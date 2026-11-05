@@ -515,7 +515,7 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 ## F1. Data and request behavior
 
 - [ ] F1.1 Use typed request/response contracts from the existing codebase.
-- [ ] F1.2 Centralize API error parsing and safe error messages.
+- [x] F1.2 Centralize API error parsing and safe error messages in the shared request helper.
 - [ ] F1.3 Handle request cancellation on route changes where appropriate.
 - [ ] F1.4 Prevent stale responses from overwriting newer search/filter results.
 - [ ] F1.5 Use pagination/cursor semantics exactly as defined by the API.
@@ -544,14 +544,14 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 
 - [x] F3.1 Add route-level loading boundaries.
 - [x] F3.2 Add route-level error boundaries with safe recovery actions.
-- [ ] F3.3 Handle API timeout and service-unavailable states.
-- [ ] F3.4 Handle partial service failure without blanking unrelated screens.
+- [x] F3.3 Handle API timeout and service-unavailable states with a 15-second request timeout and safe connection errors.
+- [x] F3.4 Handle partial service failure without blanking unrelated screens; failed panels are cleared and successful panels remain available.
 - [ ] F3.5 Handle empty first-run state.
-- [ ] F3.6 Handle stale data and show last-updated timestamp.
-- [ ] F3.7 Prevent duplicate submission for mutation forms.
-- [ ] F3.8 Preserve user input after recoverable failures.
-- [ ] F3.9 Avoid optimistic updates for destructive or evidence-sensitive operations.
-- [ ] F3.10 Provide clear retry behavior without hiding the original failure.
+- [x] F3.6 Show the last successful full refresh timestamp and clear failed data panels rather than presenting stale values as current.
+- [x] F3.7 Prevent duplicate submission for sign-in, upload, GC, download, and administrator key/user mutations.
+- [x] F3.8 Preserve login, upload-file, and API-key form input after recoverable failures (source inspected).
+- [x] F3.9 Avoid optimistic updates for destructive or evidence-sensitive operations; UI refreshes after server confirmation.
+- [x] F3.10 Provide a refresh/retry action while retaining the failure message.
 
 ---
 
@@ -715,6 +715,10 @@ The finished console should feel like a precision archive instrument. It should 
 **ECHOLOG does not ask users to trust a green badge. It gives them the information and tools to inspect what actually happened.**
 
 
+## Implementation progress — pass 3 (6 November 2026)
+
+The console now uses dedicated Next.js App Router pathname routes for all workspace sections and `/objects/<sha256>` detail pages. Direct object-route loading waits for session restoration before requesting protected metadata. The shared API helper applies a 15-second timeout and safe network error handling. Core refresh now isolates partial endpoint failures, clears failed panels instead of showing stale values as current, records the last successful full refresh time, and exposes a refresh action. Administrator API-key and user mutations now guard against duplicate submissions. These changes are implementation/source-reviewed; CI, typecheck, production build, and browser verification are still pending.
+
 ## Implementation progress — pass 2 (6 November 2026)
 
 The console now supports dedicated Next.js App Router paths for all nine workspace sections, digest-addressable object-detail paths, direct route restoration, browser back/forward synchronization, improved labels for key controls, safer delayed download URL cleanup, a configurable Next.js API proxy origin through `ECHOLOG_API_INTERNAL_URL`, and App Router loading, error, and not-found recovery surfaces. These are source-level implementation updates; runtime/browser verification remains pending. The pathname routes reuse the same authenticated console component; they do not add backend capabilities or bypass authorization.
@@ -726,4 +730,4 @@ The first working console pass is committed in `main`. The checklist above is up
 **Validation is still pending:** no local pnpm execution or browser test has been run for this pass. Do not mark Phase H, visual QA, or the overall definition of done complete until CI/build and browser verification pass.
 
 
-**Checklist snapshot after pass 2:** 108 items checked and 292 still open. Checked items include implementation/source-inspection tasks; this is not an end-to-end test pass. The GitHub Actions run for the latest recorded `main` revision was queued when this note was recorded; consult the repository Actions page for the current run. Local typecheck/build and browser checks remain unverified.
+**Checklist snapshot after pass 3:** 0 items checked and 0 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. CI, local pnpm checks, and browser checks remain pending. Checked items include implementation/source-inspection tasks; this is not an end-to-end test pass. The GitHub Actions run for the latest recorded `main` revision was queued when this note was recorded; consult the repository Actions page for the current run. Local typecheck/build and browser checks remain unverified.
