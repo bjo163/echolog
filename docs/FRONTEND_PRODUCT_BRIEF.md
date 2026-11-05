@@ -71,9 +71,9 @@ The transformation is complete only when:
 - [ ] Keyboard navigation, visible focus, semantic markup, and reduced-motion behavior work.
 - [ ] Dark and light themes are complete and persist correctly.
 - [ ] No fake data or misleading product claims remain.
-- [ ] Type checking, linting, tests, and production build pass, or exact pre-existing failures are documented separately.
-- [ ] Route/API mapping, known limitations, screenshots, and handoff notes are updated.
-- [ ] The final report lists completed tasks, blocked tasks, commands run, test outcomes, and remaining backend dependencies.
+- [x] Type checking, linting, tests, and production build pass, or exact pre-existing failures are documented separately.
+- [ ] Route/API mapping, known limitations, screenshots, and handoff notes are updated. (Route/API mapping and handoff notes are current; screenshots are still missing.)
+- [x] The final report lists completed tasks, blocked tasks, commands run, test outcomes, and remaining backend dependencies.
 
 ---
 
@@ -632,7 +632,7 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 - [x] H3.7 Update route-to-API matrix.
 - [x] H3.8 Update frontend README or developer docs with setup and environment variables.
 - [ ] H3.9 Capture final screenshots.
-- [ ] H3.10 Produce a completion report with completed, blocked, deferred, and failed tasks.
+- [x] H3.10 Produce a completion report with completed, blocked, deferred, and failed tasks.
 - [ ] H3.11 Do not mark the transformation complete while any P0 security or privacy issue remains in the frontend path.
 
 ---
@@ -721,7 +721,9 @@ The finished console should feel like a precision archive instrument. It should 
 
 `apps/web/README.md` now documents the test command alongside typecheck and build, and explains why the component tests need the automatic JSX runtime. Setup, the port, and `ECHOLOG_API_INTERNAL_URL` were already documented; that closes H3.8.
 
-**Checklist snapshot after pass 9:** 171 items checked and 229 still open.
+**Checklist snapshot after pass 9:** 174 items checked and 226 still open.
+
+`docs/FRONTEND_IMPLEMENTATION_HANDOFF.md` now carries the completion report: what was completed, what is blocked on a browser or CI, and what is blocked on a backend capability that does not exist, each with the routes and files involved. That closes H3.10 and the two top-level report lines.
 
 ## Implementation progress — pass 8 (6 November 2026)
 

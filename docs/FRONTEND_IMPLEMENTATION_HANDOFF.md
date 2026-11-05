@@ -1,5 +1,38 @@
 # Frontend Implementation Handoff
 
+## Pass 9 — Remaining work and blockers
+
+Everything still open in `docs/FRONTEND_PRODUCT_BRIEF.md` falls into two groups. Nothing in either group is missing frontend code.
+
+### Blocked on a browser, a device matrix or CI
+
+These need a running console and cannot be settled by reading source. No browser automation, screenshot tooling or linter is configured in this repository.
+
+| Checklist | What it needs |
+|---|---|
+| G1.1–G1.10, B2.5, B2.9, B2.12, G2.1–G2.10, H3.9 | Real viewport widths (360–1440 px), both themes, keyboard-only traversal, screen-reader labels, measured contrast, and screenshots. Tab order and skip link exist in the shell; whether they work is a browser question. |
+| H1.2, H1.3 | A formatter and a linter. Neither is configured at the repository root, so there is nothing to run yet; adding one is a dependency decision, not a frontend fix. |
+| H1.7, H2.1–H2.18 | A live API with seeded objects and credentials: fresh install, healthy instance, API unavailable, partial responses, unauthorized principal, standalone and ARSY-federated identity, private-witness denial, digest verified and mismatched, retention and legal hold refusing a destructive action, interrupted upload, expired session mid-operation. |
+| H3.1–H3.6 | Built assets inspected and the running app exercised: route reachability, console errors, absence of secrets in client chunks, the server/client call boundary, mock data in production paths, and that no screen overstates a backend capability. |
+
+### Blocked on a backend capability that does not exist
+
+Each of these has an explicit unavailable or planned state in the console. Adding a control before the endpoint exists would produce exactly the fake affordance the brief forbids.
+
+| Checklist | Missing capability |
+|---|---|
+| D1.4, D1.5, D5.3, D5.6–D5.11, D3.6 | Per-object fixity results and durable verification history. The only real telemetry is the aggregate in-process report behind `GET /api/v1/analytics/overview`, with an on-demand re-hash at `POST /api/v1/analytics/scrub`; there is no per-object outcome, no scan job resource, and no quarantine or repair workflow. |
+| D3.7, E1.1–E1.7 | A preservation receipt schema, an issuer key, signature verification, and a privacy-safe public verification path. |
+| D6.2, D6.3 | A per-object retention policy and hold-reason endpoint; only `GET /api/v1/storage/stats` and `GET /api/v1/s3-keys` exist, so the view is per visible alias. |
+| D1.6, D1.7, D9.4–D9.9, E5.1–E5.5 | A backup subsystem, restore-drill records, and measured RPO/RTO. No configured path may be shown as replication. |
+| E2.1–E2.5 | An append-oriented event log with stated durability. The current audit log is standalone service audit, and the event bus is in-process. |
+| E3.1–E3.6 | Checkpoint format, signing authority, and an independent witness. |
+| E4.1–E4.6, D10.4–D10.7 | A versioned open export format, a standalone verifier, and import/export round trips. |
+| E6.1–E6.6 | Copy identity, verification time, and a proven failure-domain model. |
+| E7.1–E7.6, E8.1–E8.5 | Format identification with a signature database, and a dependency manifest for offline verification. |
+
+Commands run and their outcomes are recorded in the Pass 7 and Pass 8 sections above; the API suite is 98 tests and the web suite is 38.
+
 ## Pass 7 — Web test suite
 
 The web package now runs its own tests instead of relying on source inspection. Six suites, 38 tests, executed with `tsx --test` under Node 24:
