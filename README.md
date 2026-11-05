@@ -106,6 +106,10 @@ These upstream documents remain authoritative for the integrated MoonWitness arc
 
 **ECHOLOG — Preserve the Original. Verify the Bytes. Keep the Record Inspectable.**
 
+## Operator console
+
+The Next.js operator console lives in [`apps/web`](apps/web). Its current screen/API coverage and known backend gaps are tracked in [the route/API matrix](apps/web/ROUTE_API_MATRIX.md), with implementation notes in [the frontend handoff](docs/FRONTEND_IMPLEMENTATION_HANDOFF.md). The frontend is not included in the minimal API-only Coolify Compose deployment yet.
+
 ## Deploy with Coolify
 
 A minimal production Compose file is provided at [`docker-compose.yml`](docker-compose.yml). It runs the API/storage service as one container, persists data in a named volume, and leaves public routing, TLS, and network isolation to Coolify. No host port is published.
