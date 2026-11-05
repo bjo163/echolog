@@ -629,8 +629,8 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 - [ ] H3.4 Verify all API calls use the intended server/client boundary.
 - [ ] H3.5 Verify no mock data is enabled in production paths.
 - [ ] H3.6 Verify the frontend does not overstate backend capabilities.
-- [ ] H3.7 Update route-to-API matrix.
-- [ ] H3.8 Update frontend README or developer docs with setup and environment variables.
+- [x] H3.7 Update route-to-API matrix.
+- [x] H3.8 Update frontend README or developer docs with setup and environment variables.
 - [ ] H3.9 Capture final screenshots.
 - [ ] H3.10 Produce a completion report with completed, blocked, deferred, and failed tasks.
 - [ ] H3.11 Do not mark the transformation complete while any P0 security or privacy issue remains in the frontend path.
@@ -714,6 +714,14 @@ The finished console should feel like a precision archive instrument. It should 
 
 **ECHOLOG does not ask users to trust a green badge. It gives them the information and tools to inspect what actually happened.**
 
+
+## Implementation progress — pass 9 (6 November 2026)
+
+`apps/web/ROUTE_API_MATRIX.md` was rebuilt against the client functions the console actually calls in `@echolog/shared`, rather than against endpoint names. The previous revision had a literal `\n` sequence where rows had been appended in a single line, so four rows rendered as one; it also described the session flow as `POST/GET/DELETE /api/v1/session`, while the session probe is `GET /api/v1/me`, and it omitted `GET /api/v1/console/runtime`, which is where identity mode, environment, version and the capability set come from. The integrity row said only "no fixity endpoint"; the console does read a real aggregate report from `GET /api/v1/analytics/overview` and can re-hash on demand through `POST /api/v1/analytics/scrub`, so the row now states what exists and what does not — aggregate, in-process, and no durable per-object history. That closes H3.7.
+
+`apps/web/README.md` now documents the test command alongside typecheck and build, and explains why the component tests need the automatic JSX runtime. Setup, the port, and `ECHOLOG_API_INTERNAL_URL` were already documented; that closes H3.8.
+
+**Checklist snapshot after pass 9:** 171 items checked and 229 still open.
 
 ## Implementation progress — pass 8 (6 November 2026)
 

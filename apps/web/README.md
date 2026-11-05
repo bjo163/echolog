@@ -27,6 +27,9 @@ The frontend and API containers must share a private network for the Coolify exa
 ```bash
 pnpm --filter @echolog/web typecheck
 pnpm --filter @echolog/web build
+pnpm --filter @echolog/web test
 ```
+
+The test suite runs on Node 24 and needs no browser: the DOM-free modules are asserted directly and the shared primitives are rendered to static markup with `react-dom/server`. Component tests require the automatic JSX runtime, which is why `tsconfig.json` sets `"jsx": "react-jsx"`; Next.js compiles JSX with SWC regardless of that field.
 
 See [the route/API matrix](./ROUTE_API_MATRIX.md) and [the implementation handoff](../../docs/FRONTEND_IMPLEMENTATION_HANDOFF.md) for supported capabilities and backend limitations.
