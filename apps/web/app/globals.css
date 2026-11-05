@@ -15,3 +15,7 @@
 @media(max-width:540px){.toolbar select{flex:1;max-width:none}}
 
 .metric>strong,.usage-number b,.event time,td,.detail-grid b{font-variant-numeric:tabular-nums}
+
+.skip-link{position:fixed;z-index:100;top:8px;left:8px;transform:translateY(-160%);padding:11px 14px;background:var(--accent);color:var(--ink);font-weight:700;border:2px solid var(--line)}
+.skip-link:focus{transform:translateY(0)}
+#main-content:focus{outline:none}

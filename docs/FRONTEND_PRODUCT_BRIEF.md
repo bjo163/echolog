@@ -152,7 +152,7 @@ The product should feel like a high-trust archival instrument: precise, quiet, t
 - [x] B2.6 Add visible keyboard focus to all interactive controls.
 - [x] B2.7 Ensure all controls have accessible names and labels.
 - [x] B2.8 Use semantic headings, landmarks, tables, dialogs, and form labels.
-- [ ] B2.9 Support keyboard-only navigation and logical tab order.
+- [ ] B2.9 Support keyboard-only navigation and logical tab order. (Skip link and expanded mobile-navigation state implemented; full keyboard traversal still needs browser verification.)
 - [x] B2.10 Respect `prefers-reduced-motion`.
 - [x] B2.11 Ensure status is never communicated by color alone.
 - [ ] B2.12 Test screen-reader labels for digest, object key, status, and destructive actions.
@@ -735,3 +735,8 @@ The first working console pass is committed in `main`. The checklist above is up
 
 
 **Checklist snapshot after pass 4:** 127 items checked and 273 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. CI, local pnpm checks, and browser checks remain pending.
+
+
+## Implementation progress — pass 5 (6 November 2026)
+
+The authenticated console now includes a keyboard-reachable skip link, explicit workspace navigation landmark, mobile navigation expanded/control state, polite live regions for success/loading, assertive error announcements, and an accessible file-picker name. These are source-level accessibility improvements; keyboard traversal, screen-reader behavior, and contrast remain unverified until browser QA.
