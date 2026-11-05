@@ -1,44 +1,63 @@
-# ECHOLOG — 10-task hardening plan
+# ECHOLOG — Execution TODO
+## D19 · MoonWitness Object Memory & Evidence Integrity
 
-Status is updated as each task lands. Every task must leave `pnpm typecheck && pnpm build && pnpm build:client && pnpm test` green.
+**Last reviewed:** 6 November 2026  
+**Source of truth for product direction:** `docs/MASTER_NARRATIVE.md`  
+**Architecture boundaries:** `docs/ARCHITECTURE.md`  
+**Verified code snapshot:** `docs/CAPABILITY_MATRIX.md`  
+**Sequencing:** `docs/ROADMAP.md`
 
-- [x] **1. P0 — Restore a green baseline**
-  - Fix `src/config.ts`, remove duplicated middleware implementations, repair `src/server.ts`, register the request-id plugin.
-  - Done when typecheck/build/client build/test all pass and the service boots against a temp volume.
+> This TODO records the next work. It does not claim the current implementation is production-certified. Existing GitHub issues EL-001–EL-040 remain traceability references; update their scope/status only after evidence is available.
 
-- [x] **2. P0 — One authorization policy for every surface**
-  - Extract a digest-access policy and use it in REST, S3 key listing, OCI blob/manifest reads, tools and telemetry.
-  - Done when private-witness digests are hidden from members on every surface and admins keep access.
+## A. Documentation baseline — completed in this commit
 
-- [x] **3. P0 — Close anonymous writes and stored XSS**
-  - Tools and dropzone require authentication, respect MIME allow-list, filename sanitising, size and quota limits.
-  - Escape every value interpolated into `/p/:slug` HTML and send a strict CSP.
-  - Done when anonymous uploads are 401 and HTML injection renders as text.
+- [x] Master product narrative aligned to MoonWitness XV / D19.
+- [x] Vision and mission published.
+- [x] Architecture and ownership boundaries documented.
+- [x] Capability matrix separates code presence from production readiness.
+- [x] Product roadmap prioritizes security, recovery, ARSY integration, and evidence integrity.
+- [x] Frontend product brief prepared for `apps/web` redesign.
+- [x] README and agent governance aligned with the D19 boundary.
 
-- [x] **4. P1 — Make short links a first-class feature**
-  - Add `created_by`, owner-scoped list/delete, conflict-safe slugs, GC roots for live links, atomic burn-after-reading, expiry cleanup.
-  - Done when two users cannot see or delete each other's links, GC keeps referenced objects, and a burn link is consumable once.
+## B. Immediate P0/P1 engineering gates
 
-- [x] **5. P1 — A correct rate limiter**
-  - Single implementation, env-backed config, credential/IP buckets, `trustProxy`, health/metrics exemptions, bounded store, standard headers, real HTTP tests.
-  - Done when N requests pass, N+1 returns 429 with `Retry-After`, and health never returns 429.
+- [ ] **EL-002 / #10** — Prove a clean frozen-lockfile Docker build and readiness check.
+- [ ] **EL-003 / #11** — Reconcile root scripts, API scripts, Next.js scripts, Docker entrypoint, and README.
+- [ ] **EL-004 / #12** — Inventory and enforce default-deny authorization across every route/protocol.
+- [ ] **EL-005 / #13** — Secure realtime, analytics, and manual scrub routes.
+- [ ] **EL-006 / #14** — Secure OpenAI-compatible endpoints or disable them until safe.
+- [ ] **EL-007 / #15** — Audit custom PostgreSQL wire gateway and retire if protocol/security guarantees cannot be proven.
+- [ ] **EL-008 / #16** — Repair scrubber traversal and verification; no silent success on traversal errors.
+- [ ] **EL-022 / #30** — Unify object access policy across REST, S3, OCI, tools, grants, and aliases.
+- [ ] **EL-025 / #33** — Define durable consumer references and GC roots.
 
-- [x] **6. P1 — Valid observability**
-  - Real Fastify metrics plugin with Prometheus histogram buckets, protected `/metrics`, working request-id header, and sidecar-only storage stats.
-  - Done when `/metrics` parses as Prometheus text and telemetry never reads object bytes.
+## C. D19 durability and integration
 
-- [x] **7. P1 — Trustworthy audit log**
-  - One writer (`db.recordAuditLog`), best-effort writes, upload/delete/hold/private-witness/GC/key/account events, real SQLite tests.
-  - Done when audit failures cannot fail the primary operation and the endpoint is admin-only.
+- [ ] **EL-037 / #45** — Implement consistent backup and restore with off-host destination.
+- [ ] Run a full restore drill and verify every restored digest.
+- [ ] Ratify standalone identity deviation against XV ADR-0007.
+- [ ] Verify ARSY federation and fail-closed private-witness authorization.
+- [ ] Publish consumer contract tests for `{ object_key, digest, size, content_type }`.
+- [ ] Integrate one approved MoonWitness consumer end-to-end.
+- [ ] Add evidence receipt and explicit integrity verification contracts.
+- [ ] Add immutable derivative provenance without mutating original objects.
 
-- [x] **8. P1 — OCI that real clients can use**
-  - Nested repositories, Basic auth, Content-Range, bounded upload sessions, digest verification before commit, atomic tags, delete + pagination, protocol tests.
-  - Done when the OCI lifecycle tests pass with real hashes and range-validated chunks.
+## D. Frontend
 
-- [x] **9. P2 — Remove the second design system**
-  - Drop `@moonwitness/moonframe`, its CSS, `ThemeProvider`, selectors and `MetricGrid`; replace with shadcn primitives and delete the dependency.
-  - Done when `rg moonwitness client package.json` is empty and the console builds.
+- [ ] Use `docs/FRONTEND_PRODUCT_BRIEF.md` as the authoritative design/UX brief.
+- [ ] Audit real API support before wiring each screen.
+- [ ] Replace current tab prototype with D19 operator information architecture.
+- [ ] Ensure all values are API-backed and unavailable states are explicit.
+- [ ] Complete accessibility, responsive behavior, and dark/light themes.
 
-- [x] **10. P2 — Docs, env, CI and schema versioning**
-  - Update README/`.env.example`, remove the stale plan, add `PRAGMA user_version` migrations, document new tables and endpoints.
-  - Done when docs match code and an existing volume upgrades in place.
+## E. Scope governance
+
+- [ ] Review EL-009–EL-020 before implementing database, global IAM, generated API, or SQL Studio features.
+- [ ] Review EL-026–EL-030 before implementing durable CDC, WebSocket, functions, queues, or cron.
+- [ ] Review EL-031–EL-033 before promoting AI indexing or model gateway features.
+- [ ] Review EL-034–EL-036 before promoting database/storage branching or peer replication.
+- [ ] Keep platform extensions outside D19 core unless owner and MoonWitness XV architecture explicitly ratify the boundary.
+
+## Completion policy
+
+A task is complete only when code, tests, documentation, and exact-commit CI evidence agree. Do not close an issue because a class, route, or screen exists. Do not describe a prototype as production-ready. Do not silently change MoonWitness XV ADR-0007; submit a corresponding owner-reviewed change there when needed.
