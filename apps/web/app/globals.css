@@ -7,3 +7,6 @@
 .route-progress:after{content:"";position:absolute;inset:0 auto 0 0;width:40%;background:var(--accent);animation:route-progress 1.2s ease-in-out infinite alternate}
 @keyframes route-progress{from{transform:translateX(-10%)}to{transform:translateX(160%)}}
 @media(prefers-reduced-motion:reduce){.route-progress:after{animation:none;width:100%}}
+
+.last-updated{font-size:10px;color:var(--muted);white-space:nowrap}
+@media(max-width:900px){.last-updated{display:none}}
