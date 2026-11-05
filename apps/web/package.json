@@ -1,1 +1,26 @@
-{"name":"@echolog/web","version":"0.0.0","private":true,"scripts":{"dev":"next dev -p 3106","build":"next build","typecheck":"tsc --noEmit"},"dependencies":{"@echolog/contract":"workspace:*","@echolog/shared":"workspace:*","@echolog/ui":"workspace:*","lucide-react":"^1.66.0","next":"16.0.0","react":"^19.3.1","react-dom":"^19.3.1"},"devDependencies":{"@types/node":"^22.10.5","@types/react":"^19.3.0","@types/react-dom":"^19.3.0","tailwindcss":"^4.3.3","typescript":"^5.7.3"}}
+{
+  "name": "@echolog/web",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3106",
+    "build": "next build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@echolog/contract": "workspace:*",
+    "@echolog/shared": "workspace:*",
+    "@echolog/ui": "workspace:*",
+    "lucide-react": "^1.66.0",
+    "next": "16.0.10",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.7.3"
+  }
+}
