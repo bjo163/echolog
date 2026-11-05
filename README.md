@@ -108,7 +108,7 @@ These upstream documents remain authoritative for the integrated MoonWitness arc
 
 ## Operator console
 
-Frontend development setup: [apps/web/README.md](apps/web/README.md).
+Frontend development setup: [apps/web/README.md](apps/web/README.md). Security dependency remediation status: [November 2026 patch report](docs/SECURITY_DEPENDENCY_PATCH_2026-11.md).
 
 The Next.js operator console lives in [`apps/web`](apps/web). Its current screen/API coverage and known backend gaps are tracked in [the route/API matrix](apps/web/ROUTE_API_MATRIX.md), with implementation notes in [the frontend handoff](docs/FRONTEND_IMPLEMENTATION_HANDOFF.md). The frontend is not included in the minimal API-only Coolify Compose deployment yet.
 
