@@ -20,6 +20,7 @@ import {
   X,
 } from 'lucide-react'
 import { SECTIONS, type SectionId } from '../../lib/nav'
+import { formatAge, formatTimestamp } from '../../lib/format'
 import { useConsole } from './provider'
 import { GlobalSearch } from './global-search'
 
@@ -46,16 +47,24 @@ const ICONS: Record<SectionId, typeof Archive> = {
 
 export function ConsoleShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const { principal, runtime, health, loading, refresh, signOutOf } = useConsole()
+  const { principal, runtime, health, loading, refresh, signOutOf, lastSuccessMs, nowMs } = useConsole()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  // Null until the saved preference, or the operating system preference, has been read.
+  const [theme, setTheme] = useState<'dark' | 'light' | null>(null)
 
   useEffect(() => {
     const stored = window.localStorage.getItem('echolog-theme')
-    if (stored === 'light' || stored === 'dark') setTheme(stored)
+    if (stored === 'light' || stored === 'dark') {
+      setTheme(stored)
+      return
+    }
+    setTheme(window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
   }, [])
 
   useEffect(() => {
+    // Nothing is persisted until a real preference exists, so an operator who
+    // never chose a theme keeps following the operating system.
+    if (theme === null) return
     document.documentElement.classList.toggle('theme-light', theme === 'light')
     window.localStorage.setItem('echolog-theme', theme)
   }, [theme])
@@ -63,6 +72,8 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
+
+  const isDark = theme !== 'light'
 
   const active = SECTIONS.find((entry) =>
     entry.href === '/' ? pathname === '/' : pathname.startsWith(entry.href),
@@ -133,6 +144,7 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
           <GlobalSearch />
           <div className='top-actions'>
             <RuntimeChips />
+            <LastUpdated />
             <button
               type='button'
               className='icon-btn'
@@ -146,17 +158,36 @@ export function ConsoleShell({ children }: { children: ReactNode }) {
             <button
               type='button'
               className='icon-btn'
-              aria-label={theme === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
-              title={theme === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme'}
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              aria-label={isDark ? 'Switch to the light theme' : 'Switch to the dark theme'}
+              title={isDark ? 'Switch to the light theme' : 'Switch to the dark theme'}
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
             >
-              {theme === 'dark' ? <Sun size={15} aria-hidden='true' /> : <Moon size={15} aria-hidden='true' />}
+              {isDark ? <Sun size={15} aria-hidden='true' /> : <Moon size={15} aria-hidden='true' />}
             </button>
           </div>
         </header>
         <div className='content'>{children}</div>
       </div>
     </div>
+  )
+}
+
+/**
+ * When every core endpoint last answered together.
+ *
+ * A partial refresh does not update this, so an operator can tell the
+ * difference between "the numbers on screen are current" and "some of them
+ * could not be read this time".
+ */
+function LastUpdated() {
+  const { lastSuccessMs, nowMs } = useConsole()
+  if (!lastSuccessMs) return null
+  const stamp = new Date(lastSuccessMs).toISOString()
+  const age = formatAge(stamp, nowMs)
+  return (
+    <span className='last-updated' title={formatTimestamp(stamp).text}>
+      Updated {age ?? 'just now'}
+    </span>
   )
 }
 

@@ -1,5 +1,31 @@
 # Frontend Implementation Handoff
 
+## Pass 6 — Checklist reconciliation
+
+Every open item in `docs/FRONTEND_PRODUCT_BRIEF.md` was re-audited against the current source. The console already implemented more than the checklist recorded, so 35 source-verified items are now marked: the shared data table, verification panel, event timeline, privacy indicator, JSON viewer and detail drawer; global search and the command palette; the diagnostics surface; retention and hold display, identity-mode reporting, audit filtering, the storage target, the package planned-state, the pre-upload validation and progress; and the request-behaviour items the console already satisfies. The checklist now records 168 checked and 232 open.
+
+Nothing in the remaining open set is missing frontend code. The items are either browser/CI verification (contrast, keyboard traversal, screen-reader labels, real viewport widths, the visual pass, lint/format, component and integration tests, the release checklist) or capabilities the backend does not yet expose (durable verification history, quarantine/repair, receipts, packages, backup/restore, RPO/RTO, witness checkpoints, copy diversity, format watch, credential rotation, and every Phase E surface). For the latter the console shows an explicit unavailable or planned state rather than a control that cannot work.
+
+## Pass 5 — Build repair and truthfulness corrections
+
+Implemented in `main`:
+- Repaired `components/ui/primitives.tsx` and `components/ui/layout.tsx`. Both files carried JSX attributes whose values were not quoted (`className=fine`, `role=status`, `aria-hidden=true`). The web app could not parse them, so the console had never been built from this revision.
+- `lib/ui/json-viewer.tsx`'s `isExpandable` is now a type predicate, which removes the last remaining TypeScript error in the web package.
+- The console follows the operating system colour-scheme preference when no saved `echolog-theme` value exists, and only persists a preference the operator actually chose.
+- The shell shows when every core endpoint last answered together; a partial refresh does not update it.
+- Corrected the Pass 3 claim about clearing failed panels. The console keeps the previous value of a panel whose endpoint failed and reports the failure in a console-level notice. It does not clear a panel to an empty state, because "the collection is empty" and "the endpoint could not be read" are different claims.
+
+Validation executed on this revision:
+
+| Command | Result |
+|---|---|
+| `pnpm install --frozen-lockfile` | Passed (installed `lucide-react`, `cn`, PGlite patched versions) |
+| `pnpm typecheck` | Passed, 9/9 tasks |
+| `pnpm --filter @echolog/web build` | Passed, routes `/`, `/_not-found`, `/[section]`, `/objects/[digest]` |
+| `pnpm test` | Passed, 96 tests, 0 failures |
+
+Still unverified: browser interaction, responsive layouts at real viewport widths, keyboard-only traversal, screen-reader behaviour, contrast measurement, Docker build/readiness, and CI.
+
 ## Pass 4 — Readiness, preference, and data legibility
 
 Implemented in `main`:
@@ -14,7 +40,7 @@ Implemented in `main`:
 - Replaced hash-only workspace navigation with dedicated Next.js App Router paths for all nine sections.
 - Added `/objects/<sha256-digest>` object detail routes with digest validation and session-aware metadata loading.
 - Added a 15-second API timeout and safe network-unavailable messages.
-- Isolated partial API failures, cleared failed panels to avoid stale-as-current data, and retained successful panels.
+- Isolated partial API failures and retained successful panels. A panel whose endpoint failed keeps its previous value and the failure is reported in the console-level notice; no panel is silently cleared to an empty state.
 - Added a last-successful-refresh timestamp and a visible refresh action.
 - Added client-side alias sorting (key, size, last modified), URL-persisted alias search (`?q=`), and explicit back-to-object-list navigation from detail pages.
 - Prevented duplicate API-key and user administrator mutations.
@@ -62,13 +88,12 @@ Backend-dependent items not implemented:
 Manifest updates target Next.js 16.4.5, Fastify 5.12.8, and the Next.js optional sharp dependency 0.35.5 or later. See [security patch report](SECURITY_DEPENDENCY_PATCH_2026-11.md). The lockfile refresh is CI-driven and remains unverified until the lockfile commit and version assertions succeed.
 
 ## Validation status
-Changes were committed through GitHub repository APIs without a local Node/pnpm execution environment. Typecheck, tests, production build, browser interaction and responsive screenshot checks are **not verified**. The latest GitHub Actions run was queued at the last status check; no passing CI result is available yet. Check the repository Actions page for the current revision's result. Do not treat this pass as release-certified until CI/build and browser tests run against this revision.
+
+Passes 1 to 4 were committed without a local Node/pnpm execution environment, so typecheck, tests and the production build were **not verified** for that revision. Pass 5 supplies the missing evidence: `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm --filter @echolog/web build` and `pnpm test` all pass locally, and the build-parsing defect they uncovered is fixed. Browser interaction, responsive screenshots, keyboard-only traversal, screen-reader behaviour, contrast measurement, Docker readiness and CI remain **unverified**. Do not treat this pass as release-certified until browser and CI checks run against this revision.
 
 ## Next verification
-1. pnpm install --frozen-lockfile
-2. pnpm --filter @echolog/web typecheck
-3. pnpm --filter @echolog/web build
-4. Run root typecheck and API tests.
-5. Exercise login, upload, alias list, detail, download, deletion denial under hold, GC authorization, key issuance/revocation and logout.
-6. Verify desktop/tablet/mobile and dark/light.
-7. Resolve deployment topology: current minimal Coolify Compose deploys API/storage only. Separate frontend deployment needs a same-origin API proxy or carefully configured internal API origin.
+1. Exercise login, upload, alias list, detail, download, deletion denial under hold, GC authorization, key issuance/revocation and logout against a running API.
+2. Verify desktop/tablet/mobile and dark/light.
+3. Measure text and control contrast, and confirm keyboard-only traversal and screen-reader labels.
+4. Confirm CI and the Docker build/readiness check on the current revision.
+5. Resolve deployment topology: current minimal Coolify Compose deploys API/storage only. Separate frontend deployment needs a same-origin API proxy or carefully configured internal API origin.

@@ -73,6 +73,8 @@ export interface ConsoleValue {
   notice: Notice | null
   isAdmin: boolean
   nowMs: number
+  /** When every core endpoint last answered together. Null until that happens. */
+  lastSuccessMs: number | null
   refresh: () => Promise<void>
   signInWith: (login: string, password: string) => Promise<boolean>
   signOutOf: () => Promise<void>
@@ -107,6 +109,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [failure, setFailure] = useState<Failure | null>(null)
   const [notice, setNotice] = useState<Notice | null>(null)
+  const [lastSuccessMs, setLastSuccessMs] = useState<number | null>(null)
   const [nowMs, setNowMs] = useState(() => Date.now())
 
   useEffect(() => {
@@ -137,6 +140,9 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       (result): result is PromiseRejectedResult => result.status === 'rejected',
     )
     setFailure(rejected ? describeFailure(rejected.reason) : null)
+    // Only a refresh where every core endpoint answered counts as successful;
+    // a partial refresh must not be reported as if the whole picture were current.
+    if (!rejected) setLastSuccessMs(Date.now())
     setLoading(false)
   }, [])
 
@@ -188,6 +194,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       notice,
       isAdmin,
       nowMs,
+      lastSuccessMs,
       refresh,
       setNotice,
       signInWith: async (login, password) => {
@@ -298,6 +305,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       notice,
       isAdmin,
       nowMs,
+      lastSuccessMs,
       refresh,
       loadAdminData,
     ],

@@ -1,4 +1,4 @@
-﻿'use client'
+﻿﻿'use client'
 
 import { useState } from 'react'
 import { ChevronDown, ChevronRight, Copy } from 'lucide-react'
@@ -19,7 +19,7 @@ function typeOf(value: Json): string {
   return typeof value
 }
 
-function isExpandable(value: Json): boolean {
+function isExpandable(value: Json): value is Json[] | { [key: string]: Json } {
   return value !== null && typeof value === 'object'
 }
 

@@ -85,10 +85,13 @@ Each task has code change, focused positive and negative tests, documentation up
 
 ## Progress snapshot — 2026-11-06
 
+- Operator console build fixed: `components/ui/primitives.tsx` and `components/ui/layout.tsx` contained JSX attribute values that were not quoted (`className=fine`, `aria-hidden=true`), which made the web app fail to parse. Attributes are now valid JSX.
+- Operator console verification run locally for the first time: `pnpm install --frozen-lockfile`, `pnpm typecheck` (9/9 tasks), `pnpm --filter @echolog/web build`, and `pnpm test` (96 passing) all succeed on this revision.
+- Operator console: pathname routes, object detail, readiness state, alias search/sort, responsive shell, theme support, and initial accessibility announcements are implemented.
+- The console now follows the operating system colour-scheme preference when no saved theme exists, and records the last successful full refresh so stale values are distinguishable from current ones.
+- The console intentionally keeps the previous value of a panel whose endpoint failed and reports the failure in a console-level notice; it does not clear a panel to an empty state, because "the collection is empty" and "the endpoint could not be read" are different claims.
 - Disabled the experimental PostgreSQL wire gateway at server construction because its prototype sends AuthenticationOk without validating credentials and binds to all interfaces. A regression test now asserts that enabling the unsafe listener is rejected.
-
 - API security pass: experimental realtime, analytics, and OpenAI-compatible surfaces now enforce authentication and privilege boundaries; request sizes are bounded.
 - Browser security headers: HSTS, nosniff, frame denial, referrer policy, permissions policy, and same-origin resource policy are emitted globally.
-- Operator console: pathname routes, object detail, readiness state, alias search/sort, responsive shell, theme support, and initial accessibility announcements are implemented.
-- Verification is still pending: GitHub Actions run #84 is queued/pending and has not produced typecheck, test, build, or Docker evidence.
-- Dependency CVE remediation is incomplete until the pnpm lockfile contains the patched versions and frozen install passes.
+- Frontend checklist (`docs/FRONTEND_PRODUCT_BRIEF.md`) re-audited against source: 35 items already implemented but unmarked were checked, moving it to 168 checked and 232 open. The remaining open items are browser/CI verification or backend capabilities that do not yet exist; those screens show explicit unavailable/planned states rather than inert controls.
+- Still unverified: browser interaction, responsive layouts at real viewport widths, screen-reader behaviour, contrast measurement, Docker build/readiness, and CI. Dependency CVE remediation is incomplete until the pnpm lockfile contains the patched versions and a frozen install passes in CI.

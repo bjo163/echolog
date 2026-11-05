@@ -17,13 +17,13 @@ export function SectionHeader({
   actions?: ReactNode
 }) {
   return (
-    <header className= page-title>
+    <header className='page-title'>
       <div>
-        <span className=eyebrow>{eyebrow}</span>
+        <span className='eyebrow'>{eyebrow}</span>
         <h2>{title}</h2>
-        <p className=fine>{description}</p>
+        <p className='fine'>{description}</p>
       </div>
-      {actions ? <div className=actions>{actions}</div> : null}
+      {actions ? <div className='actions'>{actions}</div> : null}
     </header>
   )
 }
@@ -43,13 +43,13 @@ export interface KeyValueEntry {
 export function KeyValueGrid({ entries, columns = 2 }: { entries: KeyValueEntry[]; columns?: number }) {
   const style = { '--detail-columns': String(columns) } as CSSProperties
   return (
-    <dl className=detail-grid style={style}>
+    <dl className='detail-grid' style={style}>
       {entries.map((entry) => (
         <div key={entry.label}>
-          <dt className=fine>{entry.label}</dt>
+          <dt className='fine'>{entry.label}</dt>
           <dd>
             {entry.value}
-            {entry.hint ? <small className=fine>{entry.hint}</small> : null}
+            {entry.hint ? <small className='fine'>{entry.hint}</small> : null}
           </dd>
         </div>
       ))}
@@ -59,15 +59,15 @@ export function KeyValueGrid({ entries, columns = 2 }: { entries: KeyValueEntry[
 
 export function LoadingRow({ children = 'Reading from the API' }: { children?: ReactNode }) {
   return (
-    <div className=loading role=status aria-live=polite>
-      <span className=spin aria-hidden=true />
+    <div className='loading' role='status' aria-live='polite'>
+      <span className='spin' aria-hidden={true} />
       <span>{children}</span>
     </div>
   )
 }
 
 export function Toolbar({ children }: { children: ReactNode }) {
-  return <div className=toolbar>{children}</div>
+  return <div className='toolbar'>{children}</div>
 }
 
 export function SearchField({
@@ -84,8 +84,8 @@ export function SearchField({
   icon?: LucideIcon
 }) {
   return (
-    <div className=search>
-      {Icon ? <Icon size={16} aria-hidden=true /> : null}
+    <div className='search'>
+      {Icon ? <Icon size={16} aria-hidden={true} /> : null}
       <input aria-label={label} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
     </div>
   )

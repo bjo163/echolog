@@ -30,13 +30,13 @@ export function Panel({
   return (
     <section className={'panel ' + className.trim()}>
       {(title || eyebrow || actions) && (
-        <div className= panel-head>
+        <div className='panel-head'>
           <div>
-            {eyebrow ? <span className=eyebrow>{eyebrow}</span> : null}
+            {eyebrow ? <span className='eyebrow'>{eyebrow}</span> : null}
             {title ? <h3>{title}</h3> : null}
-            {description ? <p className=fine>{description}</p> : null}
+            {description ? <p className='fine'>{description}</p> : null}
           </div>
-          {actions ? <div className=actions>{actions}</div> : null}
+          {actions ? <div className='actions'>{actions}</div> : null}
         </div>
       )}
       {children}
@@ -68,16 +68,16 @@ export function Metric({
   tone?: Tone
 }) {
   return (
-    <div className=metric>
+    <div className='metric'>
       {Icon ? (
         <span className={'metric-icon tone-' + tone}>
-          <Icon size={16} aria-hidden=true />
+          <Icon size={16} aria-hidden={true} />
         </span>
       ) : null}
       <div>
-        <span className=fine>{label}</span>
-        <b className=usage-number>{value}</b>
-        {note ? <small className=fine>{note}</small> : null}
+        <span className='fine'>{label}</span>
+        <b className='usage-number'>{value}</b>
+        {note ? <small className='fine'>{note}</small> : null}
       </div>
     </div>
   )
@@ -85,10 +85,10 @@ export function Metric({
 
 export function EmptyState({ title, description, action }: { title: string; description: string; action?: ReactNode }) {
   return (
-    <div className=empty>
+    <div className='empty'>
       <b>{title}</b>
-      <p className=fine>{description}</p>
-      {action ? <div className=actions>{action}</div> : null}
+      <p className='fine'>{description}</p>
+      {action ? <div className='actions'>{action}</div> : null}
     </div>
   )
 }
@@ -111,7 +111,7 @@ export function Notice({
         {title ? <b>{title}</b> : null}
         <span>{children}</span>
       </div>
-      {action ? <div className=actions>{action}</div> : null}
+      {action ? <div className='actions'>{action}</div> : null}
     </div>
   )
 }

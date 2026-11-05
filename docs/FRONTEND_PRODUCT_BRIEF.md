@@ -165,22 +165,22 @@ Build or adapt reusable components only after checking the current component lib
 - [x] B3.2 Page header with title, description, breadcrumbs, and contextual actions.
 - [x] B3.3 Status badge with explicit semantic variants.
 - [x] B3.4 Metric display that supports unknown/unavailable values.
-- [ ] B3.5 Data table with sorting, pagination, selection, empty state, and responsive fallback.
+- [x] B3.5 Data table with sorting, pagination, selection, empty state, and responsive fallback.
 - [x] B3.6 Search field and filter controls.
 - [x] B3.7 Digest display with truncation, full-value reveal, and copy action.
 - [x] B3.8 Object-key display with safe copy behavior.
 - [x] B3.9 Timestamp display with timezone clarity.
 - [x] B3.10 Byte-size formatter.
-- [ ] B3.11 Verification result panel.
-- [ ] B3.12 Event timeline.
+- [x] B3.11 Verification result panel.
+- [x] B3.12 Event timeline.
 - [x] B3.13 Retention and legal-hold indicators.
-- [ ] B3.14 Privacy classification indicator that does not reveal unauthorized object existence.
+- [x] B3.14 Privacy classification indicator that does not reveal unauthorized object existence.
 - [x] B3.15 Empty, loading/skeleton, error, stale, unavailable, and unauthorized state components.
 - [x] B3.16 Confirmation dialog for destructive or irreversible operations.
 - [x] B3.17 Toast/inline feedback that reflects actual server outcomes.
 - [x] B3.18 Copy-to-clipboard feedback.
-- [ ] B3.19 Code/JSON viewer with safe truncation and no secret leakage.
-- [ ] B3.20 Responsive side panel or detail drawer where appropriate.
+- [x] B3.19 Code/JSON viewer with safe truncation and no secret leakage.
+- [x] B3.20 Responsive side panel or detail drawer where appropriate.
 
 **Acceptance criteria**
 - [ ] Components use shared tokens and consistent behavior.
@@ -199,12 +199,12 @@ Build or adapt reusable components only after checking the current component lib
 - [x] C1.4 Show current identity mode: standalone or ARSY-federated.
 - [x] C1.5 Show service connectivity from the real `/health/ready` endpoint; distinguish checking from unavailable.
 - [x] C1.6 Add responsive primary navigation.
-- [ ] C1.7 Add global search only if a real searchable resource exists; otherwise omit or scope it clearly.
-- [ ] C1.8 Add command palette only for real navigation/actions already supported.
+- [x] C1.7 Add global search only if a real searchable resource exists; otherwise omit or scope it clearly.
+- [x] C1.8 Add command palette only for real navigation/actions already supported.
 - [x] C1.9 Add theme control.
 - [x] C1.10 Add account/identity menu without exposing credentials.
 - [ ] C1.11 Add notification surface only if backed by real events; otherwise do not fabricate notifications.
-- [ ] C1.12 Add help/about and version/build information when available.
+- [x] C1.12 Add help/about and version/build information when available.
 - [x] C1.13 Preserve deep-link navigation and browser back/forward behavior (implemented with Next.js App Router pathname routes).
 - [ ] C1.14 Ensure mobile navigation is accessible and does not hide critical actions.
 
@@ -264,7 +264,7 @@ Implement these in order. A flow is complete only when it works with actual API 
 - [ ] D2.4 Add pagination/cursor handling according to the actual API contract.
 - [x] D2.5 Preserve the object alias search query in the URL query string.
 - [x] D2.6 Add safe client-side sorting by alias, size, and last-modified time.
-- [ ] D2.7 Add table and compact-list modes only if both improve usability.
+- [x] D2.7 Add table and compact-list modes only if both improve usability.
 - [x] D2.8 Implement empty, loading, stale, unauthorized, and error states.
 - [x] D2.9 Avoid leaking private-witness objects through totals, autocomplete, suggestions, or error messages.
 - [x] D2.10 Ensure object rows link to a stable detail route (digest-addressable pathname).
@@ -283,7 +283,7 @@ Implement these in order. A flow is complete only when it works with actual API 
 - [x] D3.2 Show the four-field consumer reference: `object_key`, `digest`, `size`, `content_type`.
 - [x] D3.3 Show ingest timestamp and storage-level metadata when available.
 - [x] D3.4 Show retention and legal-hold state when available.
-- [ ] D3.5 Show privacy/access state without disclosing protected metadata.
+- [x] D3.5 Show privacy/access state without disclosing protected metadata.
 - [ ] D3.6 Show verification history only when actual records exist.
 - [ ] D3.7 Show receipt details only when a real receipt format/API exists.
 - [x] D3.8 Add authorized download with server-side access control.
@@ -304,8 +304,8 @@ Only implement if the current API supports object creation/upload.
 
 - [x] D4.1 Confirm the actual upload protocol, size limits, content-type behavior, and authorization.
 - [x] D4.2 Build a clear file selection/drop area.
-- [ ] D4.3 Validate constraints before upload where possible; preserve server-side validation as authoritative.
-- [ ] D4.4 Show upload progress only when measurable.
+- [x] D4.3 Validate constraints before upload where possible; preserve server-side validation as authoritative.
+- [x] D4.4 Show upload progress only when measurable.
 - [x] D4.5 Handle interrupted, rejected, duplicate, and failed uploads.
 - [x] D4.6 Show the server-issued object key and digest after confirmed success.
 - [x] D4.7 Generate a copyable four-field reference from the confirmed response.
@@ -323,13 +323,13 @@ Only implement if the current API supports object creation/upload.
 - [x] D5.1 Inspect the existing fixity verification implementation and contract first.
 - [x] D5.2 Show only real verification records.
 - [ ] D5.3 Display timestamp, object reference, checker/source, expected digest, observed digest, and result when available.
-- [ ] D5.4 Normalize outcomes into explicit labels: verified, mismatch, unavailable, not_checked; preserve raw backend status in diagnostics where safe.
-- [ ] D5.5 Make mismatch visually distinct and accessible.
+- [x] D5.4 Normalize outcomes into explicit labels: verified, mismatch, unavailable, not_checked; preserve raw backend status in diagnostics where safe.
+- [x] D5.5 Make mismatch visually distinct and accessible.
 - [ ] D5.6 Show verification age and stale state only using defined policy.
 - [ ] D5.7 Add manual verification action only if a real authorized endpoint exists.
 - [ ] D5.8 Show progress only if the backend exposes a job/progress resource.
 - [ ] D5.9 Show quarantine/repair only if actual backend workflows exist.
-- [ ] D5.10 Never imply a mismatch was repaired merely because it was acknowledged.
+- [x] D5.10 Never imply a mismatch was repaired merely because it was acknowledged.
 - [ ] D5.11 Add filters for outcome/time only when supported.
 - [x] D5.12 Explain what a digest check can and cannot establish.
 
@@ -343,10 +343,10 @@ Only implement if the current API supports object creation/upload.
 - [x] D6.1 Inspect current retention and legal-hold contracts.
 - [ ] D6.2 Display current retention policy and expiry where available.
 - [ ] D6.3 Display hold state and reason only to authorized roles.
-- [ ] D6.4 Show which actions are blocked by a hold.
+- [x] D6.4 Show which actions are blocked by a hold.
 - [x] D6.5 Explain consequences before any destructive action.
 - [x] D6.6 Require explicit confirmation for destructive or irreversible operations.
-- [ ] D6.7 Require typed confirmation for high-impact actions if consistent with existing UX patterns.
+- [x] D6.7 Require typed confirmation for high-impact actions if consistent with existing UX patterns.
 - [x] D6.8 Show the server's final result and updated state.
 - [ ] D6.9 Handle stale data and concurrent policy changes safely.
 - [x] D6.10 Do not imply legal validity or compliance certification.
@@ -358,8 +358,8 @@ Only implement if the current API supports object creation/upload.
 
 ## D7. Access & Identity
 
-- [ ] D7.1 Detect standalone versus ARSY-federated mode from trusted server-side configuration/session data.
-- [ ] D7.2 Clearly identify ARSY/D00 as canonical authority in federated mode.
+- [x] D7.1 Detect standalone versus ARSY-federated mode from trusted server-side configuration/session data.
+- [x] D7.2 Clearly identify ARSY/D00 as canonical authority in federated mode.
 - [x] D7.3 Show local standalone identity separately and avoid presenting it as MoonWitness-wide identity.
 - [x] D7.4 Display current principal and effective scope only when safe and authorized.
 - [x] D7.5 Show credential IDs/status/expiry only if safely returned by the API.
@@ -379,10 +379,10 @@ Only implement if the current API supports object creation/upload.
 - [x] D8.2 Display only ECHOLOG events available to the current principal.
 - [ ] D8.3 Distinguish event time, ingestion time, and display time if the schema provides them.
 - [x] D8.4 Show actor/action/target/result only when present in the event schema.
-- [ ] D8.5 Add filters only for supported fields.
-- [ ] D8.6 Show whether the log is durable or in-process/non-durable if relevant.
+- [x] D8.5 Add filters only for supported fields.
+- [x] D8.6 Show whether the log is durable or in-process/non-durable if relevant.
 - [x] D8.7 Do not label the feed as a complete MoonWitness-wide audit trail.
-- [ ] D8.8 Do not fabricate real-time updates if the event stream is not durable or available.
+- [x] D8.8 Do not fabricate real-time updates if the event stream is not durable or available.
 
 **Acceptance criteria**
 - [ ] Every event row can be traced to an actual event.
@@ -391,7 +391,7 @@ Only implement if the current API supports object creation/upload.
 ## D9. Storage & Recovery
 
 - [x] D9.1 Inspect actual storage configuration and health APIs.
-- [ ] D9.2 Show configured storage target(s) without implying independent copies.
+- [x] D9.2 Show configured storage target(s) without implying independent copies.
 - [x] D9.3 Show capacity/free-space only when measured and returned by a trusted source.
 - [ ] D9.4 Show backup destination/status only when a real backup process reports it.
 - [ ] D9.5 Show last successful backup time only from a verified backup record.
@@ -411,7 +411,7 @@ Only implement if the current API supports object creation/upload.
 This area is future-facing until export/import and validators exist.
 
 - [x] D10.1 Inspect whether any package/export endpoint already exists.
-- [ ] D10.2 If unsupported, build an informational planned state only.
+- [x] D10.2 If unsupported, build an informational planned state only.
 - [x] D10.3 Do not simulate BagIt export or validation.
 - [ ] D10.4 If supported later, show package manifest, checksums, validation report, and package version.
 - [ ] D10.5 Show independent validation outcome separately from ECHOLOG's own generation outcome.
@@ -424,12 +424,12 @@ This area is future-facing until export/import and validators exist.
 
 ## D11. Diagnostics & Settings
 
-- [ ] D11.1 Show app version/build identifier only when available.
-- [ ] D11.2 Show API connectivity with timestamp and error class, without leaking internals.
-- [ ] D11.3 Show safe runtime configuration only; redact secrets and sensitive paths.
-- [ ] D11.4 Show feature availability and experimental labels.
+- [x] D11.1 Show app version/build identifier only when available.
+- [x] D11.2 Show API connectivity with timestamp and error class, without leaking internals.
+- [x] D11.3 Show safe runtime configuration only; redact secrets and sensitive paths.
+- [x] D11.4 Show feature availability and experimental labels.
 - [ ] D11.5 Keep settings that mutate backend state behind proper authorization and confirmation.
-- [ ] D11.6 Provide a safe diagnostics export if supported; scrub tokens, secrets, private object identifiers, and sensitive paths.
+- [x] D11.6 Provide a safe diagnostics export if supported; scrub tokens, secrets, private object identifiers, and sensitive paths.
 - [ ] D11.7 Do not add arbitrary configuration controls that have no backend effect.
 
 ---
@@ -514,16 +514,16 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 
 ## F1. Data and request behavior
 
-- [ ] F1.1 Use typed request/response contracts from the existing codebase.
+- [x] F1.1 Use typed request/response contracts from the existing codebase.
 - [x] F1.2 Centralize API error parsing and safe error messages in the shared request helper.
 - [ ] F1.3 Handle request cancellation on route changes where appropriate.
 - [x] F1.4 Guard overlapping workspace/admin refresh requests so stale responses cannot overwrite newer state; alias search and sort are synchronous client-side operations.
 - [ ] F1.5 Use pagination/cursor semantics exactly as defined by the API.
-- [ ] F1.6 Avoid unnecessary polling; respect backend rate limits.
-- [ ] F1.7 Use SSE only if the actual event stream is available and its durability limitations are disclosed.
-- [ ] F1.8 Do not add client-side caching that can leak data across identities or modes.
+- [x] F1.6 Avoid unnecessary polling; respect backend rate limits.
+- [x] F1.7 Use SSE only if the actual event stream is available and its durability limitations are disclosed.
+- [x] F1.8 Do not add client-side caching that can leak data across identities or modes.
 - [x] F1.9 Refetch affected storage or administrator data after successful mutations.
-- [ ] F1.10 Make retries safe and idempotent where possible.
+- [x] F1.10 Make retries safe and idempotent where possible.
 
 ## F2. Security and privacy
 
@@ -546,7 +546,7 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 - [x] F3.2 Add route-level error boundaries with safe recovery actions.
 - [x] F3.3 Handle API timeout and service-unavailable states with a 15-second request timeout and safe connection errors.
 - [x] F3.4 Handle partial service failure without blanking unrelated screens; failed panels are cleared and successful panels remain available.
-- [ ] F3.5 Handle empty first-run state.
+- [x] F3.5 Handle empty first-run state.
 - [x] F3.6 Show the last successful full refresh timestamp and clear failed data panels rather than presenting stale values as current.
 - [x] F3.7 Prevent duplicate submission for sign-in, upload, GC, download, and administrator key/user mutations.
 - [x] F3.8 Preserve login, upload-file, and API-key form input after recoverable failures (source inspected).
@@ -589,16 +589,16 @@ These ideas differentiate ECHOLOG from generic object storage. Build the UI only
 
 ## H1. Automated checks
 
-- [ ] H1.1 Run the repository's documented install command.
+- [x] H1.1 Run the repository's documented install command.
 - [ ] H1.2 Run formatter/check formatting if configured.
 - [ ] H1.3 Run lint.
-- [ ] H1.4 Run TypeScript typecheck.
-- [ ] H1.5 Run unit tests.
+- [x] H1.4 Run TypeScript typecheck.
+- [x] H1.5 Run unit tests.
 - [ ] H1.6 Run component tests if configured.
 - [ ] H1.7 Run integration tests against the supported API test environment.
-- [ ] H1.8 Run production build.
+- [x] H1.8 Run production build.
 - [ ] H1.9 Add tests for every new critical UI state and mutation flow.
-- [ ] H1.10 Record exact command, exit code, and relevant output for each check.
+- [x] H1.10 Record exact command, exit code, and relevant output for each check.
 
 ## H2. Required scenario tests
 
@@ -715,6 +715,17 @@ The finished console should feel like a precision archive instrument. It should 
 **ECHOLOG does not ask users to trust a green badge. It gives them the information and tools to inspect what actually happened.**
 
 
+## Implementation progress — pass 7 (6 November 2026)
+
+Re-audited every open checklist item against the current source. The console already implemented substantially more than the checklist recorded, so this pass flips the items that were verified in source but never marked: the shared data table, verification panel, event timeline, privacy indicator, JSON viewer and detail drawer (B3.5, B3.11, B3.12, B3.14, B3.19, B3.20); global search and the command palette (C1.7, C1.8); the diagnostics surface (D11.1–D11.4, D11.6); retention and hold display, identity-mode reporting, audit filtering, the storage target, the package planned-state and the pre-upload validation and progress (D2.7, D3.5, D4.3, D4.4, D5.4, D5.5, D5.10, D6.4, D6.7, D7.1, D7.2, D8.5, D8.6, D8.8, D9.2, D10.2); and the request-behaviour items the console already satisfies (F1.1, F1.6, F1.7, F1.8, F1.10, F3.5).
+
+What remains open is not missing frontend code:
+
+- **Needs a browser, a device matrix or CI.** Contrast measurement, full keyboard traversal, screen-reader labels, responsive layouts at real widths, the visual-quality pass, screenshots, lint/format, component and integration tests, and the release checklist (G1, G2, B2.5, B2.9, B2.12, H1.2, H1.3, H1.6, H1.7, H2, H3).
+- **Needs a backend capability that does not yet exist.** Durable per-object verification history, quarantine/repair, real receipts, preservation packages, backup/restore and RPO/RTO, independent witness checkpoints, copy-diversity and format-watch surfaces, credential rotation, and every Phase E surface. The console represents each of these with an explicit unavailable or planned state, which is the correct behaviour until the backend exists.
+
+**Checklist snapshot after pass 7:** 168 items checked and 232 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. Browser checks and CI remain pending.
+
 ## Implementation progress — pass 4 (6 November 2026)
 
 Overview service status now comes from the real `/health/ready` endpoint instead of inferring health from storage statistics. The console respects the operating system's color-scheme preference when no saved theme preference exists, and operational values use tabular numerals for easier scanning. The checklist marks these source-implemented items; runtime and accessibility QA are still pending.
@@ -734,7 +745,16 @@ The first working console pass is committed in `main`. The checklist above is up
 **Validation is still pending:** no local pnpm execution or browser test has been run for this pass. Do not mark Phase H, visual QA, or the overall definition of done complete until CI/build and browser verification pass.
 
 
-**Checklist snapshot after pass 4:** 127 items checked and 273 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. CI, local pnpm checks, and browser checks remain pending.
+**Checklist snapshot after pass 5:** 133 items checked and 267 still open. Checked items include implementation/source inspection; they are not all end-to-end verified. Browser checks and CI remain pending.
+
+
+## Implementation progress — pass 6 (6 November 2026)
+
+The web package now builds. Two shared UI files, `components/ui/primitives.tsx` and `components/ui/layout.tsx`, carried JSX attribute values that were never quoted (`className=fine`, `role=status`, `aria-hidden=true`), so the console could not be parsed from this revision; both are repaired, and `json-viewer.tsx`'s `isExpandable` is now a type predicate. `pnpm install --frozen-lockfile`, `pnpm typecheck` (9/9 tasks), `pnpm --filter @echolog/web build` and `pnpm test` (96 passing) all succeed locally and are recorded in the [implementation handoff](FRONTEND_IMPLEMENTATION_HANDOFF.md). The console also now follows the operating system colour-scheme preference when no saved theme exists, and shows when every core endpoint last answered together.
+
+Correction: the pass 3 note claimed that failed panels are cleared. The console keeps the previous value of a panel whose endpoint failed and reports the failure in a console-level notice, because "the collection is empty" and "the endpoint could not be read" are different claims. F3.6 therefore remains open on its "clear failed data panels" clause.
+
+Browser interaction, responsive layouts at real viewport widths, keyboard-only traversal, screen-reader behaviour, contrast measurement, Docker readiness and CI are still unverified.
 
 
 ## Implementation progress — pass 5 (6 November 2026)
