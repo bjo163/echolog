@@ -1,0 +1,34 @@
+# ECHOLOG production deployment for Coolify.
+# Coolify routes the configured domain to the internal container port 3006.
+# Do not add a host "ports" mapping; Coolify manages proxy/network isolation.
+
+services:
+  echolog:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    expose:
+      - "3006"
+    environment:
+      NODE_ENV: production
+      ECHOLOG_HOST: 0.0.0.0
+      ECHOLOG_PORT: 3006
+      ECHOLOG_STORAGE_ROOT: /data/echolog
+      ECHOLOG_DATABASE_PATH: /data/echolog/echolog.db
+      ECHOLOG_COOKIE_SECURE: "true"
+      ECHOLOG_ADMIN_LOGIN: ${ECHOLOG_ADMIN_LOGIN:?Set ECHOLOG_ADMIN_LOGIN in Coolify}
+      ECHOLOG_ADMIN_PASSWORD: ${ECHOLOG_ADMIN_PASSWORD:?Set ECHOLOG_ADMIN_PASSWORD in Coolify}
+      ECHOLOG_GRANT_SECRET: ${ECHOLOG_GRANT_SECRET:?Set ECHOLOG_GRANT_SECRET in Coolify}
+      ECHOLOG_S3_BUCKET: ${ECHOLOG_S3_BUCKET:?Set ECHOLOG_S3_BUCKET in Coolify}
+      ECHOLOG_S3_REGION: ${ECHOLOG_S3_REGION:-us-east-1}
+      ECHOLOG_S3_ACCESS_KEY_ID: ${ECHOLOG_S3_ACCESS_KEY_ID:?Set ECHOLOG_S3_ACCESS_KEY_ID in Coolify}
+      ECHOLOG_S3_SECRET_ACCESS_KEY: ${ECHOLOG_S3_SECRET_ACCESS_KEY:?Set ECHOLOG_S3_SECRET_ACCESS_KEY in Coolify}
+      ECHOLOG_ARSY_URL: ${ECHOLOG_ARSY_URL:-}
+      ECHOLOG_SERVICE_KEY: ${ECHOLOG_SERVICE_KEY:-}
+    volumes:
+      - echolog-data:/data
+
+volumes:
+  echolog-data:
